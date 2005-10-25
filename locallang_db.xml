@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<T3locallang>
+    <meta type="array">
+        <description></description>
+        <type>database</type>
+        <csh_table></csh_table>
+        <fileId>EXT:ter_doc/locallang_db.xml</fileId>
+        <labelContext type="array">
+            <label index="tt_content.list_type_pi1"></label>
+        </labelContext>
+    </meta>
+    <data type="array">
+        <languageKey index="default" type="array">
+            <label index="tt_content.list_type_pi1">TER Documentation</label>
+            <label index="tx_terdoc_categories">TER Documentation Categories</label>
+            <label index="tx_terdoc_categories.title">Title</label>
+            <label index="tx_terdoc_categories.description">Description</label>
+            <label index="tx_terdoc_categories.isdefault">Is default category</label>
+        </languageKey>
+    </data>
+    <orig_hash type="array">
+        <languageKey index="default" type="array">
+            <label index="tt_content.list_type_pi1" type="integer">68662182</label>
+        </languageKey>
+    </orig_hash>
+    <orig_text type="array">
+        <languageKey index="default" type="array">
+        </languageKey>
+    </orig_text>
+</T3locallang>
