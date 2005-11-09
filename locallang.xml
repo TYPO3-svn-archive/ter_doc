@@ -4,33 +4,17 @@
         <description></description>
         <type>module</type>
         <csh_table></csh_table>
-        <fileId>EXT:ter_doc/pi1/locallang.xml</fileId>
+        <fileId>EXT:ter_doc/locallang.xml</fileId>
         <labelContext type="array">
-            <label index="general_manualtitle"></label>
-            <label index="general_language"></label>
-            <label index="general_lastupdate"></label>
         </labelContext>
     </meta>
     <data type="array">
         <languageKey index="default" type="array">
-            <label index="general_manualtitle">Title</label>
-            <label index="general_language">Language</label>
-            <label index="general_lastupdate">Last update</label>
-            <label index="general_extensionkey">Extension key</label>
-            <label index="general_formats">Formats</label>
-            <label index="general_tableofcontent">Table Of Content</label>
-            <label index="general_previous">previous</label>
-            <label index="general_next">next</label>
-            <label index="ter1redirect_heading">The online documentation has a new location!</label>(
-            <label index="ter1redirect_introduction">Dear TYPO3 user.
-            
-Due to an updated version of our Extension Repository and Documentation Library, the link you used is not valid anymore.</label>
-            <label index="ter1redirect_noformatavailable">Unfortunately there is no online readable format (or no document at all) of the extension you requested. Maybe the documentation was outdated, the document has not been rendered yet or the extension does not exist anymore.</label>
-            <label index="ter1redirect_formatavailable">The document you have been looking for is now stored at a new location. Please use the following link in order to read it online:</label>
-            <label index="error_outputformatnotavailable">Error: Output format not available!</label>
-            <label index="error_outputformatnoobject">Error: Object for output format was not instantiated!</label>
-            <label index="error_outputformathasnodisplaymethod">Error: The selected output format has no built-in support for online display!</label>
-            <label index="error_documentiscurrentlynotavailableinthisformat">Sorry, this document is currently not available in the requested format. Please try again in a few minutes.</label>                        
+            <label index="api_error_nodocumentationavailable">No documentation available!</label>
+            <label index="api_error_noonlinedocumentationavailable">No online readable documentation available!</label>
+            <label index="api_error_terdochtmlnotinstalled">No online viewer installed</label>
+            <label index="api_error_tocempty">The table of contents is empty!</label>
+            <label index="api_general_documentation">Documentation</label>
         </languageKey>
         <languageKey index="dk" type="array">
         </languageKey>

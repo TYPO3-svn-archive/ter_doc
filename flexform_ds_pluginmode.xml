@@ -19,6 +19,10 @@
 								<numIndex index="0">Sorted list of documents</numIndex>
 								<numIndex index="1">documents_sorted</numIndex>
 							</numIndex>
+							<numIndex index="3" type="array">
+								<numIndex index="0">TER 1 URL redirect handler</numIndex>
+								<numIndex index="1">ter1_redirect</numIndex>
+							</numIndex>
 						</items>
 						<maxitems>1</maxitems>
 						<size>1</size>

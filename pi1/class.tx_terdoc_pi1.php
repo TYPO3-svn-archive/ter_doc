@@ -31,6 +31,8 @@
 require_once(PATH_tslib.'class.tslib_pibase.php');
 require_once(PATH_t3lib.'class.t3lib_iconworks.php');
 require_once(t3lib_extMgm::extPath ('ter_doc').'class.tx_terdoc_renderdocuments.php');
+require_once(t3lib_extMgm::extPath('ter_doc').'class.tx_terdoc_api.php');			
+
 
 class tx_terdoc_pi1 extends tslib_pibase {
 	
@@ -39,7 +41,7 @@ class tx_terdoc_pi1 extends tslib_pibase {
 	public		$extKey = 'ter_doc';											// The extension key.
 	public		$pi_checkCHash = TRUE;											// Make sure that empty CHashes are handled correctly
 	
-	protected	$confViewMode = '';													// View mode, one of the following: categories, documents
+	protected	$confViewMode = '';												// View mode
 	protected	$confCategory = '';												// If set, only this category is shown in documents mode
 	protected	$singleViewPID; 
 		
@@ -73,6 +75,10 @@ class tx_terdoc_pi1 extends tslib_pibase {
 	public function main($content,$conf)	{		
 		$this->init($conf);
 
+		if ($this->confViewMode == 'ter1_redirect') {
+			return $this->pi_wrapInBaseClass($this->renderTER1Redirect ($this->piVars['extensionkey']));
+		}
+
 		if (isset ($this->piVars['extensionkey'])) {
 			if (isset ($this->piVars['format'])) {
 				$content .= $this->renderDocumentFormat ($this->piVars['extensionkey'], $this->piVars['version'], $this->piVars['format']);
@@ -103,6 +109,10 @@ class tx_terdoc_pi1 extends tslib_pibase {
 
 		$output = '';
 		$tableRows = array();
+
+			// Set the magic "reg1" so we can clear the cache for this overview if something changes:		
+		$terDocAPIObj = tx_terdoc_api::getInstance();
+		$TSFE->page_cache_reg1 = $terDocAPIObj->createAndGetCacheUidForExtensionVersion ('_all', '');
 		
 		$renderDocumentsObj = tx_terdoc_renderdocuments::getInstance();
 		$outputFormatsArr = $renderDocumentsObj->getOutputFormats();
@@ -153,6 +163,10 @@ class tx_terdoc_pi1 extends tslib_pibase {
 
 		$output = '';
 		$tableRows = array();
+
+			// Set the magic "reg1" so we can clear the cache for this overview if something changes:		
+		$terDocAPIObj = tx_terdoc_api::getInstance();
+		$TSFE->page_cache_reg1 = $terDocAPIObj->createAndGetCacheUidForExtensionVersion ('_all', '');
 		
 		$renderDocumentsObj = tx_terdoc_renderdocuments::getInstance();
 		$outputFormatsArr = $renderDocumentsObj->getOutputFormats();
@@ -238,6 +252,10 @@ class tx_terdoc_pi1 extends tslib_pibase {
 		$title = $this->csConvHSC($manualArr['title']);
 		$author =  $this->cObj->getTypoLink ($this->csConvHSC($manualArr['authorname']), $manualArr['authoremail']);
 
+			// Set the magic "reg1" so we can clear the cache for this manual if a new one is uploaded:		
+		$terDocAPIObj = tx_terdoc_api::getInstance();
+		$TSFE->page_cache_reg1 = $terDocAPIObj->createAndGetCacheUidForExtensionVersion ($extensionKey, $manualArr['version']);
+
 		$versionInfo = '<p>This document is related to version '.$manualArr['version'].' of the extension '.$this->csConvHSC($extensionKey).'.</p>';
 		
 		$formatLinks = '';
@@ -286,12 +304,16 @@ class tx_terdoc_pi1 extends tslib_pibase {
 	 * @access	protected
 	 */
 	protected function renderDocumentFormat($extensionKey, $version, $format) {
-		global $TSFE;
-		
-				// Fetch output formats information:
+		global $TSFE, $TYPO3_DB;
+
+			// Fetch output formats information:
 		$renderDocumentsObj = tx_terdoc_renderdocuments::getInstance();
 		$outputFormatsArr = $renderDocumentsObj->getOutputFormats();
 		$manualArr = $this->db_fetchManualRecord($extensionKey, $version);
+
+			// Set the magic "reg1" so we can clear the cache for this manual if a new one is uploaded:		
+		$terDocAPIObj = tx_terdoc_api::getInstance();
+		$TSFE->page_cache_reg1 = $terDocAPIObj->createAndGetCacheUidForExtensionVersion ($extensionKey, $manualArr['version']);
 
 		if (!is_array ($outputFormatsArr[$format])) return $this->pi_getLL('error_outputformatnotavailable','',1);
 		if (!is_object ($outputFormatsArr[$format]['object'])) return $this->pi_getLL('error_outputformatnoobject','',1);
@@ -358,6 +380,73 @@ class tx_terdoc_pi1 extends tslib_pibase {
 		
 		return $output;	
 	}
+
+	/**
+	 * Compatibility function.
+	 * 
+	 * Renders a message and a link to the actual manual for those requests which
+	 * come from links used in the TER version 1. 
+	 * 
+	 * @param	string		$extensionKey: Extension key of the document to be displayed
+	 * @return	string		HTML output
+	 * @access	protected
+	 */
+	protected function renderTER1Redirect ($extensionKey) {
+		global $TYPO3_DB, $TSFE;
+
+		if (!strlen ($extensionKey)) return '';
+			
+		$output = ' 
+			<h2>'.$this->pi_getLL('ter1redirect_heading','',1).'</h2>
+			<p>'.nl2br ($this->pi_getLL('ter1redirect_introduction','',1)).'</p>
+			<br />
+		'; 
+
+		$renderDocumentsObj = tx_terdoc_renderdocuments::getInstance();
+		$outputFormatsArr = $renderDocumentsObj->getOutputFormats();
+
+		$manualRecord = $this->db_fetchManualRecord ($extensionKey, 'current');
+
+			// Check if at least one output format is available:
+		$formatsAvailable = FALSE;
+		if (is_array ($manualRecord)) {
+			foreach ($outputFormatsArr as $formatKey => $formatDetailsArr) {
+				if ($formatDetailsArr['object']->isAvailable ($extensionKey, $manualRecord['version'])) {				
+					$formatsAvailable = TRUE;
+				}
+			}
+		}
+		
+		if ($formatsAvailable) {
+
+			$terDocAPIObj = tx_terdoc_api::getInstance();
+
+			$uid = $terDocAPIObj->getViewPageIdForExtensionVersion ($extensionKey, $manualRecord['version']); 
+
+			$parameters = array(
+				'tx_terdoc_pi1[extensionkey]' => $extensionKey, 
+				'tx_terdoc_pi1[version]' => 'current',
+				'tx_terdoc_pi1[format]' => 'ter_doc_html_onlinehtml',
+			);
+
+			
+			$documentURL = $this->pi_getPageLink($uid, '', $parameters);
+			$linkToDocument = '<a href="'.$documentURL.'">'.t3lib_div::getIndpEnv('TYPO3_REQUEST_HOST').'/'.$documentURL.'</a>';
+
+			$output .= '
+				<p>'.$this->pi_getLL('ter1redirect_formatavailable','',1).'</p><br />
+				'.$linkToDocument.'
+			';
+		} else {
+			$output .= '
+				<p>'.$this->pi_getLL('ter1redirect_noformatavailable','',1).'</p><br />
+			';
+			
+		}
+		
+		return $output;
+	}
+
 
 
 
@@ -451,7 +540,7 @@ class tx_terdoc_pi1 extends tslib_pibase {
 			$res = $TYPO3_DB->exec_SELECTquery (
 				'*',
 				'tx_terdoc_manuals',
-				'extensionkey="'.$extensionKey.'"'
+				'extensionkey="'.$TYPO3_DB->quoteStr($extensionKey,'tx_terdoc_manuals').'"'
 			);
 
 			if ($res) {
@@ -467,7 +556,7 @@ class tx_terdoc_pi1 extends tslib_pibase {
 			$res = $TYPO3_DB->exec_SELECTquery (
 				'*',
 				'tx_terdoc_manuals',
-				'extensionkey="'.$extensionKey.'" AND version="'.$version.'"'
+				'extensionkey="'.$TYPO3_DB->quoteStr($extensionKey,'tx_terdoc_manuals').'" AND version="'.$TYPO3_DB->quoteStr($version,'tx_terdoc_manuals').'"'
 			);
 			
 			if ($res) {

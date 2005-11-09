@@ -1,0 +1,503 @@
+<?xml version="1.0"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN" "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+
+<book lang="&language">
+	<bookinfo>
+		<title>TYPO3 DocBook template</title>
+		
+		<releaseinfo>2.4.1</releaseinfo><!-- This should be the extension version number -->
+		<author>
+			<firstname>John</firstname><surname>Documentor</surname>
+			<email>john@typo3.org</email>
+		</author>
+		<othercredit role="Developer">
+			<firstname>Robert</firstname><surname>Lemke</surname>
+			<email>robert@typo3.org</email>
+		</othercredit>
+		<copyright>
+			<year>2004</year><year>2005</year>
+			<holder>John Documentor</holder>
+		</copyright>
+		<legalnotice>
+			<para>This document is published under the Open Content License available from <ulink url="http://www.opencontent.org/opl.shtml">http://www.opencontent.org/opl.shtml</ulink></para>
+			<para>The content of this document is related to TYPO3 - a GNU/GPL CMS/Framework available from <ulink url="http://typo3.com">www.typo3.com</ulink></para>
+		</legalnotice>
+	</bookinfo>
+	<chapter>
+		<title>EXT: My Extension</title>
+		<para>Extension Key: my_extension_key</para>
+		<para>
+			Copyright 2000-2002, Author Name, &lt;your@email.com&gt;
+		</para>
+		<para />
+		<para />
+		<para />
+		<para />
+		<section>
+			<title>Introduction</title>
+			<section>
+				<title>What does it do?</title>
+				<para>
+					- Overview; What does it do? What problem is solved?
+					Who is interested in this? Brief technical insight.
+					Basically everything people need to know if they
+					should go on with this extension.
+				</para>
+			</section>
+			<section>
+				<title>Screenshots</title>
+				<para>
+					- Screenshots are very much welcome for a visual
+					impression.
+				</para>
+				<para>
+					- This section will have a link in the EM, so
+					therefore it's very important that it conveys this
+					message.
+				</para>
+				<para>
+					- Target group: Mostly Developers and
+					administrators, but should be a non-technical and
+					visual presentation.
+				</para>
+				<para>
+					- This section is required and in some cases it
+					basically tells it all.
+				</para>
+			</section>
+		</section>
+		<section>
+			<title>Users manual</title>
+			<para>
+				- Documentation of how to use the extension, how it
+				works, how to apply it if it's a website plugin. A user
+				manual.
+			</para>
+			<para>
+				- Language should be non-technical, explaining, using
+				small examples.
+			</para>
+			<para>
+				- Examples: For the "News" plugin this would be a manual
+				showing how to create the news-items, explaining the
+				options etc.
+			</para>
+			<para>
+				- Target group: Users, Administrators or Developers in
+				that priority. Depends on the extension.
+			</para>
+			<section>
+				<title>FAQ</title>
+				<para>- Possible subsections: FAQ</para>
+			</section>
+		</section>
+		<section>
+			<title>Adminstration</title>
+			<para>
+				- Describes how to manage the extension from a superuser
+				point of view. That relates to Page/User TSconfig,
+				permissions, configuration etc. which administrator
+				level users have access to.
+			</para>
+			<para>
+				- language should be non/semi-technical, explaining,
+				using small examples.
+			</para>
+			<para>- Target group: Administrators</para>
+			<section>
+				<title>FAQ</title>
+				<para>- Possible subsections: FAQ</para>
+			</section>
+		</section>
+		<section>
+			<title>Configuration</title>
+			<para>
+				- Technical information; Installation, Reference of
+				TypoScript, configuration options on system level, how
+				to extend it, the technical details, how to debug it.
+			</para>
+			<para>
+				- language should be technical, assuming developer
+				knowledge of TYPO3. Small examples/visuals are always
+				encouraged.
+			</para>
+			<para>- Target group: Developers</para>
+			<section>
+				<title>FAQ</title>
+				<para>- Possible subsections: FAQ</para>
+				<para>Subheadlines</para>
+				<para>
+					You can produce subheadlines in a section using
+					&#x201C;Heading 4&#x201D; or &#x201C;Heading
+					5&#x201D; (normally used for
+					&#x201C;Examples&#x201D;)
+				</para>
+			</section>
+			<section>
+				<title>Reference</title>
+				<para>
+					- Possible subsections: Reference (TypoScript)
+				</para>
+				<informaltable frame="all">
+					<tgroup cols="4">
+						<thead>
+							<row>
+								<entry>
+									<para>Property:</para>
+								</entry>
+								<entry>
+									<para>Data type:</para>
+								</entry>
+								<entry>
+									<para>Description:</para>
+								</entry>
+								<entry>
+									<para>Default:</para>
+								</entry>
+							</row>
+						</thead>
+						<tbody>
+							<row>
+								<entry>
+									<para>allWrap /+stdWrap</para>
+								</entry>
+								<entry>
+									<para>wrap</para>
+								</entry>
+								<entry>
+									<para>Wraps the whole item</para>
+								</entry>
+								<entry>
+									<para />
+								</entry>
+							</row>
+							<row>
+								<entry>
+									<para>wrapItemAndSub</para>
+								</entry>
+								<entry>
+									<para>wrap</para>
+								</entry>
+								<entry>
+									<para>
+										Wraps the whole item and any
+										submenu concatenated to it.
+									</para>
+								</entry>
+								<entry>
+									<para />
+								</entry>
+							</row>
+							<row>
+								<entry>
+									<para>subst_elementUid</para>
+								</entry>
+								<entry>
+									<para>boolean</para>
+								</entry>
+								<entry>
+									<para>
+										If set, all appearances of the
+										string '{elementUid}' in the
+										total element html-code (after
+										wrapped in .allWrap} is
+										substituted with the uid number
+										of the menu item.
+									</para>
+									<para>
+										This is useful if you want to
+										insert an identification code in
+										the HTML in order to manipulate
+										properties with JavaScript.
+									</para>
+								</entry>
+								<entry>
+									<para />
+								</entry>
+							</row>
+							<row>
+								<entry>
+									<para>RO_chBgColor</para>
+								</entry>
+								<entry>
+									<para>string</para>
+								</entry>
+								<entry>
+									<para>
+										If property RO is set (see
+										below) then you can set this
+										property to a certain set of
+										parameters which will allow you
+										to change the background color
+										of eg. the tablecell when the
+										mouse rolls over you text-link.
+									</para>
+									<para />
+									<para>Syntax:</para>
+									<para>
+										[over-color] | [out-color] |
+										[id-prefix]
+									</para>
+									<para />
+									<para>Example:</para>
+									<para>page = PAGE</para>
+									<para>page.typeNum = 0</para>
+									<para>page.10 = HMENU</para>
+									<para>
+										page.10.wrap = &lt;table
+										border=1&gt;|&lt;/table&gt;
+									</para>
+									<para>page.10.1 = TMENU</para>
+									<para>page.10.1.NO {</para>
+									<para>
+										allWrap = &lt;tr&gt;&lt;td
+										valign=top
+										id="1tmenu{elementUid}"
+										style="background:#eeeeee;"&gt;|&lt;/td&gt;&lt;/tr&gt;
+									</para>
+									<para>subst_elementUid = 1</para>
+									<para>
+										RO_chBgColor = #cccccc | #eeeeee
+										| 1tmenu
+									</para>
+									<para>RO = 1</para>
+									<para>}</para>
+									<para />
+									<para>
+										This example will start out with
+										the table cells in #eeeeee and
+										change them to #cccccc (and
+										back) when rolled over. The
+										&#x201C;1tmenu&#x201D; string is
+										a unique id for the menu items.
+										You may not need it (unless the
+										same menu items are more than
+										once on a page), but the
+										important thing is that the id
+										of the table cell has the exact
+										same label before the
+										{elementUid} (red marks). The
+										other important thing is that
+										you DO set a default background
+										color for the cell with the
+										style-attribute (blue marking).
+										If you do not, Mozilla browsers
+										will behave a little strange by
+										not capturing the mouseout event
+										the first time it's triggered.
+									</para>
+								</entry>
+								<entry>
+									<para />
+								</entry>
+							</row>
+						</tbody>
+					</tgroup>
+				</informaltable>
+				<para>[tsref:(cObject).TEST]</para>
+				<para>Example</para>
+				<para>
+					Here you would show an example of the stuff from the
+					reference or so:
+				</para>
+				<para>page = PAGE</para>
+				<para>page.typeNum = 0</para>
+				<para>page.10 = TEXT</para>
+				<para>page.10.value = HELLO WORLD</para>
+			</section>
+		</section>
+		<section>
+			<title>Tutorial</title>
+			<para>
+				- A full point-a-to-b-to-c walk-through of an
+				application of the extension. Include screendumps.
+			</para>
+			<para>- Language: As tutorials are...</para>
+			<para>- Target group: Whatever fits.</para>
+		</section>
+		<section>
+			<title>Known problems</title>
+			<para>
+				- Use this section for important warnings about bugs,
+				problems or performance issues. This is where you should
+				explain shortcomings of the extension, so people are
+				properly warned. Be honest.
+			</para>
+			<para>- Target group: Mostly Developers</para>
+		</section>
+		<section>
+			<title>To-Do list</title>
+			<para>
+				- A wish list of things you want to add or fix. This
+				includes smaller problems/bugs which are best described
+				as a todo item.
+			</para>
+			<para>
+				- Visions for what the extension could become with more
+				development.
+			</para>
+		</section>
+		<section>
+			<title>Changelog</title>
+			<para>
+				- Use this sections to document all the changes through
+				the versions.
+			</para>
+		</section>
+	</chapter>
+	<chapter>
+		<title>Important guidelines</title>
+		<section>
+			<title>
+				Issues with Open Office documentation for TYPO3
+			</title>
+			<para>
+				There are a few important points to make about writing
+				documentation for TYPO3 in Open Office. Please makes
+				sure to follow these.
+			</para>
+			<section>
+				<title>Inserting images</title>
+				<para>When you insert images you can either:</para>
+				<itemizedlist>
+					<title />
+					<listitem>
+						<para>
+							Make a copy/paste from eg. Photoshop, but
+							it's REALLY IMPORTANT that you insert the
+							image into Open Office by the menu
+							&#x201C;Edit &gt; Paste Special&#x201D; and
+							then select &#x201C;Bitmap&#x201D;. If you
+							don't do it in this way the image cannot be
+							shown (since it will not be stored as a PNG
+							internally in the SXW file)
+						</para>
+						<para />
+						<para>
+							<inlinegraphic
+								fileref="{TX_TERDOC_PICTURESDIR}10000000000000F80000008FE480B71A.png"
+								width="" />
+						</para>
+					</listitem>
+					<listitem>
+						<para>
+							Alternatively you can use the traditional
+							way &#x201C;Insert &gt; Graphics &gt; From
+							file&#x201D; and insert an image from your
+							harddrive. In particular use this if the
+							image is photographic (JPG) since the
+							internal storage as PNG is not good for
+							photographs.
+						</para>
+					</listitem>
+				</itemizedlist>
+				<para>
+					Generally please use copy/paste only for screendumps
+					with large areas of similar color (good
+					png-compression) and JPG-files for photographic
+					images. Go for small images, 72 dpi, medium quality.
+				</para>
+			</section>
+			<section>
+				<title>Paragraph styles</title>
+				<itemizedlist>
+					<title />
+					<listitem>
+						<para>
+							Use the paragraph style &#x201C;Text
+							body&#x201D; for bodytext
+						</para>
+					</listitem>
+					<listitem>
+						<para>
+							Use &#x201C;Heading 1&#x201D; to
+							&#x201C;Heading 5&#x201D; for headers.
+							&#x201C;Heading 1-3&#x201D; will be
+							recognized as &#x201C;sections&#x201D; on
+							typo3.org. &#x201C;Heading 4-5&#x201D; is
+							subheaders, where &#x201C;Heading 5&#x201D;
+							is preferrably for &#x201C;Examples&#x201D;.
+						</para>
+					</listitem>
+					<listitem>
+						<para>
+							For code listings, use the style
+							&#x201C;Preformatted Text&#x201D; (found
+							under &#x201C;HTML Styles&#x201D;). For
+							codelistings in tables there is a custom
+							style called &#x201C;Table
+							Contents/PRE&#x201D;.
+						</para>
+					</listitem>
+				</itemizedlist>
+				<para>
+					This screenshot shows the only paragraph styles
+					allowed in the documents. The ones grayed out are
+					paragraph styles that are used by default for such
+					as the index table or the footer. The others are the
+					ones you are allowed to use.
+				</para>
+				<para>
+					<inlinegraphic
+						fileref="{TX_TERDOC_PICTURESDIR}10000000000000FB000001928EE38C3A.png"
+						width="" />
+				</para>
+			</section>
+			<section>
+				<title>Linking</title>
+				<para>
+					You can make hyperlinks in the documents as absolute
+					URLs. Use menu &#x201C;Insert &gt; Hyperlink&#x201D;
+				</para>
+			</section>
+			<section>
+				<title>Meta data and updates</title>
+				<para>
+					There are three fields of meta-data you have to fill
+					in. First of all go to &#x201C;File &gt;
+					Properties...&#x201D;.
+				</para>
+				<orderedlist>
+					<listitem>
+						<para>
+							In the &#x201C;Description&#x201D; screen
+							you enter the title of the document.
+							Extension manuals are prefixed &#x201C;EXT:
+							[extension title]&#x201D;
+						</para>
+					</listitem>
+					<listitem>
+						<para>
+							In the &#x201C;User defined&#x201D; screen
+							you enter your email address as the first
+							field (named &#x201C;Email&#x201D; /
+							&#x201D;Info 1&#x201D;)
+						</para>
+					</listitem>
+					<listitem>
+						<para>
+							In the &#x201C;User defined&#x201D; screen
+							you enter your full name as the second field
+							(named &#x201C;Author&#x201D; / &#x201D;Info
+							2&#x201D;)
+						</para>
+					</listitem>
+				</orderedlist>
+				<para>
+					Finally you should also insert the correct extension
+					key in the text below the document title, but this
+					is not a meta-data field, just regular text.
+				</para>
+				<para />
+				<para />
+				<para>
+					For
+					<ulink url="http://www.typo3.org/">
+						more information you can go to typo3.org
+					</ulink>
+					.
+				</para>
+			</section>
+		</section>
+	</chapter>
+</book>

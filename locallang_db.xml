@@ -16,6 +16,7 @@
             <label index="tx_terdoc_categories.title">Title</label>
             <label index="tx_terdoc_categories.description">Description</label>
             <label index="tx_terdoc_categories.isdefault">Is default category</label>
+            <label index="tx_terdoc_categories.viewpid">View page ID</label>
         </languageKey>
     </data>
     <orig_hash type="array">

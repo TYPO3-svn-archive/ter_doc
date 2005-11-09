@@ -113,7 +113,7 @@ class tx_terdoc_renderdocuments {
 
 		touch (PATH_site.'typo3temp/tx_terdoc/tx_terdoc_render.lock');
 
-		$this->log(chr(10).strftime('%d.%m.%y %R').' TER_DOC renderer starting ...'.chr(10));
+		$this->log(chr(10).strftime('%d.%m.%y %R').' ter_doc renderer starting ...');
 		if ($this->extensionIndex_wasModified()) {
 			$this->log ('* extensions.xml was modified since last run');
 			
@@ -125,7 +125,7 @@ class tx_terdoc_renderdocuments {
 					$extensionKey = $extensionAndVersionArr['extensionkey'];
 					$version = $extensionAndVersionArr['version'];
 					$documentDir = $this->getDocumentDirOfExtensionVersion ($extensionKey, $version);
-if ($extensionKey != 'tt_news') continue;
+
 					$this->log ('* Rendering documents for extension "'.$extensionKey.'" ('.$version.')');
 
 					if ($this->documentCache_transformManualToDocBook($extensionKey, $version)) {
@@ -137,12 +137,14 @@ if ($extensionKey != 'tt_news') continue;
 						$TYPO3_DB->exec_DELETEquery ('tx_terdoc_manuals', 'extensionkey="'.$extensionKey.'" AND version="'.$version.'"');						
 						$this->log ('	* No manual found or problem while extracting manual');	
 					}
+					$this->pageCache_clearForExtension ($extensionKey);
 					t3lib_div::writeFile ($documentDir.'t3xfilemd5.txt', $extensionAndVersionArr['t3xfilemd5']);
-				}
+				}				
+				$this->pageCache_clearForAll();
 			}
-		} else $this->log('* extensions.xml was not modified since last run, so nothing to do.');		
+			$this->log(chr(10).strftime('%d.%m.%y %R').' done.'.chr(10));
+		} else $this->log('Extensions.xml was not modified since last run, so nothing to do - done.');		
 
-		$this->log(chr(10).strftime('%d.%m.%y %R').' TER_DOC DONE!'.chr(10).chr(10));
 		@unlink (PATH_site.'typo3temp/tx_terdoc/tx_terdoc_render.lock');
 	}
 
@@ -212,7 +214,7 @@ if ($extensionKey != 'tt_news') continue;
 			// Transfer data from extensions.xml.gz to database:		
 		$extensions = simplexml_load_string (@implode ('', @gzfile($this->repositoryDir.'extensions.xml.gz')));
 		if (!is_object($extensions)) {
-			$this->log ('Error while parsing extensions.xml.gz - aborting!');
+			$this->log ('Error while parsing '. $this->repositoryDir.'extensions.xml.gz - aborting!');
 			return FALSE;
 		}
 		
@@ -388,10 +390,83 @@ if ($extensionKey != 'tt_news') continue;
 		);	
 		
 		@unlink ($documentDir.'manual.sxw');
-#		$this->removeDirRecursively ($documentDir.'sxw');
+		$this->removeDirRecursively ($documentDir.'sxw');
 
 		return TRUE;
 	}
+
+	/**
+	 * Clears the page cache of those pages (in the FE) which display information about the specified
+	 * extension 
+	 * 
+	 * @param		string	$extensionKey: Extension key of the extension
+	 * @return		void
+	 * @access		protected
+	 */
+	protected function pageCache_clearForExtension($extensionKey) {
+		global $TYPO3_DB;
+		
+		$cacheUids = $this->pageCache_getCacheUidsForExtension($extensionKey);
+
+		if ($cacheUids === FALSE) return;
+		
+		$TYPO3_DB->exec_DELETEquery (
+			'cache_pages',
+			'reg1 IN ('.$cacheUids.')'
+		);
+	}
+
+	/**
+	 * Clears the page cache of those pages (in the FE) which display information from all
+	 * extensions (or most of them). Typically overview and listing pages.
+	 * 
+	 * @return		void
+	 * @access		protected
+	 */
+	protected function pageCache_clearForAll() {
+		global $TYPO3_DB;
+		
+		$cacheUids = $this->pageCache_getCacheUidsForExtension('_alldocuments');
+
+		if ($cacheUids === FALSE) return;
+		
+		$TYPO3_DB->exec_DELETEquery (
+			'cache_pages',
+			'reg1 IN ('.$cacheUids.')'
+		);
+	}
+
+	/**
+	 * Returns a comma separated list of UIDs of TER DOC cache entries for the specified 
+	 * extension key. This UID can is used as a "reg1" parameter for the page
+	 * caching so the cache can be cleared for manuals of a certain extension.
+	 * 
+	 * @param	string		$extensionKey: The extension key
+	 * @return	mixed		The terdoc internal cache uids or FALSE if an error ocurred or no uid was found 
+	 * @access	protected
+	 */	
+	protected function pageCache_getCacheUidsForExtension($extensionKey) {
+		global $TYPO3_DB;
+
+		$res = $TYPO3_DB->exec_SELECTquery (
+			'uid',
+			'tx_terdoc_manualspagecache',
+			'extensionkey="'.$TYPO3_DB->quoteStr($extensionKey,'tx_terdoc_manualspagecache').'"'
+		);
+
+		if (!$res) return FALSE; 
+
+		if ($TYPO3_DB->sql_num_rows ($res) > 0) {
+			$uidsArr = array();
+			while ($row = $TYPO3_DB->sql_fetch_assoc ($res)) {
+				$uidsArr[] = $row['uid'];
+			}	
+			return implode (',', $uidsArr);			
+		}
+
+		return FALSE;		
+	}
+
 
 
 	/**

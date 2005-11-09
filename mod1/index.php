@@ -186,6 +186,10 @@ class tx_terdoc_module1 extends t3lib_SCbase {
 								<td><input type="checkbox" name="categoryisdefault" value="1" /> yes</td>
 							</tr>
 							<tr>
+								<td style="vertical-align:top; font-weight:bold;">View page ID</td>
+								<td><input type="input" size="6" name="viewpid" /></td>
+							</tr>
+							<tr>
 								<td>&nbsp;</td>
 								<td style="text-align: right;"><input type="submit" value="Create" /></td>
 							</tr>
@@ -198,7 +202,8 @@ class tx_terdoc_module1 extends t3lib_SCbase {
 				$categoryArr = array (
 					'title' => t3lib_div::GPvar('categorytitle'),
 					'description' => t3lib_div::GPvar('categorydescription'),
-					'isdefault' => t3lib_div::GPvar('categoryisdefault')
+					'isdefault' => t3lib_div::GPvar('categoryisdefault'),
+					'viewpid' => intval(t3lib_div::GPvar('categoryisdefault'))
 				);
 				$TYPO3_DB->exec_INSERTquery ('tx_terdoc_categories', $categoryArr);
 			
@@ -249,7 +254,7 @@ class tx_terdoc_module1 extends t3lib_SCbase {
 				);
 				$TYPO3_DB->exec_INSERTquery ('tx_terdoc_manualscategories', $assignmentArr);
 			
-				$output .= '<em>Assigned manual to the cateogory.</em><br /><br /><a href="index.php">Refresh view</a>';
+				$output .= '<em>Assigned manual to the category.</em><br /><br /><a href="index.php">Refresh view</a>';
 			return $output;
 			case 'removeassignment':
 				$TYPO3_DB->exec_DELETEquery ('tx_terdoc_manualscategories', 'uid='.intval(t3lib_div::GPvar('categoriesId')));
@@ -266,6 +271,7 @@ class tx_terdoc_module1 extends t3lib_SCbase {
 					<td style="vertical-align:top;">Title</td>
 					<td style="vertical-align:top;">Description</td>
 					<td style="vertical-align:top;">Is default?</td>
+					<td style="vertical-align:top;">View page ID</td>
 					<td>&nbsp;</td>
 				</tr>
 			';
@@ -275,6 +281,7 @@ class tx_terdoc_module1 extends t3lib_SCbase {
 						<td style="vertical-align:top;">'.htmlspecialchars($categoryArr['title']).' <em>(UID: '.$categoryArr['uid'].')</em></td>
 						<td style="vertical-align:top;">'.htmlspecialchars($categoryArr['description']).'</td>
 						<td style="vertical-align:top;">'.($categoryArr['isdefault'] ? 'yes' : 'no').'</td>
+						<td style="vertical-align:top;">'.$categoryArr['viewpid'].'</td>
 						<td style="vertical-align:top; width:1%" nowrap="nowrap">
 							<a href="'.t3lib_div::linkThisScript(array('categoriesCmd'=>'edit', 'categoriesId'=> $categoryArr['uid'])).'"><img '.t3lib_iconWorks::skinImg($BACK_PATH, '/t3lib/gfx/edit2.gif').' border="0" /></a>
 							<a href="'.t3lib_div::linkThisScript(array('categoriesCmd'=>'delete', 'categoriesId'=> $categoryArr['uid'])).'"><img '.t3lib_iconWorks::skinImg($BACK_PATH, '/t3lib/gfx/delete_record.gif').' border="0" /></a>
