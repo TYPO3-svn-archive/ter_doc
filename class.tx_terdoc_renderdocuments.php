@@ -3,7 +3,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2005 Robert Lemke (robert@typo3.org)
+*  (c) 2005-2006 Robert Lemke (robert@typo3.org)
 *  All rights reserved
 *
 *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -31,6 +31,11 @@
  *
  * @author	Robert Lemke <robert@typo3.org>
  */
+/**
+ * [CLASS/FUNCTION INDEX of SCRIPT]
+ *
+ *
+ */
 
 class tx_terdoc_renderdocuments {
 
@@ -38,9 +43,10 @@ class tx_terdoc_renderdocuments {
 	protected $verbose = FALSE;										// If TRUE, some debugging output will be sent to STDOUT. Configured in the Extension Manager
 	protected $fullPath = FALSE;									// If set to a path and file name, logging will be redirected to that file
 	protected $unzipCommand = '';									// Commandline for unzipping files
-	protected $debug = TRUE;										// Makes it easer to debug this class. Set to FALSE in productional use!
+	protected $debug = FALSE;										// Makes it easer to debug this class. Set to FALSE in productional use!
 	
 	protected $outputFormats = array();								// Objects and method names of the render classes. Add new class by calling registerRenderClass()
+	protected $languageGuesserServiceObj = array();					// Holds an instance of the service "textLang" 
 
 	private static $instance = FALSE;								// Holds an instance of this class
 
@@ -98,8 +104,21 @@ class tx_terdoc_renderdocuments {
 				$this->log ('... lock file was older than 45 minutes, so start rendering anyway'.chr(10));
 			}
 		}		
+		
+			// Initialize language guessing service:
+		$this->languageGuesserServiceObj = t3lib_div::makeInstanceService('textLang');
 	}
-	
+
+
+
+
+
+	/******************************************************
+	 *
+	 * Main API functions (public)
+	 *
+	 ******************************************************/
+
 	/**
 	 * Main function - starts the document cache rendering process
 	 * 
@@ -148,10 +167,6 @@ class tx_terdoc_renderdocuments {
 		@unlink (PATH_site.'typo3temp/tx_terdoc/tx_terdoc_render.lock');
 	}
 
-
-
-
-
 	/**
 	 * Registers a new output format.
 	 * 
@@ -179,11 +194,16 @@ class tx_terdoc_renderdocuments {
 	public function getOutputFormats () {
 		return $this->outputFormats;	
 	}
-	
 
 
 
 
+
+	/******************************************************
+	 *
+	 * Extension index functions (protected)
+	 *
+	 ******************************************************/
 
 	/**
 	 * Checks if the extension index file (extensions.xml.gz) was modified
@@ -194,8 +214,8 @@ class tx_terdoc_renderdocuments {
 	 */
 	protected function extensionIndex_wasModified () {
 		$oldMD5Hash = @file_get_contents (PATH_site.'typo3temp/tx_terdoc/tx_terdoc_extensionsmd5.txt');
-		$currentMD5Hash = @md5_file ($this->repositoryDir.'extensions.xml.gz');
-		return ($oldMD5Hash != $currentMD5Hash); 	
+		$currentMD5Hash = md5_file ($this->repositoryDir.'extensions.xml.gz');
+		return ($oldMD5Hash != $currentMD5Hash);
 	}
 
 	/**
@@ -211,8 +231,9 @@ class tx_terdoc_renderdocuments {
 		$this->log ('* Deleting cached manual information from database');
 		$TYPO3_DB->exec_DELETEquery ('tx_terdoc_manuals', '1');		
 
-			// Transfer data from extensions.xml.gz to database:		
-		$extensions = simplexml_load_string (@implode ('', @gzfile($this->repositoryDir.'extensions.xml.gz')));
+			// Transfer data from extensions.xml.gz to database:
+		$unzippedExtensionsXML = implode ('', @gzfile($this->repositoryDir.'extensions.xml.gz'));
+		$extensions = simplexml_load_string ($unzippedExtensionsXML);
 		if (!is_object($extensions)) {
 			$this->log ('Error while parsing '. $this->repositoryDir.'extensions.xml.gz - aborting!');
 			return FALSE;
@@ -220,17 +241,24 @@ class tx_terdoc_renderdocuments {
 		
 		foreach ($extensions as $extension) {
 			foreach ($extension as $version) {
-				$extensionsRow = array (
-					  'extensionkey' => $extension['extensionKey'],
-					  'version' => $version['version'],
-					  'title' => $version->title,
-					  'language' => '',
-					  'modificationdate' => $version->lastuploaddate,
-					  'authorname' => $version->authorname,
-					  'authoremail' => $version->authoremail,
-					  't3xfilemd5' => $version->t3xfilemd5
-				);
-				$TYPO3_DB->exec_INSERTquery ('tx_terdoc_manuals', $extensionsRow);
+				if (strlen($version['version'])) {
+					$documentDir = $this->getDocumentDirOfExtensionVersion ($extension['extensionkey'], $version['version']);				
+					$abstract = @file_get_contents($documentDir.'abstract.txt');
+					$language = @file_get_contents($documentDir.'language.txt');
+					
+					$extensionsRow = array (
+						'extensionkey' => $extension['extensionkey'],
+						'version' => $version['version'],
+						'title' => $version->title,
+						'language' => $language,
+						'abstract' => $abstract,
+						'modificationdate' => $version->lastuploaddate,
+						'authorname' => $version->authorname,
+						'authoremail' => $version->authoremail,
+						't3xfilemd5' => $version->t3xfilemd5
+					);
+					$TYPO3_DB->exec_INSERTquery ('tx_terdoc_manuals', $extensionsRow);
+				}
 			}	
 		}
 
@@ -244,6 +272,12 @@ class tx_terdoc_renderdocuments {
 
 
 
+
+	/******************************************************
+	 *
+	 * Cache related functions (protected)
+	 *
+	 ******************************************************/
 
 	/**
 	 * Deletes rendered documents and directories of those extensions which don't
@@ -308,7 +342,10 @@ class tx_terdoc_renderdocuments {
 		
 		$documentDir = $this->getDocumentDirOfExtensionVersion ($extensionKey, $version);
 
-		if (!$this->t3x_extractFileFromT3X ($extensionKey, $version, 'doc/manual.sxw', $documentDir.'manual.sxw')) return FALSE;
+		if (!$this->t3x_extractFileFromT3X ($extensionKey, $version, 'doc/manual.sxw', $documentDir.'manual.sxw')) {
+			$this->log ('	* documentCache_transformManualToDocBook: problem while extracting manual.sxw from t3x file');	
+			return FALSE;
+		}
 
 			// Prepare output directory:
 		if (@is_dir ($documentDir.'sxw')) $this->removeDirRecursively ($documentDir.'sxw');
@@ -320,8 +357,9 @@ class tx_terdoc_renderdocuments {
 		$unzipCommand = $this->unzipCommand;
 		$unzipCommand = str_replace ('###ARCHIVENAME###', $documentDir.'manual.sxw', $unzipCommand);
 		$unzipCommand = str_replace ('###DIRECTORY###', $documentDir.'sxw/', $unzipCommand);
-		exec($unzipCommand);
-		
+		$unzipResultArr = array();
+		exec($unzipCommand, $unzipResultArr);
+				
 		if (@is_dir ($documentDir.'sxw/Pictures')) {
 			rename ($documentDir.'sxw/Pictures', $documentDir.'docbook/pictures');
 		}  
@@ -331,7 +369,10 @@ class tx_terdoc_renderdocuments {
 		$xsl = new DomDocument();
 		$xsl->load(t3lib_extMgm::extPath ('ter_doc').'res/oomanual2docbook.xsl');
 
-		if (!@file_exists ($documentDir.'sxw/content.xml')) return FALSE;
+		if (!@file_exists ($documentDir.'sxw/content.xml')) {
+			$this->log ('	* documentCache_transformManualToDocBook: '.$documentDir.'sxw/content.xml does not exist.');	
+			return FALSE;
+		}
 		
 		$manualDom = new DomDocument();
 		$manualDom->load($documentDir.'sxw/content.xml');
@@ -349,18 +390,36 @@ class tx_terdoc_renderdocuments {
 		$sectionCount = 1;			
 		$subSectionCount = 1;			
 		$simpleDocBook = simplexml_import_dom ($docBookDom);
-		if ($simpleDocBook === FALSE) return FALSE;
+		if ($simpleDocBook === FALSE) {
+			$this->log ('	* documentCache_transformManualToDocBook: SimpleXML error while transforming XML to DocBook');	
+			return FALSE;
+		}
 		
 		$abstract = '';
+		$textExcerpt = '';
+
 		foreach ($simpleDocBook->chapter as $chapter) {
 			$tocArr[$chapterCount]['title'] = (string)$chapter->title;
 			foreach ($chapter->section as $section) {
 				$tocArr[$chapterCount]['sections'][$sectionCount]['title'] = (string)$section->title;
 
 						// Try to extract an abstract out of the first paragraph of a section usually called "What does it do?":
-				if ($chapterCount == 1 && $sectionCount == 1) {
-					$abstract = (string)$section->section[0]->para;	
+				if ($chapterCount <= 1) {
+					foreach ($section->section as $subSection) {
+						if (strlen($abstract) == 0) {
+							$abstract = (string)$subSection->para;
+						}
+					}						
 				}				
+				if (strlen($textExcerpt) < 2000) {
+					$textExcerpt .= (string)$section->para;
+					foreach ($section->section as $subSection) {
+						if (strlen($textExcerpt) < 2000) {
+							$textExcerpt .= (string)$subSection->para;	
+							$textExcerpt .= (string)$subSection->itemizedlist->listitem->para;	
+						}
+					}						
+				}
 
 				foreach ($section->section as $subSection) {
 					$tocArr[$chapterCount]['sections'][$sectionCount]['subsections'][$subSectionCount]['title'] = (string)$subSection->title;
@@ -375,10 +434,20 @@ class tx_terdoc_renderdocuments {
 		t3lib_div::writeFile ($documentDir.'toc.dat', serialize ($tocArr));
 
 			// Identify the language of the document:
-		$metaXML = simplexml_load_file ($documentDir.'sxw/meta.xml');
-		$DCLanguageArr = $metaXML->xpath ('//dc:language');
-		$documentLanguage = is_array ($DCLanguageArr) ? strtolower(substr ($DCLanguageArr[0], 0, 2)) : '';
-		
+		if (strlen ($textExcerpt)) {
+			if (is_object($this->languageGuesserServiceObj)) {
+				$this->languageGuesserServiceObj->process($textExcerpt, '', array('encoding' => 'utf-8'));
+			    $documentLanguage = strtolower($this->languageGuesserServiceObj->getOutput());
+			} else {
+				$this->log ('   * Warning: Could not guess language because textLang service was not available');
+				$metaXML = simplexml_load_file ($documentDir.'sxw/meta.xml');
+				$DCLanguageArr = $metaXML->xpath ('//dc:language');
+				$documentLanguage = is_array ($DCLanguageArr) ? strtolower(substr ($DCLanguageArr[0], 0, 2)) : '';	
+			}
+		} else {
+			$this->log ('   * Warning: Could not guess language because the text excerpt was empty!');		
+		}		
+
 			// Store abstract and language information:		
 		$TYPO3_DB->exec_UPDATEquery (
 			'tx_terdoc_manuals', 
@@ -388,8 +457,10 @@ class tx_terdoc_renderdocuments {
 				'language' => $documentLanguage,
 			) 
 		);	
+		t3lib_div::writeFile ($documentDir.'abstract.txt', $abstract);
+			t3lib_div::writeFile ($documentDir.'text-excerpt.txt', $textExcerpt);
+		t3lib_div::writeFile ($documentDir.'language.txt', $documentLanguage);
 		
-		@unlink ($documentDir.'manual.sxw');
 		$this->removeDirRecursively ($documentDir.'sxw');
 
 		return TRUE;
@@ -426,7 +497,7 @@ class tx_terdoc_renderdocuments {
 	protected function pageCache_clearForAll() {
 		global $TYPO3_DB;
 		
-		$cacheUids = $this->pageCache_getCacheUidsForExtension('_alldocuments');
+		$cacheUids = $this->pageCache_getCacheUidsForExtension('_all');
 
 		if ($cacheUids === FALSE) return;
 		
@@ -438,7 +509,7 @@ class tx_terdoc_renderdocuments {
 
 	/**
 	 * Returns a comma separated list of UIDs of TER DOC cache entries for the specified 
-	 * extension key. This UID can is used as a "reg1" parameter for the page
+	 * extension key. This UID can be used as a "reg1" parameter for the page
 	 * caching so the cache can be cleared for manuals of a certain extension.
 	 * 
 	 * @param	string		$extensionKey: The extension key
@@ -468,6 +539,14 @@ class tx_terdoc_renderdocuments {
 	}
 
 
+
+
+
+	/******************************************************
+	 *
+	 * File related functions (protected)
+	 *
+	 ******************************************************/
 
 	/**
 	 * Unpacks the T3X file of the given extension version and extracts the file specified
@@ -532,11 +611,13 @@ class tx_terdoc_renderdocuments {
  		list ($majorVersion, $minorVersion, $devVersion) = t3lib_div::intExplode ('.', $version);
 		$fullPath = $baseDir.$firstLetter.'/'.$secondLetter.'/'.strtolower($extensionKey).'-'.$majorVersion.'.'.$minorVersion.'.'.$devVersion;
 		
-		@mkdir ($baseDir.$firstLetter);
-		@mkdir ($baseDir.$firstLetter.'/'.$secondLetter);
-		@mkdir ($fullPath);
-				
-		return $fullPath.'/';		
+		if (strlen($firstLetter.$secondLetter)) {
+			@mkdir ($baseDir.$firstLetter);
+			@mkdir ($baseDir.$firstLetter.'/'.$secondLetter);
+			@mkdir ($fullPath);
+					
+			return $fullPath.'/';
+		}		
 	}
 
 	/**
@@ -588,6 +669,16 @@ class tx_terdoc_renderdocuments {
 			// Remove this dir:
 		rmdir($removePath);
 	}
+
+
+
+
+
+	/******************************************************
+	 *
+	 * Other helper functions (protected)
+	 *
+	 ******************************************************/
 
 	/**
 	 * Writes a message to STDOUT if in verbose mode

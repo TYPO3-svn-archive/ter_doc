@@ -1,5 +1,6 @@
-(add new changes on top of this file)
+05.03.2006 Robert Lemke <robert@typo3.org>
+	~ Output format classes must now extend either tx_terdoc_documentformat_display or tx_terdoc_documentformat_download
 
-05-09-25 Robert Lemke  <robert@typo3.org>
+25.09.2005 Robert Lemke  <robert@typo3.org>
 
 	* Initial release

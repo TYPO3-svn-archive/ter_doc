@@ -14,7 +14,7 @@
             <label index="api_error_noonlinedocumentationavailable">No online readable documentation available!</label>
             <label index="api_error_terdochtmlnotinstalled">No online viewer installed</label>
             <label index="api_error_tocempty">The table of contents is empty!</label>
-            <label index="api_general_documentation">Documentation</label>
+            <label index="api_general_documentation">Manual</label>
         </languageKey>
         <languageKey index="dk" type="array">
         </languageKey>

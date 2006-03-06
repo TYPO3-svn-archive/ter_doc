@@ -2,7 +2,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2005 Robert Lemke (robert@typo3.org)
+*  (c) 2005-2006 Robert Lemke (robert@typo3.org)
 *  All rights reserved
 *
 *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -35,6 +35,8 @@ require ($BACK_PATH."init.php");
 require ($BACK_PATH."template.php");
 $LANG->includeLLFile("EXT:ter_doc/mod1/locallang.php");
 
+require_once (t3lib_extMgm::extPath('ter_doc', 'class.tx_terdoc_api.php'));
+
 require_once (PATH_t3lib.'class.t3lib_scbase.php');
 $BE_USER->modAccess($MCONF,1);	// This checks permissions and exits if the users has no permission for entry.
 
@@ -50,7 +52,7 @@ class tx_terdoc_module1 extends t3lib_SCbase {
 		global $LANG;
 		$this->MOD_MENU = Array (
 			'function' => Array (
-				'information' => $LANG->getLL('function_information'),
+				'rendering' => $LANG->getLL('function_rendering'),
 				'categories' => $LANG->getLL('function_categories'),
 			)
 		);
@@ -65,6 +67,8 @@ class tx_terdoc_module1 extends t3lib_SCbase {
 	 */
 	public function main()	{
 		global $BE_USER,$LANG,$BACK_PATH,$TCA_DESCR,$TCA,$CLIENT,$TYPO3_CONF_VARS;
+
+		$this->terDocAPIObj = tx_terdoc_api::getInstance();
 
 		if ($BE_USER->user['admin']) {
 
@@ -116,8 +120,8 @@ class tx_terdoc_module1 extends t3lib_SCbase {
 	protected function moduleContent()	{
 
 		switch((string)$this->MOD_SETTINGS['function'])	{
-			case 'information':
-				$this->content .= $this->renderScreen_information();
+			case 'rendering':
+				$this->content .= $this->renderScreen_rendering();
 			break;
 			case 'categories':
 				$this->content .= $this->renderScreen_categories();
@@ -126,10 +130,51 @@ class tx_terdoc_module1 extends t3lib_SCbase {
 
 	}
 
-	protected function renderScreen_information() {
+	/**
+	 * Renders the documentation rendering management screen
+	 * 
+	 * @return	string		HTML output
+	 * @access	protected
+	 */	
+	protected function renderScreen_rendering() {
+		global $BACK_PATH;
 		
-	}
+		$deleteManualCacheMessage = '';
+				
+		switch ((string)t3lib_div::GPvar('renderingCmd')) {
+			case 'clearcacheall' :
+				$clearPath = PATH_site.'typo3temp/tx_terdoc/documentscache/';
+				$this->removeDirRecursively ($clearPath);
+				$deleteManualCacheMessage = 'Cache for all manuals has been successfully cleared.';				
+				@unlink (PATH_site.'typo3temp/tx_terdoc/tx_terdoc_extensionsmd5.txt');
+			break;			
+			case 'clearcachesingle' :
+				$clearPath = $this->terDocAPIObj->getDocumentDirOfExtensionVersion (t3lib_div::GPvar('extensionkey'),t3lib_div::GPvar('extensionversion'));
+				$this->removeDirRecursively (substr($clearPath,0,-1));				
+				$deleteManualCacheMessage = 'Cache for manual '.htmlspecialchars(t3lib_div::GPvar('extensionkey')).' has been successfully cleared. '.$clearPath;				
+				@unlink (PATH_site.'typo3temp/tx_terdoc/tx_terdoc_extensionsmd5.txt');
+			break;			
+		}
 	
+		$output = '
+			<h3>Delete manual cache</h3>
+			'.$deleteManualCacheMessage.'
+			<form action="'.t3lib_div::linkThisScript().'" method="post">
+				Clear manual cache for one manual:
+				<input type="text" size="15" name="extensionkey" value="extension key" onfocus="extensionkey.value=\'\'" />
+				<input type="text" size="7" name="extensionversion" value="version" onfocus="extensionversion.value=\'\'" />
+				<input type="submit" value="clear" /> 
+				<input type="hidden" name="renderingCmd" value="clearcachesingle" /> 
+			</form>	
+			<form action="'.t3lib_div::linkThisScript().'" method="post">
+				Clear manual cache for <strong>all</strong> manuals (!) <input type="submit" value="clear" />
+				<input type="hidden" name="renderingCmd" value="clearcacheall" /> 
+			</form>	
+		';
+		
+		
+		return $output;		
+	}
 
 	/**
 	 * Renders the category management screen
@@ -339,6 +384,44 @@ class tx_terdoc_module1 extends t3lib_SCbase {
 		$this->content.=$this->doc->endPage();
 		echo $this->content;
 	}
+	
+	/**
+	 * Removes directory with all files from the given path recursively! 
+	 * Path must somewhere below typo3temp/
+	 * 
+	 * @param	string		$removePath: Absolute path to directory to remove
+	 * @return	void		
+	 * @access	protected
+	 */
+	protected function removeDirRecursively ($removePath)	{
+
+			// Checking that input directory was within
+		$testDir = PATH_site.'typo3temp/';
+		if (t3lib_div::validPathStr($removePath) && !t3lib_div::isFirstPartOfStr ($removePath,$testDir)) die($removePath.' was not within '.$testDir);
+
+			// Go through dirs:
+		$dirs = t3lib_div::get_dirs($removePath);
+		if (is_array($dirs))	{
+			foreach($dirs as $subdirs)	{
+				if ($subdirs)	{
+					$this->removeDirRecursively($removePath.'/'.$subdirs.'/');
+}
+			}
+		}
+
+			// Then files in this dir:
+		$fileArr = t3lib_div::getFilesInDir($removePath,'',1);
+		if (is_array($fileArr))	{
+			foreach($fileArr as $file)	{
+				if (!t3lib_div::isFirstPartOfStr($file,$testDir)) die($file.' was not within '.$testDir);	// Paranoid...
+				unlink($file);
+			}
+		}
+			// Remove this dir:
+		rmdir($removePath);
+	}
+
+
 }
 
 

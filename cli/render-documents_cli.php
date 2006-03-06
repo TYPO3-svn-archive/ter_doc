@@ -1,10 +1,10 @@
-#! /usr/bin/php -q
+#! /usr/local/bin/php -q
 <?php
 
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2005 Robert Lemke (robert@typo3.org)
+*  (c) 2005-2006 Robert Lemke (robert@typo3.org)
 *  All rights reserved
 *
 *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -36,7 +36,8 @@ define('TYPO3_cliMode', TRUE);
 
 	// Defining PATH_thisScript here: Must be the ABSOLUTE path of this script in the right context:
 	// This will work as long as the script is called by it's absolute path!
-define('PATH_thisScript',$_ENV['_']?$_ENV['_']:$_SERVER['_']);
+#define('PATH_thisScript',$_ENV['_']?$_ENV['_']:$_SERVER['_']);
+define('PATH_thisScript',$_SERVER['SCRIPT_FILENAME']);
 
 require(dirname(PATH_thisScript).'/conf.php');
 require(dirname(PATH_thisScript).'/'.$BACK_PATH.'init.php');

@@ -2,7 +2,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2005 Robert Lemke (robert@typo3.org)
+*  (c) 2005-2006 Robert Lemke (robert@typo3.org)
 *  All rights reserved
 *
 *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -23,9 +23,18 @@
 ***************************************************************/
 /**
  * Plugin 'TER Documentation' for the 'ter_doc' extension.
+ *  
+ * $Id$
  *
  * @author	Robert Lemke <robert@typo3.org>
  */
+/**
+ * [CLASS/FUNCTION INDEX of SCRIPT]
+ *
+ *
+ *
+ */
+
 
 
 require_once(PATH_tslib.'class.tslib_pibase.php');
@@ -76,7 +85,7 @@ class tx_terdoc_pi1 extends tslib_pibase {
 		$this->init($conf);
 
 		if ($this->confViewMode == 'ter1_redirect') {
-			return $this->pi_wrapInBaseClass($this->renderTER1Redirect ($this->piVars['extensionkey']));
+			return $this->pi_wrapInBaseClass($this->renderTER1Redirect ());
 		}
 
 		if (isset ($this->piVars['extensionkey'])) {
@@ -98,6 +107,12 @@ class tx_terdoc_pi1 extends tslib_pibase {
 
 
 
+	/******************************************************
+	 *
+	 * Render functions (protected)
+	 *
+	 ******************************************************/
+
 	/**
 	 * Renders a simple list of all available documents
 	 * 
@@ -108,7 +123,7 @@ class tx_terdoc_pi1 extends tslib_pibase {
 		global $TYPO3_DB, $TSFE;
 
 		$output = '';
-		$tableRows = array();
+		$listItems = array();
 
 			// Set the magic "reg1" so we can clear the cache for this overview if something changes:		
 		$terDocAPIObj = tx_terdoc_api::getInstance();
@@ -130,23 +145,22 @@ class tx_terdoc_pi1 extends tslib_pibase {
 			}
 			
 			if ($formatsAvailable) {
-				$title = $this->csConvHSC($detailsArr['title']).' <em>('.$this->csConvHSC($extensionKey).')</em>';			
+				$title = $this->csConvHSC($detailsArr['title']).' <span class="extensionkey">('.$this->csConvHSC($extensionKey).')</span>';
 				$parameters = array(
 					'extensionkey' => $extensionKey, 
 					'version' => 'current',
 				);
 				
-				$tableRows[] = '<tr><td>'.$this->pi_linkTP_keepPIVars ($title, $parameters, 1).'</td></tr>';
+				$listItems[] = '<li class="level-1">'.$this->pi_linkTP_keepPIVars ($title, $parameters, 1).'</li>';
 			}
 		}
 					
 			// Assemble the whole table:
 		$output = '
 			'.$this->renderCategoryDescription(intval($this->confCategory)).'
-			<br />
-			<table>
-				'.implode ('', $tableRows).'
-			</table>
+			<ul>
+				'.implode ('', $listItems).'
+			</ul>
 		';		
 		
 		return $output;
@@ -162,7 +176,7 @@ class tx_terdoc_pi1 extends tslib_pibase {
 		global $TYPO3_DB, $TSFE;
 
 		$output = '';
-		$tableRows = array();
+		$listRows = array();
 
 			// Set the magic "reg1" so we can clear the cache for this overview if something changes:		
 		$terDocAPIObj = tx_terdoc_api::getInstance();
@@ -173,7 +187,7 @@ class tx_terdoc_pi1 extends tslib_pibase {
 
 		$manualsArr = $this->db_fetchManualRecords(intval($this->confCategory));
 
-		$cellsArr = array();
+		$itemsArr = array();
 		$currentLetter = '';
 		foreach ($manualsArr as $extensionKey => $detailsArr) {
 			
@@ -186,7 +200,7 @@ class tx_terdoc_pi1 extends tslib_pibase {
 			}
 			
 			if ($formatsAvailable) {
-				$title = $this->csConvHSC($detailsArr['title']).' <em>('.$this->csConvHSC($extensionKey).')</em>';			
+				$title = $this->csConvHSC($detailsArr['title']).' <span class="extensionkey">('.$this->csConvHSC($extensionKey).')</span>';
 				$parameters = array(
 					'extensionkey' => $extensionKey, 
 					'version' => 'current',
@@ -194,40 +208,19 @@ class tx_terdoc_pi1 extends tslib_pibase {
 				
 				if (strtoupper(substr ($title,0,1)) != $currentLetter) {
 					$currentLetter = strtoupper(substr ($title,0,1));
-					$cellsArr[] = '<td><strong>'.$currentLetter.'</strong></td>';
+					$itemsArr[] = '<li><h3>'.$currentLetter.'</h3></li>';
 				}			
-				$cellsArr[] = '<td nowrap="nowrap">'.$this->pi_linkTP_keepPIVars ($title, $parameters, 1).'</td>';
+				$itemsArr[] = '<li class="level-1" >'.$this->pi_linkTP_keepPIVars ($title, $parameters, 1).'</li>';
 			}
 		}
-					
-		$leftColumnArr = array();
-		$rightColumnArr = array();
-		$counter = 0;
-		$entriesPerColumn = ceil (count ($cellsArr) / 2);
-		foreach ($cellsArr as $cell) {
-			if ($counter < $entriesPerColumn) {
-				$leftColumnArr[] = $cell;
-			} else {
-				$rightColumnArr[] = $cell;
-			}
-			$counter++;
-		}		
 		
-			// Assemble the whole table:
-		$tableRows = array();
-		reset ($leftColumnArr);
-		reset ($rightColumnArr);
-		for ($i=0; $i <= $entriesPerColumn; $i++) {
-			$tableRows[] = '<tr>'.array_shift($leftColumnArr).array_shift($rightColumnArr).'</tr>';
-		}			
-
+			// Assemble the whole directory:
 		$output = '
 			'.$this->renderCategoryDescription(intval($this->confCategory)).'
-			<br />
-			<table>
-				'.implode ('', $tableRows).'
-			</table>
-		';		
+			<ul>
+				'.implode ('', $itemsArr).'
+			</ul>
+		';
 		
 		return $output;
 	}
@@ -255,8 +248,10 @@ class tx_terdoc_pi1 extends tslib_pibase {
 			// Set the magic "reg1" so we can clear the cache for this manual if a new one is uploaded:		
 		$terDocAPIObj = tx_terdoc_api::getInstance();
 		$TSFE->page_cache_reg1 = $terDocAPIObj->createAndGetCacheUidForExtensionVersion ($extensionKey, $manualArr['version']);
+		$TSFE->altPageTitle = 'Documentation: '.$title.' (available formats)';		
+		$TSFE->indexedDocTitle = $TSFE->altPageTitle;
 
-		$versionInfo = '<p>This document is related to version '.$manualArr['version'].' of the extension '.$this->csConvHSC($extensionKey).'.</p>';
+		$versionInfo = '<p>'.sprintf(htmlspecialchars($this->pi_getLL('formats_relatestoversion')), $manualArr['version'], $this->csConvHSC($extensionKey)).'</p>';
 		
 		$formatLinks = '';
 		foreach ($outputFormatsArr as $key => $formatDetailsArr) {
@@ -265,7 +260,7 @@ class tx_terdoc_pi1 extends tslib_pibase {
 				$link = $this->pi_linkTP_keepPIVars ($label, array('extensionkey' => $extensionKey, 'version' => $version, 'format' => $key), 1);
 				$size = ($formatDetailsArr['type'] == 'download') ? t3lib_div::formatSize($formatDetailsArr['object']->getDownloadFileSize ($extensionKey, $manualArr['version'])).'B': '';
 				
-				$formatLinks .= '[ICON] '.$link.' '.$size.'<br />';
+				$formatLinks .= $link.' '.$size.'<br />';
 			}
 		}
 						
@@ -285,7 +280,6 @@ class tx_terdoc_pi1 extends tslib_pibase {
 			'.$this->renderTopNavigation().'
 			<h2>'.$title.'</h2>
 			<p>Author: '.$author.'</p>
-			<br />
 			'.(strlen($manualArr['abstract']) ? ('<p>'.$this->csConvHSC($manualArr['abstract'], 'utf-8').'</p><br />') : '') .'
 			<table>
 				'.implode ('', $tableRows).'
@@ -317,16 +311,26 @@ class tx_terdoc_pi1 extends tslib_pibase {
 
 		if (!is_array ($outputFormatsArr[$format])) return $this->pi_getLL('error_outputformatnotavailable','',1);
 		if (!is_object ($outputFormatsArr[$format]['object'])) return $this->pi_getLL('error_outputformatnoobject','',1);
-		if (!method_exists ($outputFormatsArr[$format]['object'], 'renderDisplay')) return $this->pi_getLL('error_outputformathasnodisplaymethod','',1);
 		if (!$outputFormatsArr[$format]['object']->isAvailable ($extensionKey, $manualArr['version'])) {
 			return $this->pi_getLL('error_documentiscurrentlynotavailableinthisformat','',1);
 		}
+
+		switch ($outputFormatsArr[$format]['type']) {
+			case 'download' :
+				if (!is_a ($outputFormatsArr[$format]['object'], 'tx_terdoc_documentformat_download')) return $this->pi_getLL('error_outputformatisofwrongclasstype','',1);		
+				$this->transferFile ($outputFormatsArr[$format]['object']->getDownloadFileFullPath ($extensionKey, $manualArr['version']));
+				
+			break;
+			case 'display':
+			default:
+				if (!is_a ($outputFormatsArr[$format]['object'], 'tx_terdoc_documentformat_display')) return $this->pi_getLL('error_outputformatisofwrongclasstype','',1);		
+				$output = '
+					'.$this->renderTopNavigation().'
+					'.$outputFormatsArr[$format]['object']->renderDisplay ($extensionKey, $manualArr['version'], $this);
+			break;
+		}
 		
-		$output = '
-			'.$this->renderTopNavigation().'
-			'.$outputFormatsArr[$format]['object']->renderDisplay ($extensionKey, $manualArr['version'], $this);
-		
-		return $output;		
+		return $output;
 	}
 
 	/**
@@ -348,7 +352,7 @@ class tx_terdoc_pi1 extends tslib_pibase {
 		if ($res) {
 			$row = $TYPO3_DB->sql_fetch_assoc ($res);
 			$output = '
-				'.$this->renderTopNavigation().'<br />
+				'.$this->renderTopNavigation().'
 				<h2>'.htmlspecialchars($row['title']).'</h2>
 				<p>'.htmlspecialchars($row['description']).'</p>
 			';
@@ -362,7 +366,8 @@ class tx_terdoc_pi1 extends tslib_pibase {
 	 */
 	protected function renderTopNavigation() {
 		global $TSFE;
-		
+
+return '';
 		$output = '';		
 		$breadCrumbs = 'Path: '.$this->pi_linkTP ('',array(),1);	
 		
@@ -387,19 +392,34 @@ class tx_terdoc_pi1 extends tslib_pibase {
 	 * Renders a message and a link to the actual manual for those requests which
 	 * come from links used in the TER version 1. 
 	 * 
-	 * @param	string		$extensionKey: Extension key of the document to be displayed
 	 * @return	string		HTML output
 	 * @access	protected
 	 */
-	protected function renderTER1Redirect ($extensionKey) {
+	protected function renderTER1Redirect () {
 		global $TYPO3_DB, $TSFE;
+
+		$extensionKey = '';
+
+		if (strlen($this->piVars['extensionkey'])) {
+			$extensionKey = $this->piVars['extensionkey'];	
+		} elseif (is_array(t3lib_div::_GET('tx_extrepmgm_pi1'))) {
+			$extrepMgmPi1Arr = t3lib_div::_GET('tx_extrepmgm_pi1');
+			$res = $TYPO3_DB->exec_SELECTquery (
+				'extension_key',
+				'tx_extrep_keytable',
+				'uid='.intval($extrepMgmPi1Arr['extUid'])
+			);
+			if ($res) {
+				$row = $TYPO3_DB->sql_fetch_assoc($res);
+				$extensionKey = $row['extension_key'];
+			}
+		}
 
 		if (!strlen ($extensionKey)) return '';
 			
 		$output = ' 
 			<h2>'.$this->pi_getLL('ter1redirect_heading','',1).'</h2>
 			<p>'.nl2br ($this->pi_getLL('ter1redirect_introduction','',1)).'</p>
-			<br />
 		'; 
 
 		$renderDocumentsObj = tx_terdoc_renderdocuments::getInstance();
@@ -451,6 +471,11 @@ class tx_terdoc_pi1 extends tslib_pibase {
 
 
 
+	/******************************************************
+	 *
+	 * Database related functions (protected)
+	 *
+	 ******************************************************/
 
 	/**
 	 * Returns all records from tx_terdoc_manualscategories which assign
@@ -565,7 +590,17 @@ class tx_terdoc_pi1 extends tslib_pibase {
 
 		}		
 	}
-	
+
+
+
+
+
+	/******************************************************
+	 *
+	 * Miscellaneous helper functions (protected)
+	 *
+	 ******************************************************/
+
 	/**
 	 * Processes the given string with htmlspecialchars and converts the result
 	 * from utf-8 to the charset of the current frontend
@@ -605,6 +640,27 @@ class tx_terdoc_pi1 extends tslib_pibase {
 			$sortedArr[$key] = $array[$key];
 		}
 		return $sortedArr;	
+	}
+
+	/**
+	 * Transfers a file to the client browser.
+	 * NOTE: This function must be called *before* any HTTP headers have been sent!
+	 * 
+	 * @param	string		$fullPath: Full absolute path including filename which leads to the file to be transfered
+	 * @return	boolean		TRUE if successful, FALSE if file did not exist.
+	 * @access 	protected
+	 */
+	protected function transferFile ($fullPath) {		
+
+		if (!@file_exists($fullPath)) return FALSE;
+		
+		$filename = basename($fullPath);
+		header('Content-Disposition: attachment; filename='.$filename.'');
+		header('Content-type: x-application/octet-stream');
+		header('Content-Transfer-Encoding: binary');
+		header('Content-length:'.filesize($fullPath).'');
+		readfile($fullPath);
+		return TRUE;
 	}
 
 }

@@ -274,8 +274,9 @@ class tx_terdoc_api {
 	 * @param	string		$extensionKey: The extension key
 	 * @param	string		$version: The version string
 	 * @return	string		Full path to the document directory for the specified extension version
+	 * @access	public
 	 */
-	protected function getDocumentDirOfExtensionVersion ($extensionKey, $version) {
+	public function getDocumentDirOfExtensionVersion ($extensionKey, $version) {
 		$firstLetter = strtolower (substr ($extensionKey, 0, 1));
 		$secondLetter = strtolower (substr ($extensionKey, 1, 1));
 		$baseDir = PATH_site.'typo3temp/tx_terdoc/documentscache/';
@@ -293,9 +294,9 @@ class tx_terdoc_api {
 	 * 
 	 * @param	string	$string: The utf-8 string to convert
 	 * @return	string	The converted string
-	 * @access	protected
+	 * @access	public
 	 */
-	protected function csConvHSC ($string) {
+	public function csConvHSC ($string) {
 		return $GLOBALS['TSFE']->csConv(htmlspecialchars($string), 'utf-8');
 	}
 

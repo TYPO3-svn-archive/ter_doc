@@ -11,7 +11,7 @@
     <data type="array">
         <languageKey index="default" type="array">
             <label index="title">TER Docs</label>
-            <label index="function_information">Information</label>
+            <label index="function_rendering">Rendering</label>
             <label index="function_categories">Categories</label>
             <label index="generalinformation">General information</label>
         </languageKey>
