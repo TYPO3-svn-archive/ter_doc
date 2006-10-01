@@ -1,3 +1,8 @@
+17.03.2006 Robert Lemke <robert@typo3.org>
+	~ Modified documentation link: It now reports if documentation is not available at all or if it still has to be rendered.
+	# Fixed a very nasty bug in the functions which render the documentation links: Because $TSFE->cObj->getTypoLink() was used, no cHashes were created which resulted in display of the list of extension manuals instead of a specific manual
+	# Links to download versions of documentation now come with a "no_cache=1"
+
 05.03.2006 Robert Lemke <robert@typo3.org>
 	~ Output format classes must now extend either tx_terdoc_documentformat_display or tx_terdoc_documentformat_download
 

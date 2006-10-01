@@ -480,7 +480,7 @@ class tx_terdoc_renderdocuments {
 		$cacheUids = $this->pageCache_getCacheUidsForExtension($extensionKey);
 
 		if ($cacheUids === FALSE) return;
-		
+
 		$TYPO3_DB->exec_DELETEquery (
 			'cache_pages',
 			'reg1 IN ('.$cacheUids.')'

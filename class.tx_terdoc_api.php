@@ -3,7 +3,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2005 Robert Lemke (robert@typo3.org)
+*  (c) 2005-2006 Robert Lemke (robert@typo3.org)
 *  All rights reserved
 *
 *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -78,9 +78,6 @@ class tx_terdoc_api {
 			$this->repositoryDir = $staticConfArr['repositoryDir'];
 			if (substr ($this->repositoryDir, -1, 1) != '/') $this->repositoryDir .= '/';
 		}
-		
-			// Initialize localization:
-		$this->localLangArr = t3lib_div::readLLfile(t3lib_extMgm::extPath('ter_doc').'locallang.xml', $this->lang); 
 	}
 
 	/**
@@ -101,7 +98,7 @@ class tx_terdoc_api {
 
 		$documentDir = $this->getDocumentDirOfExtensionVersion ($extensionKey, $version);
 		$tocArr = unserialize (@file_get_contents ($documentDir.'toc.dat'));
-		if (!is_array ($tocArr)) return '<strong style="color:red;">'.$TSFE->getLLL('api_error_nodocumentationavailable', $this->localLangArr, 1).'</strong>';		
+		if (!is_array ($tocArr)) return '<strong style="color:red;">'.htmlspecialchars($TSFE->sL('LLL:EXT:ter_doc/locallang.xml:api_error_documentationnotavailable')).'</strong>';		
 
 		$levelToRenderArr = ($smartLevels && count ($tocArr) == 1) ? $tocArr[1]['sections'] : $tocArr;				
 
@@ -116,7 +113,12 @@ class tx_terdoc_api {
 						'tx_terdoc_pi1[format]' => 'ter_doc_html_onlinehtml',
 						'tx_terdoc_pi1[html_readonline_chapter]' => '',
 					);
-					$item = $TSFE->cObj->getTypoLink($this->csConvHSC($itemsArr['title']), $pageId, $parametersArr, '');
+					$typoLinkConf = array (
+						'parameter' => $pageId,
+						'additionalParams' => t3lib_div::implodeArrayForUrl('', $parametersArr),
+						'useCacheHash' => 1						
+					);
+					$item = $TSFE->cObj->typoLink($this->csConvHSC($itemsArr['title']), $typoLinkConf);
 				} else {
 					$item = $this->csConvHSC($itemsArr['title']);	
 				}
@@ -124,7 +126,7 @@ class tx_terdoc_api {
 				$output .= $item.'<br />';
 			}
 		} else {
-			$output = '<strong style="color:red;">'.$TSFE->getLLL('api_error_tocempty', $this->localLangArr, 1).'</strong>';	
+			$output = '<strong style="color:red;">'.htmlspecialchars($TSFE->sL('LLL:EXT:ter_doc/locallang.xml:api_error_tocempty')).'</strong>';	
 		}
 		
 		return $output;
@@ -141,17 +143,19 @@ class tx_terdoc_api {
 	public function getDocumentationLink ($extensionKey, $version) {
 		global $TSFE;
 
-		if (!t3lib_extMgm::isLoaded ('ter_doc_html')) return '<span style="color:red;">'.$TSFE->getLLL('api_error_terdochtmlnotinstalled', $this->localLangArr, 1).'</span>';
+		if (!t3lib_extMgm::isLoaded ('ter_doc_html')) return '<span style="color:red;">'.htmlspecialchars($TSFE->sL('LLL:EXT:ter_doc/locallang.xml:api_error_terdochtmlnotinstalled')).'</span>';
 
 		$documentDir = $this->getDocumentDirOfExtensionVersion ($extensionKey, $version);
 		$tocArr = unserialize (@file_get_contents ($documentDir.'toc.dat'));
-		if (!is_array ($tocArr)) return '<span style="color:red;">'.$TSFE->getLLL('api_error_nodocumentationavailable', $this->localLangArr, 1).'</span>';		
+		if (!is_array ($tocArr)) {
+			return '<span style="color:red;">'.htmlspecialchars($TSFE->sL('LLL:EXT:ter_doc/locallang.xml:api_error_documentationnotavailable')).'</span>';
+		}		
 
 		$renderDocumentsObj = tx_terdoc_renderdocuments::getInstance();
 		$outputFormatsArr = $renderDocumentsObj->getOutputFormats();
 
 		if (!is_array ($outputFormatsArr) || !$outputFormatsArr['ter_doc_html_onlinehtml']['object']->isAvailable ($extensionKey, $version)) {
-			return '<strong style="color:red;">'.$TSFE->getLLL('api_error_noonlinedocumentationavailable', $this->localLangArr, 1).'</strong>';
+			return '<strong style="color:red;">'.htmlspecialchars($TSFE->sL('LLL:EXT:ter_doc/locallang.xml:api_error_documentationnotavailable')).'</strong>';
 		}
 
 		$pageId = $this->getViewPageIdForExtensionVersion($extensionKey, $version); 
@@ -163,7 +167,13 @@ class tx_terdoc_api {
 		);
 		
 		$label = $this->csConvHSC($TSFE->sL($outputFormatsArr['ter_doc_html_onlinehtml']['label']));
-		$link = $TSFE->cObj->getTypoLink($label, $pageId, $parametersArr, '');	
+		$typoLinkConf = array (
+			'parameter' => $pageId,
+			'additionalParams' => t3lib_div::implodeArrayForUrl('', $parametersArr),
+			'useCacheHash' => 1						
+		);
+
+		$link = $TSFE->cObj->typoLink($this->csConvHSC($label), $typoLinkConf);
 		
 		return $link;
 	}
