@@ -1,3 +1,7 @@
+2006-09-01  Sebastian Kurfuerst  <sebastian@typo3.org>
+
+	* Fixed images in BE module
+
 17.03.2006 Robert Lemke <robert@typo3.org>
 	~ Modified documentation link: It now reports if documentation is not available at all or if it still has to be rendered.
 	# Fixed a very nasty bug in the functions which render the documentation links: Because $TSFE->cObj->getTypoLink() was used, no cHashes were created which resulted in display of the list of extension manuals instead of a specific manual

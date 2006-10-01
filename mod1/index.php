@@ -328,8 +328,8 @@ class tx_terdoc_module1 extends t3lib_SCbase {
 						<td style="vertical-align:top;">'.($categoryArr['isdefault'] ? 'yes' : 'no').'</td>
 						<td style="vertical-align:top;">'.$categoryArr['viewpid'].'</td>
 						<td style="vertical-align:top; width:1%" nowrap="nowrap">
-							<a href="'.t3lib_div::linkThisScript(array('categoriesCmd'=>'edit', 'categoriesId'=> $categoryArr['uid'])).'"><img '.t3lib_iconWorks::skinImg($BACK_PATH, '/t3lib/gfx/edit2.gif').' border="0" /></a>
-							<a href="'.t3lib_div::linkThisScript(array('categoriesCmd'=>'delete', 'categoriesId'=> $categoryArr['uid'])).'"><img '.t3lib_iconWorks::skinImg($BACK_PATH, '/t3lib/gfx/delete_record.gif').' border="0" /></a>
+							<a href="'.t3lib_div::linkThisScript(array('categoriesCmd'=>'edit', 'categoriesId'=> $categoryArr['uid'])).'"><img '.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/edit2.gif').' border="0" /></a>
+							<a href="'.t3lib_div::linkThisScript(array('categoriesCmd'=>'delete', 'categoriesId'=> $categoryArr['uid'])).'"><img '.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/delete_record.gif').' border="0" /></a>
 						</td>
 					</tr>
 				';
@@ -338,7 +338,7 @@ class tx_terdoc_module1 extends t3lib_SCbase {
 		} else {
 			$output .= '<p><em>No categories found.</em></p><br />';
 		}		
-		$output .= '<br /><a href="'.t3lib_div::linkThisScript(array('categoriesCmd'=>'create')).'"><img '.t3lib_iconWorks::skinImg($BACK_PATH, '/t3lib/gfx/new_el.gif').' border="0" /> Create new category</a><br /><br />';
+		$output .= '<br /><a href="'.t3lib_div::linkThisScript(array('categoriesCmd'=>'create')).'"><img '.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/new_el.gif').' border="0" /> Create new category</a><br /><br />';
 
 		
 
@@ -359,7 +359,7 @@ class tx_terdoc_module1 extends t3lib_SCbase {
 						<td style="vertical-align:top;">'.htmlspecialchars($manualCategoryArr['extensionkey']).'</td>
 						<td style="vertical-align:top;">'.htmlspecialchars($categoriesArr[$manualCategoryArr['categoryuid']]['title']).'</td>
 						<td style="vertical-align:top; width:1%" nowrap="nowrap">
-							<a href="'.t3lib_div::linkThisScript(array('categoriesCmd'=>'removeassignment', 'categoriesId'=> $manualCategoryArr['uid'])).'"><img '.t3lib_iconWorks::skinImg($BACK_PATH, '/t3lib/gfx/delete_record.gif').' border="0" /></a>
+							<a href="'.t3lib_div::linkThisScript(array('categoriesCmd'=>'removeassignment', 'categoriesId'=> $manualCategoryArr['uid'])).'"><img '.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/delete_record.gif').' border="0" /></a>
 						</td>
 					</tr>
 				';
@@ -368,7 +368,7 @@ class tx_terdoc_module1 extends t3lib_SCbase {
 		} else {
 			$output .= '<p><em>No category assignments found.</em></p><br />';
 		}		
-		$output .= '<br /><a href="'.t3lib_div::linkThisScript(array('categoriesCmd'=>'assign')).'"><img '.t3lib_iconWorks::skinImg($BACK_PATH, '/t3lib/gfx/new_el.gif').' border="0" /> Create new assignment</a><br /><br />';
+		$output .= '<br /><a href="'.t3lib_div::linkThisScript(array('categoriesCmd'=>'assign')).'"><img '.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/new_el.gif').' border="0" /> Create new assignment</a><br /><br />';
 
 		return $output;		
 	}
