@@ -1,3 +1,7 @@
+Version 2.0.1 2006-12-15	Robert Lemke <robert@typo3.org>
+
+	+ Added support for ter_doc_renderproblems which displays detailed information about why documentation could not be rendered
+
 2006-09-01  Sebastian Kurfuerst  <sebastian@typo3.org>
 
 	* Fixed images in BE module

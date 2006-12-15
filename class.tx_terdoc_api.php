@@ -148,14 +148,18 @@ class tx_terdoc_api {
 		$documentDir = $this->getDocumentDirOfExtensionVersion ($extensionKey, $version);
 		$tocArr = unserialize (@file_get_contents ($documentDir.'toc.dat'));
 		if (!is_array ($tocArr)) {
-			return '<span style="color:red;">'.htmlspecialchars($TSFE->sL('LLL:EXT:ter_doc/locallang.xml:api_error_documentationnotavailable')).'</span>';
+			$message = '<span style="color:red;">'.htmlspecialchars($TSFE->sL('LLL:EXT:ter_doc/locallang.xml:api_error_documentationnotavailable')).'</span>';
+			$message .= ' ' . $this->getDocumentationRenderProblemsLink($extensionKey, $version, htmlspecialchars($TSFE->sL('LLL:EXT:ter_doc/locallang.xml:api_error_whyisdocumentationnotavailable')));
+			return $message;
 		}		
 
 		$renderDocumentsObj = tx_terdoc_renderdocuments::getInstance();
 		$outputFormatsArr = $renderDocumentsObj->getOutputFormats();
 
 		if (!is_array ($outputFormatsArr) || !$outputFormatsArr['ter_doc_html_onlinehtml']['object']->isAvailable ($extensionKey, $version)) {
-			return '<strong style="color:red;">'.htmlspecialchars($TSFE->sL('LLL:EXT:ter_doc/locallang.xml:api_error_documentationnotavailable')).'</strong>';
+			$message = '<strong style="color:red;">'.htmlspecialchars($TSFE->sL('LLL:EXT:ter_doc/locallang.xml:api_error_documentationnotavailable')).'</strong>';
+			$message .= ' ' . $this->getDocumentationRenderProblemsLink($extensionKey, $version, htmlspecialchars($TSFE->sL('LLL:EXT:ter_doc/locallang.xml:api_error_whyisdocumentationnotavailable')));
+			return $message;
 		}
 
 		$pageId = $this->getViewPageIdForExtensionVersion($extensionKey, $version); 
@@ -177,8 +181,47 @@ class tx_terdoc_api {
 		
 		return $link;
 	}
+	
+	/**
+	 * Returns a link to a page listing all documentation render problems of the specified extension
+	 * 
+	 * @param		string		$extensionKey: Extension key of the manual
+	 * @param		string		$version: Version string of the manual
+	 * @param 		string		$label: If set, this label is used for the link
+	 * @return		string		HTML code of the link
+	 * @access		public
+	 */
+	public function getDocumentationRenderProblemsLink ($extensionKey, $version, $label=NULL) {
+		global $TSFE, $TYPO3_DB;
 
+		if (!t3lib_extMgm::isLoaded ('ter_doc_renderproblems')) return '';
 
+		$renderDocumentsObj = tx_terdoc_renderdocuments::getInstance();
+		$outputFormatsArr = $renderDocumentsObj->getOutputFormats();
+
+		if (!is_array ($outputFormatsArr) || !$outputFormatsArr['ter_doc_renderproblems']['object']->isAvailable ($extensionKey, $version)) {
+			return '';
+		}
+
+		$pageId = $this->getViewPageIdForExtensionVersion($extensionKey, $version); 
+		$parametersArr = array(
+			'tx_terdoc_pi1[extensionkey]' => $extensionKey,
+			'tx_terdoc_pi1[version]' => $version,
+			'tx_terdoc_pi1[format]' => 'ter_doc_renderproblems',
+		);
+		
+		$label = (!is_null($label) ? $label : $this->csConvHSC($TSFE->sL($outputFormatsArr['ter_doc_renderproblems']['label'])));
+		$typoLinkConf = array (
+			'parameter' => $pageId,
+			'additionalParams' => t3lib_div::implodeArrayForUrl('', $parametersArr),
+			'useCacheHash' => 1						
+		);
+
+		$link = $TSFE->cObj->typoLink($this->csConvHSC($label), $typoLinkConf);
+		
+		return $link;
+	}
+	
 
 
 

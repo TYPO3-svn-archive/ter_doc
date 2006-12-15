@@ -344,7 +344,7 @@ class tx_terdoc_pi1 extends tslib_pibase {
 
 		if (!is_array ($outputFormatsArr[$format])) return $this->pi_getLL('error_outputformatnotavailable','',1);
 		if (!is_object ($outputFormatsArr[$format]['object'])) return $this->pi_getLL('error_outputformatnoobject','',1);
-		if (!$outputFormatsArr[$format]['object']->isAvailable ($extensionKey, $manualArr['version'])) {
+		if (!$outputFormatsArr[$format]['object']->isAvailable ($extensionKey, $version)) {
 			return $this->pi_getLL('error_documentiscurrentlynotavailableinthisformat','',1);
 		}
 
@@ -359,7 +359,7 @@ class tx_terdoc_pi1 extends tslib_pibase {
 				if (!is_a ($outputFormatsArr[$format]['object'], 'tx_terdoc_documentformat_display')) return $this->pi_getLL('error_outputformatisofwrongclasstype','',1);
 				$output = '
 					'.$this->renderTopNavigation().'
-					'.$outputFormatsArr[$format]['object']->renderDisplay ($extensionKey, $manualArr['version'], $this);
+					'.$outputFormatsArr[$format]['object']->renderDisplay ($extensionKey, $version, $this);
 			break;
 		}
 

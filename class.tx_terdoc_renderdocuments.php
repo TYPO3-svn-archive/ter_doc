@@ -39,6 +39,20 @@
 
 class tx_terdoc_renderdocuments {
 
+	const ERRORCODE_PROBLEMWHILEXTRACTINGMANUALSXW = 1;
+	const ERRORCODE_CONTENTXMLDIDNOTEXISTAFTEREXTRACTINGSXW = 2;
+	const ERRORCODE_SIMPLEXMLERRORWHILETRANSFORMINGXMLTODOCBOOK = 3;
+	const ERRORCODE_COULDNOTGUESSDOCUMENTLANGUAGENOTEXTLANGSERVICEAVAILABLE = 4;
+	const ERRORCODE_COULDNOTGUESSDOCUMENTLANGUAGEEXCERPTEMPTY = 5;
+	const ERRORCODE_COULDNOTEXTRACTABSTRACT = 6;
+	const ERRORCODE_ERRORWHILEREADINGT3XFILE = 7;
+	const ERRORCODE_T3XARCHIVECORRUPTED = 8;
+	const ERRORCODE_ERRORWHILEUNCOMPRESSINGT3XFILE = 9;
+	const ERRORCODE_CORRUPTEDT3XSTRUCTURENOFILESFOUND = 10;
+	const ERRORCODE_FILEOFT3XISCORRUPTED = 11;
+	const ERRORCODE_FILENOTFOUNDINT3XARCHIVE = 12;
+	const ERRORCODE_DOCMANUALSXWFOUNDINT3XARCHIVE = 13;
+
 	protected $repositoryDir = '';									// Full path to the local extension repository. Configured in the Extension Manager
 	protected $verbose = FALSE;										// If TRUE, some debugging output will be sent to STDOUT. Configured in the Extension Manager
 	protected $fullPath = FALSE;									// If set to a path and file name, logging will be redirected to that file
@@ -97,11 +111,11 @@ class tx_terdoc_renderdocuments {
 		if (@file_exists (PATH_site.'typo3temp/tx_terdoc/tx_terdoc_render.lock')) {
 			$this->log ('Found .lock file ...');			
 				// If the lock is not older than X minutes, skip index creation:
-			if (filemtime (PATH_site.'typo3temp/tx_terdoc/tx_terdoc_render.lock') > (time() - (45*60))) {
+			if (filemtime (PATH_site.'typo3temp/tx_terdoc/tx_terdoc_render.lock') > (time() - (6*60*60))) {
 				$this->log ('... aborting - another process seems to render documents right now!'.chr(10));
 				if (!$this->debug) die();
 			} else {
-				$this->log ('... lock file was older than 45 minutes, so start rendering anyway'.chr(10));
+				$this->log ('... lock file was older than 6 hours, so start rendering anyway'.chr(10));
 			}
 		}		
 		
@@ -141,13 +155,15 @@ class tx_terdoc_renderdocuments {
 				$modifiedExtensionVersionsArr = $this->documentCache_getModifiedExtensionVersions ();
 
 				foreach ($modifiedExtensionVersionsArr as $extensionAndVersionArr) {					
+					$transformationErrorCodes = array();
 					$extensionKey = $extensionAndVersionArr['extensionkey'];
 					$version = $extensionAndVersionArr['version'];
 					$documentDir = $this->getDocumentDirOfExtensionVersion ($extensionKey, $version);
-
+					
 					$this->log ('* Rendering documents for extension "'.$extensionKey.'" ('.$version.')');
-
-					if ($this->documentCache_transformManualToDocBook($extensionKey, $version)) {
+					$TYPO3_DB->exec_DELETEquery ('tx_terdoc_renderproblems', 'extensionkey="'.$extensionKey.'" AND version="'.$version.'"');						
+					
+					if ($this->documentCache_transformManualToDocBook($extensionKey, $version, $transformationErrorCodes)) {
 						foreach ($this->outputFormats as $label => $formatInfoArr) {
 							$this->log ('   * Rendering '.$label);
 							$formatInfoArr['object']->renderCache($documentDir);
@@ -158,6 +174,11 @@ class tx_terdoc_renderdocuments {
 					}
 					$this->pageCache_clearForExtension ($extensionKey);
 					t3lib_div::writeFile ($documentDir.'t3xfilemd5.txt', $extensionAndVersionArr['t3xfilemd5']);
+
+					foreach($transformationErrorCodes as $errorCode) {
+						$TYPO3_DB->exec_INSERTquery ('tx_terdoc_renderproblems', array('extensionkey' => $extensionKey, 'version' => $version, 'tstamp' => time(), 'errorcode' => $errorCode));
+					}
+					$this->log ('   * Error code(s): ' . implode(',', $transformationErrorCodes));
 				}				
 				$this->pageCache_clearForAll();
 			}
@@ -334,16 +355,22 @@ class tx_terdoc_renderdocuments {
 	 * 
 	 * @param	string		$extensionKey: The extension key
 	 * @param	string		$version: The extension's version string
-	 * @return	boolean		returns FALSE if operation was not successful, otherwise TRUE
+	 * @param	array		$errorCodes: An array of error codes which occurred during the transformation
+	 * @return	mixed		returns TRUE if operation was successful, otherwise FALSE.
 	 * @access	protected
 	 */
-	protected function documentCache_transformManualToDocBook($extensionKey, $version) {
+	protected function documentCache_transformManualToDocBook($extensionKey, $version, &$errorCodes) {
 		global $TYPO3_DB;
 		
 		$documentDir = $this->getDocumentDirOfExtensionVersion ($extensionKey, $version);
 
-		if (!$this->t3x_extractFileFromT3X ($extensionKey, $version, 'doc/manual.sxw', $documentDir.'manual.sxw')) {
-			$this->log ('	* documentCache_transformManualToDocBook: problem while extracting manual.sxw from t3x file');	
+		if (!$this->t3x_extractFileFromT3X ($extensionKey, $version, 'doc/manual.sxw', $errorCodes, $documentDir.'manual.sxw')) {
+			$this->log ('	* documentCache_transformManualToDocBook: problem while extracting manual.sxw from t3x file');
+			if ($errorCodes[(count($errorCodes)-1)] == self::ERRORCODE_FILENOTFOUNDINT3XARCHIVE) {
+				$errorCodes[(count($errorCodes)-1)] = self::ERRORCODE_DOCMANUALSXWFOUNDINT3XARCHIVE;
+			} else {
+				$errorCodes[] = self::ERRORCODE_PROBLEMWHILEXTRACTINGMANUALSXW;
+			}
 			return FALSE;
 		}
 
@@ -371,6 +398,7 @@ class tx_terdoc_renderdocuments {
 
 		if (!@file_exists ($documentDir.'sxw/content.xml')) {
 			$this->log ('	* documentCache_transformManualToDocBook: '.$documentDir.'sxw/content.xml does not exist.');	
+			$errorCodes[] = self::ERRORCODE_CONTENTXMLDIDNOTEXISTAFTEREXTRACTINGSXW;
 			return FALSE;
 		}
 		
@@ -392,6 +420,7 @@ class tx_terdoc_renderdocuments {
 		$simpleDocBook = simplexml_import_dom ($docBookDom);
 		if ($simpleDocBook === FALSE) {
 			$this->log ('	* documentCache_transformManualToDocBook: SimpleXML error while transforming XML to DocBook');	
+			$errorCodes[] = self::ERRORCODE_SIMPLEXMLERRORWHILETRANSFORMINGXMLTODOCBOOK;
 			return FALSE;
 		}
 		
@@ -403,7 +432,7 @@ class tx_terdoc_renderdocuments {
 			foreach ($chapter->section as $section) {
 				$tocArr[$chapterCount]['sections'][$sectionCount]['title'] = (string)$section->title;
 
-						// Try to extract an abstract out of the first paragraph of a section usually called "What does it do?":
+					// Try to extract an abstract out of the first paragraph of a section usually called "What does it do?":
 				if ($chapterCount <= 1) {
 					foreach ($section->section as $subSection) {
 						if (strlen($abstract) == 0) {
@@ -433,6 +462,8 @@ class tx_terdoc_renderdocuments {
 		}
 		t3lib_div::writeFile ($documentDir.'toc.dat', serialize ($tocArr));
 
+		if(strlen($abstract) < 5) $errorCodes[] = self::ERRORCODE_COULDNOTEXTRACTABSTRACT;
+		
 			// Identify the language of the document:
 		if (strlen ($textExcerpt)) {
 			if (is_object($this->languageGuesserServiceObj)) {
@@ -440,12 +471,14 @@ class tx_terdoc_renderdocuments {
 			    $documentLanguage = strtolower($this->languageGuesserServiceObj->getOutput());
 			} else {
 				$this->log ('   * Warning: Could not guess language because textLang service was not available');
+				$errorCodes[] = self::ERRORCODE_COULDNOTGUESSDOCUMENTLANGUAGENOTEXTLANGSERVICEAVAILABLE;
 				$metaXML = simplexml_load_file ($documentDir.'sxw/meta.xml');
 				$DCLanguageArr = $metaXML->xpath ('//dc:language');
 				$documentLanguage = is_array ($DCLanguageArr) ? strtolower(substr ($DCLanguageArr[0], 0, 2)) : '';	
 			}
 		} else {
 			$this->log ('   * Warning: Could not guess language because the text excerpt was empty!');		
+			$errorCodes[] = self::ERRORCODE_COULDNOTGUESSDOCUMENTLANGUAGEEXCERPTEMPTY;
 		}		
 
 			// Store abstract and language information:		
@@ -458,7 +491,7 @@ class tx_terdoc_renderdocuments {
 			) 
 		);	
 		t3lib_div::writeFile ($documentDir.'abstract.txt', $abstract);
-			t3lib_div::writeFile ($documentDir.'text-excerpt.txt', $textExcerpt);
+		t3lib_div::writeFile ($documentDir.'text-excerpt.txt', $textExcerpt);
 		t3lib_div::writeFile ($documentDir.'language.txt', $documentLanguage);
 		
 		$this->removeDirRecursively ($documentDir.'sxw');
@@ -558,28 +591,52 @@ class tx_terdoc_renderdocuments {
 	 * @param		string	$extensionKey: Extension key of the extension
 	 * @param		string	$version: Version number of the extension
 	 * @param		string	$sourceName: relative path and filename of the file to be extracted. Example: doc/manual.sxw
+	 * @param		array	$errorCodes: This variable will contain an array of error codes if errors occurred.
 	 * @param		string	$targetFullPath: full path and filename of the target file. Example: /tmp/test.sxw
 	 * @return		mixed	FALSE if operation fails, TRUE if file was written successfully, Array if operation was successful and $targetFullPath was NULL
 	 * @access		protected
 	 */
-	protected function t3x_extractFileFromT3X ($extensionKey, $version, $sourceName, $targetFullPath=NULL) {
+	protected function t3x_extractFileFromT3X ($extensionKey, $version, $sourceName, &$errorCodes, $targetFullPath=NULL) {
 		$this->log ('   * Extracting "'.$sourceName.'" from extension '.$extensionKey.' ('.$version.')');
 
 		$t3xFileRaw = @file_get_contents ($this->getExtensionVersionPathAndBaseName($extensionKey, $version).'.t3x'); 
-		if ($t3xFileRaw === FALSE) return FALSE;
+		if ($t3xFileRaw === FALSE) {
+			$errorCodes[] = self::ERRORCODE_ERRORWHILEREADINGT3XFILE;
+			return FALSE;
+		}
 
 		list ($md5Hash, $compressionFlag, $dataRaw) = split (':', $t3xFileRaw, 3);
 		unset ($t3xFileRaw);
 		
 		$dataUncompressed = gzuncompress ($dataRaw);
-		if ($md5Hash != md5 ($dataUncompressed)) { $this->log ('   * T3X archive is corrupted, MD5 hash didn\'t match!'); return FALSE; }
+		if ($md5Hash != md5 ($dataUncompressed)) { 
+			$this->log ('   * T3X archive is corrupted, MD5 hash didn\'t match!'); 
+			$errorCodes[] = self::ERRORCODE_T3XARCHIVECORRUPTED;
+			return FALSE; 
+		}
 		unset ($dataRaw);		
 	
 		$t3xArr = unserialize ($dataUncompressed);
-		if (!is_array ($t3xArr)) { $this->log ('   * ERROR while uncompressing t3x file!'); return FALSE; }	
-		if (!is_array ($t3xArr['FILES'])) { $this->log ('   * ERROR: Corrupted t3x structure - no files found'); return FALSE; }
-		if (!is_array ($t3xArr['FILES'][$sourceName])) { $this->log ('   * File "'.$sourceName.'" not found in this t3x archive!'); return FALSE; }
-		if ($t3xArr['FILES'][$sourceName]['content_md5'] != md5 ($t3xArr['FILES'][$sourceName]['content']))  { $this->log ('   * File "'.$sourceName.'" is corrupted, MD5 hash didn\'t match!'); return FALSE; }
+		if (!is_array ($t3xArr)) { 
+			$this->log ('   * ERROR while uncompressing t3x file!'); 
+			$errorCodes[] = self::ERRORCODE_ERRORWHILEUNCOMPRESSINGT3XFILE;
+			return FALSE; 
+		}	
+		if (!is_array ($t3xArr['FILES'])) { 
+			$this->log ('   * ERROR: Corrupted t3x structure - no files found'); 
+			$errorCodes[] = self::ERRORCODE_CORRUPTEDT3XSTRUCTURENOFILESFOUND;
+			return FALSE; 
+		}
+		if (!is_array ($t3xArr['FILES'][$sourceName])) { 
+			$this->log ('   * File "'.$sourceName.'" not found in this t3x archive!'); 
+			$errorCodes[] = self::ERRORCODE_FILENOTFOUNDINT3XARCHIVE;
+			return FALSE; 
+		}
+		if ($t3xArr['FILES'][$sourceName]['content_md5'] != md5 ($t3xArr['FILES'][$sourceName]['content']))  { 
+			$this->log ('   * File "'.$sourceName.'" is corrupted, MD5 hash didn\'t match!');
+			$errorCodes[] = self::ERRORCODE_FILEOFT3XISCORRUPTED;
+			return FALSE; 
+		}
 
 		if (is_null ($targetFullPath)) {
 			return $t3xArr['FILES'][$sourceName]['content'];	

@@ -11,6 +11,9 @@
     <data type="array">
         <languageKey index="default" type="array">
             <label index="api_error_documentationnotavailable">Not available</label>
+            <label index="api_error_whyisdocumentationnotavailable">(Why?)</label>
+            <label index="api_error_documentationnotyetrendered">Not yet rendered</label>
+            <label index="api_error_documentationbroken">Manual is broken</label>
             <label index="api_error_terdochtmlnotinstalled">No online viewer installed</label>
             <label index="api_error_tocempty">The table of contents is empty!</label>
             <label index="api_general_documentation">Manual</label>

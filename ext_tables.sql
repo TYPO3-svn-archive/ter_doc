@@ -20,6 +20,21 @@ CREATE TABLE tx_terdoc_manuals (
 );
 
 #
+# Table structure for table 'tx_terdoc_renderproblems'
+#
+CREATE TABLE tx_terdoc_renderproblems ( 
+  uid int(11) unsigned DEFAULT '0' NOT NULL auto_increment,
+  extensionkey varchar(30) DEFAULT '' NOT NULL,
+  version varchar(11) DEFAULT '' NOT NULL,
+  tstamp int(11) unsigned DEFAULT '0' NOT NULL,
+  errorcode int(11) unsigned DEFAULT '0' NOT NULL,
+
+  PRIMARY KEY (uid),
+  KEY extkey (extensionkey),
+  KEY extversion (version),
+);
+
+#
 # Table structure for table 'tx_terdoc_categories'
 #
 CREATE TABLE tx_terdoc_categories ( 
