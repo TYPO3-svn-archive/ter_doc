@@ -148,8 +148,12 @@ class tx_terdoc_api {
 		$documentDir = $this->getDocumentDirOfExtensionVersion ($extensionKey, $version);
 		$tocArr = unserialize (@file_get_contents ($documentDir.'toc.dat'));
 		if (!is_array ($tocArr)) {
-			$message = '<span style="color:red;">'.htmlspecialchars($TSFE->sL('LLL:EXT:ter_doc/locallang.xml:api_error_documentationnotavailable')).'</span>';
-			$message .= ' ' . $this->getDocumentationRenderProblemsLink($extensionKey, $version, htmlspecialchars($TSFE->sL('LLL:EXT:ter_doc/locallang.xml:api_error_whyisdocumentationnotavailable')));
+			if (@file_exists($documentDir.'t3xfilemd5.txt')) {
+				$message = '<span style="color:red;">'.htmlspecialchars($TSFE->sL('LLL:EXT:ter_doc/locallang.xml:api_error_documentationnotavailable')).'</span>';
+				$message .= ' ' . $this->getDocumentationRenderProblemsLink($extensionKey, $version, htmlspecialchars($TSFE->sL('LLL:EXT:ter_doc/locallang.xml:api_error_whyisdocumentationnotavailable')));
+			} else {
+				$message = '<span style="color:red;">'.htmlspecialchars($TSFE->sL('LLL:EXT:ter_doc/locallang.xml:api_error_documentationnotyetrendered')).'</span>';
+			}
 			return $message;
 		}		
 
