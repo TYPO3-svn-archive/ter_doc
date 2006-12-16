@@ -125,6 +125,9 @@ class tx_terdoc_pi1 extends tslib_pibase {
 		}
 
 		if (isset ($this->piVars['extensionkey'])) {
+			if (strlen($this->piVars['version'] == 0) || $this->piVars['version'] == 'current') {
+				$this->piVars['version'] = $this->db_getMostCurrentVersionNumberOfManual($this->piVars['extensionkey']);
+			}
 			if (isset ($this->piVars['format'])) {
 				$content .= $this->renderDocumentFormat ($this->piVars['extensionkey'], $this->piVars['version'], $this->piVars['format']);
 			} else {
@@ -266,7 +269,6 @@ class tx_terdoc_pi1 extends tslib_pibase {
 
 		$output = '';
 		$tableRows = array();
-		$version = isset ($version) ? $version : 'current';
 
 		$renderDocumentsObj = tx_terdoc_renderdocuments::getInstance();
 		$outputFormatsArr = $renderDocumentsObj->getOutputFormats();
@@ -594,33 +596,41 @@ return '';
 	protected function db_fetchManualRecord ($extensionKey, $version) {
 		global $TYPO3_DB;
 
-		if ($version == 'current') {
-			$res = $TYPO3_DB->exec_SELECTquery (
-				'*',
-				'tx_terdoc_manuals',
-				'extensionkey="'.$TYPO3_DB->quoteStr($extensionKey,'tx_terdoc_manuals').'"'
-			);
+		$res = $TYPO3_DB->exec_SELECTquery (
+			'*',
+			'tx_terdoc_manuals',
+			'extensionkey="'.$TYPO3_DB->quoteStr($extensionKey,'tx_terdoc_manuals').'" AND version="'.$TYPO3_DB->quoteStr($version,'tx_terdoc_manuals').'"'
+		);
 
-			if ($res) {
-				$manualArr = array();
-				while ($row = $TYPO3_DB->sql_fetch_assoc ($res)) {
-					if (!isset ($manualArr['version']) || version_compare($row['version'], $manualArr['version'], '>')) {
-						$manualArr = $row;
-					}
+		if ($res) {
+			return $TYPO3_DB->sql_fetch_assoc ($res);
+		} else return FALSE;
+	}
+	
+	/**
+	 * Returns the version number of the most current manual version of the specified
+	 * extension.
+	 * 
+	 * @param	string		$extensionKey: The extension key
+	 * @return	mixed		Either the version number or FALSE if no manual could be found at all
+	 */
+	protected function db_getMostCurrentVersionNumberOfManual($extensionKey) {
+		global $TYPO3_DB;
+		
+		$res = $TYPO3_DB->exec_SELECTquery (
+			'version',
+			'tx_terdoc_manuals',
+			'extensionkey="'.$TYPO3_DB->quoteStr($extensionKey,'tx_terdoc_manuals').'"'
+		);
+
+		if ($res) {
+			$manualArr = NULL;
+			while ($row = $TYPO3_DB->sql_fetch_assoc ($res)) {
+				if (!isset ($manualArr['version']) || version_compare($row['version'], $manualArr['version'], '>')) {
+					$manualArr = $row;
 				}
-				return $manualArr;
-			} else return FALSE;
-		} else {
-			$res = $TYPO3_DB->exec_SELECTquery (
-				'*',
-				'tx_terdoc_manuals',
-				'extensionkey="'.$TYPO3_DB->quoteStr($extensionKey,'tx_terdoc_manuals').'" AND version="'.$TYPO3_DB->quoteStr($version,'tx_terdoc_manuals').'"'
-			);
-
-			if ($res) {
-				return $TYPO3_DB->sql_fetch_assoc ($res);
-			} else return FALSE;
-
+			}
+			return (is_array($manualArr) ? $manualArr['version'] : FALSE);
 		}
 	}
 
