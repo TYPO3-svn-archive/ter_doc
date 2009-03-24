@@ -529,7 +529,7 @@ return '';
 			'1'
 		);
 		while ($row = $TYPO3_DB->sql_fetch_assoc ($res)) {
-			$categoriesArr[$row['extensionkey']] = $row['categoryuid'];
+			$categoriesArr[$row['categoryuid']][] = $row['extensionkey'];
 		}
 		return $categoriesArr;
 	}
@@ -548,7 +548,12 @@ return '';
 	protected function db_fetchManualRecords ($filterByCategory) {
 		global $TYPO3_DB;
 
-		$categoryAssignmentsArr = ($filterByCategory)  ? $this->db_fetchCategoryAssignments() : array();
+		$categoryAssignmentsArr = array();
+		if ($filterByCategory) {
+		  	$tmp = $this->db_fetchCategoryAssignments();
+		  	$categoryAssignmentsArr = $tmp[$filterByCategory];
+		} 
+
 		if ($filterByCategory) {
 			$res = $TYPO3_DB->exec_SELECTquery('isdefault', 'tx_terdoc_categories', 'uid='.intval($filterByCategory));
 			$categoryArr = $TYPO3_DB->sql_fetch_assoc($res);
@@ -564,10 +569,10 @@ return '';
 
 		if ($res) {
 			$manualsArr = array();
-			while ($row = $TYPO3_DB->sql_fetch_assoc ($res)) {
+			while ($row = $TYPO3_DB->sql_fetch_assoc ($res)) { 
 				if (
 						!$filterByCategory ||
-						$categoryAssignmentsArr[$row['extensionkey']] == intval($this->confCategory) ||
+						in_array($row['extensionkey'], $categoryAssignmentsArr) ||
 						($categoryArr['isdefault'] && !isset($categoryAssignmentsArr[$row['extensionkey']]))
 					) {
 					if (!is_array ($manualsArr[$row['extensionkey']]) || version_compare($row['version'], $manualsArr[$row['extensionkey']]['version'], '>')) {

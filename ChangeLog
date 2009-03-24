@@ -1,3 +1,7 @@
+2009-03-24 Steffen Kamper  <info@sk-typo3.de>
+
+	* changed category assignment (fetching method). This was the main problem on typo3.org and prevented render of documentation links
+	
 Version 2.0.3 2006-12-16	Robert Lemke <robert@typo3.org>
 	+ You can now link to the most recent version of a manual (or enter the url directly) without having to add the "current" parameter: http://typo3.org/documentation/document-library/extension-manuals/tt_news/
 
