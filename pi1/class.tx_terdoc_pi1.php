@@ -24,7 +24,7 @@
 /**
  * Plugin 'TER Documentation' for the 'ter_doc' extension.
  *
- * $Id$
+ * $Id: class.tx_terdoc_pi1.php 18283 2009-03-24 22:40:28Z steffenk $
  *
  * @author	Robert Lemke <robert@typo3.org>
  */
@@ -79,6 +79,7 @@ class tx_terdoc_pi1 extends tslib_pibase {
 	protected	$confViewMode = '';												// View mode
 	protected	$confCategory = '';												// If set, only this category is shown in documents mode
 	protected	$singleViewPID;
+	protected	$storagePid = 0;
 
 	/**
 	 * Initializes the plugin, only called from main()
@@ -97,6 +98,22 @@ class tx_terdoc_pi1 extends tslib_pibase {
 
 		$this->confViewMode = $this->pi_getFFvalue ($this->cObj->data['pi_flexform'], 'view', 'sDEF');
 		$this->confCategory = $this->pi_getFFvalue ($this->cObj->data['pi_flexform'], 'category', 'sDEF');
+
+		$this->loadStoragePid();
+	}
+
+	/**
+	 * Load storage PID from ext conf
+	 *
+	 * @return void
+	 */
+	protected function loadStoragePid() {
+		if (!empty($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['ter_doc'])) {
+			$config = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['ter_doc']);
+			if (!empty($config['storagePid'])) {
+				$this->storagePid = (int) $config['storagePid'];
+			}
+		}
 	}
 
 	/**
@@ -526,7 +543,7 @@ return '';
 		$res = $TYPO3_DB->exec_SELECTquery (
 			'extensionkey, categoryuid',
 			'tx_terdoc_manualscategories',
-			'1'
+			'pid=' . (int) $this->storagePid
 		);
 		while ($row = $TYPO3_DB->sql_fetch_assoc ($res)) {
 			$categoriesArr[$row['categoryuid']][] = $row['extensionkey'];
@@ -555,14 +572,18 @@ return '';
 		} 
 
 		if ($filterByCategory) {
-			$res = $TYPO3_DB->exec_SELECTquery('isdefault', 'tx_terdoc_categories', 'uid='.intval($filterByCategory));
+			$res = $TYPO3_DB->exec_SELECTquery(
+				'isdefault',
+				'tx_terdoc_categories',
+				'uid='.intval($filterByCategory)
+			);
 			$categoryArr = $TYPO3_DB->sql_fetch_assoc($res);
 		}
 
 		$res = $TYPO3_DB->exec_SELECTquery (
 			'*',
 			'tx_terdoc_manuals',
-			'1',
+			'pid=' . (int) $this->storagePid,
 			'title,version',
 			'title ASC'
 		);
@@ -604,7 +625,7 @@ return '';
 		$res = $TYPO3_DB->exec_SELECTquery (
 			'*',
 			'tx_terdoc_manuals',
-			'extensionkey="'.$TYPO3_DB->quoteStr($extensionKey,'tx_terdoc_manuals').'" AND version="'.$TYPO3_DB->quoteStr($version,'tx_terdoc_manuals').'"'
+			'extensionkey="'.$TYPO3_DB->quoteStr($extensionKey,'tx_terdoc_manuals').'" AND version="'.$TYPO3_DB->quoteStr($version,'tx_terdoc_manuals').'" AND pid=' . (int) $this->storagePid
 		);
 
 		if ($res) {
@@ -625,7 +646,7 @@ return '';
 		$res = $TYPO3_DB->exec_SELECTquery (
 			'version',
 			'tx_terdoc_manuals',
-			'extensionkey="'.$TYPO3_DB->quoteStr($extensionKey,'tx_terdoc_manuals').'"'
+			'extensionkey="'.$TYPO3_DB->quoteStr($extensionKey,'tx_terdoc_manuals').'" AND pid=' . (int) $this->storagePid
 		);
 
 		if ($res) {

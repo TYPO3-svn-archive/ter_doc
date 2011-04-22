@@ -1,29 +1,29 @@
-2009-03-24 Steffen Kamper  <info@sk-typo3.de>
-
-	* changed category assignment (fetching method). This was the main problem on typo3.org and prevented render of documentation links
-	
-Version 2.0.3 2006-12-16	Robert Lemke <robert@typo3.org>
-	+ You can now link to the most recent version of a manual (or enter the url directly) without having to add the "current" parameter: http://typo3.org/documentation/document-library/extension-manuals/tt_news/
-
-Version 2.0.2 2006-12-15	Robert Lemke <robert@typo3.org>
-	+ A little improvement: The plugin can now distinguish between "not yet rendered" and "not available but I don't have an error report either".
-
-Version 2.0.1 2006-12-15	Robert Lemke <robert@typo3.org>
-
-	+ Added support for ter_doc_renderproblems which displays detailed information about why documentation could not be rendered
-
-2006-09-01  Sebastian Kurfuerst  <sebastian@typo3.org>
-
-	* Fixed images in BE module
-
-17.03.2006 Robert Lemke <robert@typo3.org>
-	~ Modified documentation link: It now reports if documentation is not available at all or if it still has to be rendered.
-	# Fixed a very nasty bug in the functions which render the documentation links: Because $TSFE->cObj->getTypoLink() was used, no cHashes were created which resulted in display of the list of extension manuals instead of a specific manual
-	# Links to download versions of documentation now come with a "no_cache=1"
-
-05.03.2006 Robert Lemke <robert@typo3.org>
-	~ Output format classes must now extend either tx_terdoc_documentformat_display or tx_terdoc_documentformat_download
-
-25.09.2005 Robert Lemke  <robert@typo3.org>
-
-	* Initial release
+2009-03-24 Steffen Kamper  <info@sk-typo3.de>
+
+	* changed category assignment (fetching method). This was the main problem on typo3.org and prevented render of documentation links
+	
+Version 2.0.3 2006-12-16	Robert Lemke <robert@typo3.org>
+	+ You can now link to the most recent version of a manual (or enter the url directly) without having to add the "current" parameter: http://typo3.org/documentation/document-library/extension-manuals/tt_news/
+
+Version 2.0.2 2006-12-15	Robert Lemke <robert@typo3.org>
+	+ A little improvement: The plugin can now distinguish between "not yet rendered" and "not available but I don't have an error report either".
+
+Version 2.0.1 2006-12-15	Robert Lemke <robert@typo3.org>
+
+	+ Added support for ter_doc_renderproblems which displays detailed information about why documentation could not be rendered
+
+2006-09-01  Sebastian Kurfuerst  <sebastian@typo3.org>
+
+	* Fixed images in BE module
+
+17.03.2006 Robert Lemke <robert@typo3.org>
+	~ Modified documentation link: It now reports if documentation is not available at all or if it still has to be rendered.
+	# Fixed a very nasty bug in the functions which render the documentation links: Because $TSFE->cObj->getTypoLink() was used, no cHashes were created which resulted in display of the list of extension manuals instead of a specific manual
+	# Links to download versions of documentation now come with a "no_cache=1"
+
+05.03.2006 Robert Lemke <robert@typo3.org>
+	~ Output format classes must now extend either tx_terdoc_documentformat_display or tx_terdoc_documentformat_download
+
+25.09.2005 Robert Lemke  <robert@typo3.org>
+
+	* Initial release

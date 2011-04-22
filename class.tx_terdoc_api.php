@@ -25,7 +25,7 @@
 /**
  * API for other TYPO3 extensions
  *
- * $Id$
+ * $Id: class.tx_terdoc_api.php 4354 2006-12-15 17:47:51Z robert $
  *
  * @author	Robert Lemke <robert@typo3.org>
  */
@@ -34,7 +34,8 @@ class tx_terdoc_api {
 
 	protected	$repositoryDir = '';								// Full path to the local extension repository. Configured in the Extension Manager
 	protected	$localLangArr = array();							// Contains the locallang strings for this API
-	
+	protected	$storagePid = 0;
+
 	private static $instance = FALSE;								// Holds an instance of this class
 
 
@@ -77,6 +78,10 @@ class tx_terdoc_api {
 			
 			$this->repositoryDir = $staticConfArr['repositoryDir'];
 			if (substr ($this->repositoryDir, -1, 1) != '/') $this->repositoryDir .= '/';
+
+			if (!empty($staticConfArr['storagePid'])) {
+				$this->storagePid = (int) $staticConfArr['storagePid'];
+			}
 		}
 	}
 
@@ -252,7 +257,7 @@ class tx_terdoc_api {
 		$res = $TYPO3_DB->exec_SELECTquery (
 			'categoryuid',
 			'tx_terdoc_manualscategories',
-			'extensionkey="'.$TYPO3_DB->quoteStr($extensionKey, 'tx_terdoc_manualscategories').'"'
+			'extensionkey="'.$TYPO3_DB->quoteStr($extensionKey, 'tx_terdoc_manualscategories').'" AND pid=' . (int) $this->storagePid
 		);
 		if (!$res) return FALSE;
 		
@@ -260,7 +265,7 @@ class tx_terdoc_api {
 			$res = $TYPO3_DB->exec_SELECTquery (
 				'viewpid',
 				'tx_terdoc_categories',
-				'isdefault=1'
+				'isdefault=1 AND pid=' . (int) $this->storagePid
 			);
 			if (!$res) return FALSE;
 			$categoryRow = $TYPO3_DB->sql_fetch_assoc ($res);
@@ -301,7 +306,7 @@ class tx_terdoc_api {
 		$res = $TYPO3_DB->exec_SELECTquery (
 			'uid',
 			'tx_terdoc_manualspagecache',
-			'extensionkey="'.$TYPO3_DB->quoteStr($extensionKey,'tx_terdoc_manualspagecache').'" AND version="'.$TYPO3_DB->quoteStr($version,'tx_terdoc_manualspagecache').'"'
+			'extensionkey="'.$TYPO3_DB->quoteStr($extensionKey,'tx_terdoc_manualspagecache').'" AND version="'.$TYPO3_DB->quoteStr($version,'tx_terdoc_manualspagecache').'" AND pid=' . (int) $this->storagePid
 		);
 		if (!$res) return FALSE; 
 
@@ -310,6 +315,7 @@ class tx_terdoc_api {
 			return is_array ($row) ? $row['uid'] : FALSE;			
 		} else {
 			$fields = array(
+				'pid' => (int) $this->storagePid,
 				'extensionkey' => $extensionKey,
 				'version' => $version
 			);

@@ -1,5 +1,5 @@
-
-
-- oomanual2docbook.xsl:
-	- Fetch language information from meta.xml and set the <book lang=""> attribute accordingly
+
+
+- oomanual2docbook.xsl:
+	- Fetch language information from meta.xml and set the <book lang=""> attribute accordingly
 	

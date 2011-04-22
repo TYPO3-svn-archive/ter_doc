@@ -27,7 +27,7 @@
  * script as well as from the ter_doc_* extensions for registering
  * output formats. 
  *
- * $Id$
+ * $Id: class.tx_terdoc_renderdocuments.php 4352 2006-12-15 17:31:20Z robert $
  *
  * @author	Robert Lemke <robert@typo3.org>
  */
@@ -61,6 +61,7 @@ class tx_terdoc_renderdocuments {
 	
 	protected $outputFormats = array();								// Objects and method names of the render classes. Add new class by calling registerRenderClass()
 	protected $languageGuesserServiceObj = array();					// Holds an instance of the service "textLang" 
+	protected $storagePid = 0;
 
 	private static $instance = FALSE;								// Holds an instance of this class
 
@@ -83,10 +84,25 @@ class tx_terdoc_renderdocuments {
 	 */
 	public function getInstance() {
 		if (self::$instance === FALSE) {
-			self::$instance = new tx_terdoc_renderdocuments;	
+			self::$instance = new tx_terdoc_renderdocuments;
+			self::$instance->loadStoragePid();
 		}
 		return self::$instance;	
-	} 
+	}
+
+	/**
+	 * Load storage PID from ext conf
+	 *
+	 * @return void
+	 */
+	public function loadStoragePid() {
+		if (!empty($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['ter_doc'])) {
+			$config = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['ter_doc']);
+			if (!empty($config['storagePid'])) {
+				$this->storagePid = (int) $config['storagePid'];
+			}
+		}
+	}
 
 	/**
 	 * Initializes this class and checks if another process is running already.
@@ -161,7 +177,10 @@ class tx_terdoc_renderdocuments {
 					$documentDir = $this->getDocumentDirOfExtensionVersion ($extensionKey, $version);
 					
 					$this->log ('* Rendering documents for extension "'.$extensionKey.'" ('.$version.')');
-					$TYPO3_DB->exec_DELETEquery ('tx_terdoc_renderproblems', 'extensionkey="'.$extensionKey.'" AND version="'.$version.'"');						
+					$TYPO3_DB->exec_DELETEquery (
+						'tx_terdoc_renderproblems',
+						'extensionkey="'.$extensionKey.'" AND version="'.$version.'" AND pid=' . (int) $this->storagePid
+					);
 					
 					if ($this->documentCache_transformManualToDocBook($extensionKey, $version, $transformationErrorCodes)) {
 						foreach ($this->outputFormats as $label => $formatInfoArr) {
@@ -169,14 +188,26 @@ class tx_terdoc_renderdocuments {
 							$formatInfoArr['object']->renderCache($documentDir);
 						}
 					} else {
-						$TYPO3_DB->exec_DELETEquery ('tx_terdoc_manuals', 'extensionkey="'.$extensionKey.'" AND version="'.$version.'"');						
+						$TYPO3_DB->exec_DELETEquery(
+							'tx_terdoc_manuals',
+							'extensionkey="'.$extensionKey.'" AND version="'.$version.'" AND pid=' . (int) $this->storagePid
+						);
 						$this->log ('	* No manual found or problem while extracting manual');	
 					}
 					$this->pageCache_clearForExtension ($extensionKey);
 					t3lib_div::writeFile ($documentDir.'t3xfilemd5.txt', $extensionAndVersionArr['t3xfilemd5']);
 
 					foreach($transformationErrorCodes as $errorCode) {
-						$TYPO3_DB->exec_INSERTquery ('tx_terdoc_renderproblems', array('extensionkey' => $extensionKey, 'version' => $version, 'tstamp' => time(), 'errorcode' => $errorCode));
+						$TYPO3_DB->exec_INSERTquery (
+							'tx_terdoc_renderproblems',
+							array(
+								'pid' => (int) $this->storagePid,
+								'extensionkey' => $extensionKey,
+								'version' => $version,
+								'tstamp' => time(),
+								'errorcode' => $errorCode
+							)
+						);
 					}
 					$this->log ('   * Error code(s): ' . implode(',', $transformationErrorCodes));
 				}				
@@ -250,7 +281,10 @@ class tx_terdoc_renderdocuments {
 		global $TYPO3_DB;
 		
 		$this->log ('* Deleting cached manual information from database');
-		$TYPO3_DB->exec_DELETEquery ('tx_terdoc_manuals', '1');		
+		$TYPO3_DB->exec_DELETEquery (
+			'tx_terdoc_manuals',
+			'pid=' . (int) $this->storagePid
+		);
 
 			// Transfer data from extensions.xml.gz to database:
 		$unzippedExtensionsXML = implode ('', @gzfile($this->repositoryDir.'extensions.xml.gz'));
@@ -268,6 +302,7 @@ class tx_terdoc_renderdocuments {
 					$language = @file_get_contents($documentDir.'language.txt');
 					
 					$extensionsRow = array (
+						'pid' => (int) $this->storagePid,
 						'extensionkey' => $extension['extensionkey'],
 						'version' => $version['version'],
 						'title' => $version->title,
@@ -329,7 +364,7 @@ class tx_terdoc_renderdocuments {
 		$res = $TYPO3_DB->exec_SELECTquery (
 			'extensionkey,version,t3xfilemd5',
 			'tx_terdoc_manuals',
-			'1'
+			'pid=' . (int) $this->storagePid
 		);
 		if ($res) {
 			while ($row = $TYPO3_DB->sql_fetch_assoc ($res)) {
@@ -484,7 +519,7 @@ class tx_terdoc_renderdocuments {
 			// Store abstract and language information:		
 		$TYPO3_DB->exec_UPDATEquery (
 			'tx_terdoc_manuals', 
-			'extensionkey="'.$extensionKey.'" AND version="'.$version.'"', 
+			'extensionkey="'.$extensionKey.'" AND version="'.$version.'" AND pid=' . (int) $this->storagePid,
 			array(
 				'abstract' => $abstract,
 				'language' => $documentLanguage,
@@ -555,7 +590,7 @@ class tx_terdoc_renderdocuments {
 		$res = $TYPO3_DB->exec_SELECTquery (
 			'uid',
 			'tx_terdoc_manualspagecache',
-			'extensionkey="'.$TYPO3_DB->quoteStr($extensionKey,'tx_terdoc_manualspagecache').'"'
+			'extensionkey="'.$TYPO3_DB->quoteStr($extensionKey,'tx_terdoc_manualspagecache').'" AND pid=' . (int) $this->storagePid
 		);
 
 		if (!$res) return FALSE; 
@@ -605,7 +640,7 @@ class tx_terdoc_renderdocuments {
 			return FALSE;
 		}
 
-		list ($md5Hash, $compressionFlag, $dataRaw) = split (':', $t3xFileRaw, 3);
+		list ($md5Hash, $compressionFlag, $dataRaw) = preg_split('/:/is', $t3xFileRaw, 3);
 		unset ($t3xFileRaw);
 		
 		$dataUncompressed = gzuncompress ($dataRaw);

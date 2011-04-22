@@ -24,7 +24,7 @@
 /**
  * Module 'TER Docs' for the 'ter_doc' extension.
  *
- * $Id$
+ * $Id: index.php 3802 2006-10-01 08:47:51Z sebastian $
  *
  * @author	Robert Lemke <robert@typo3.org>
  */

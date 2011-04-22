@@ -26,7 +26,7 @@
 /**
  * Documentation renderer for the ter_doc extension
  *
- * $Id$
+ * $Id: render-documents_cli.php 2432 2006-03-06 00:15:20Z robert $
  *
  * @author	Robert Lemke <robert@typo3.org>
  */

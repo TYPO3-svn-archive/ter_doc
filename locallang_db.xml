@@ -1,31 +1,38 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <T3locallang>
-    <meta type="array">
-        <description></description>
-        <type>database</type>
-        <csh_table></csh_table>
-        <fileId>EXT:ter_doc/locallang_db.xml</fileId>
-        <labelContext type="array">
-            <label index="tt_content.list_type_pi1"></label>
-        </labelContext>
-    </meta>
-    <data type="array">
-        <languageKey index="default" type="array">
-            <label index="tt_content.list_type_pi1">TER Documentation</label>
-            <label index="tx_terdoc_categories">TER Documentation Categories</label>
-            <label index="tx_terdoc_categories.title">Title</label>
-            <label index="tx_terdoc_categories.description">Description</label>
-            <label index="tx_terdoc_categories.isdefault">Is default category</label>
-            <label index="tx_terdoc_categories.viewpid">View page ID</label>
-        </languageKey>
-    </data>
-    <orig_hash type="array">
-        <languageKey index="default" type="array">
-            <label index="tt_content.list_type_pi1" type="integer">68662182</label>
-        </languageKey>
-    </orig_hash>
-    <orig_text type="array">
-        <languageKey index="default" type="array">
-        </languageKey>
-    </orig_text>
+	<meta type="array">
+		<description>language labels for ter_doc extension</description>
+		<type>plugin</type>
+	</meta>
+	<data type="array">
+		<languageKey index="default" type="array">
+			<label index="tt_content.list_type_pi1">TER Documentation</label>
+			<label index="tx_terdoc_manuals">Extension Manual</label>
+			<label index="tx_terdoc_manuals.title">Title</label>
+			<label index="tx_terdoc_manuals.extensionkey">Extension key</label>
+			<label index="tx_terdoc_manuals.version">Version</label>
+			<label index="tx_terdoc_manuals.language">Language</label>
+			<label index="tx_terdoc_manuals.modificationdate">Modification date</label>
+			<label index="tx_terdoc_manuals.authorname">Author name</label>
+			<label index="tx_terdoc_manuals.authoremail">Author email</label>
+			<label index="tx_terdoc_manuals.abstract">Abstract</label>
+			<label index="tx_terdoc_manuals.t3xfilemd5">MD5 hash</label>
+			<label index="tx_terdoc_renderproblems">Render Problem</label>
+			<label index="tx_terdoc_renderproblems.extensionkey">Extension key</label>
+			<label index="tx_terdoc_renderproblems.version">Version</label>
+			<label index="tx_terdoc_renderproblems.tstamp">Date</label>
+			<label index="tx_terdoc_renderproblems.errorcode">Error code</label>
+			<label index="tx_terdoc_categories">Documentation category</label>
+			<label index="tx_terdoc_categories.title">Title</label>
+			<label index="tx_terdoc_categories.description">Description</label>
+			<label index="tx_terdoc_categories.isdefault">Is default category</label>
+			<label index="tx_terdoc_categories.viewpid">View page id</label>
+			<label index="tx_terdoc_manualscategories">Manual category</label>
+			<label index="tx_terdoc_manualscategories.extensionkey">Extension key</label>
+			<label index="tx_terdoc_manualscategories.categoryuid">Category id</label>
+			<label index="tx_terdoc_manualspagecache">Documentation cache entry</label>
+			<label index="tx_terdoc_manualspagecache.extensionkey">Extension key</label>
+			<label index="tx_terdoc_manualspagecache.version">Version</label>
+		</languageKey>
+	</data>
 </T3locallang>
