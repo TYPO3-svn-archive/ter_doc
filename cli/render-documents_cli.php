@@ -39,10 +39,14 @@ define('TYPO3_cliMode', TRUE);
 #define('PATH_thisScript',$_ENV['_']?$_ENV['_']:$_SERVER['_']);
 define('PATH_thisScript',$_SERVER['SCRIPT_FILENAME']);
 
-require(dirname(PATH_thisScript).'/conf.php');
-require(dirname(PATH_thisScript).'/'.$BACK_PATH.'init.php');
 
-require_once t3lib_extMgm::extPath('ter_doc').'class.tx_terdoc_renderdocuments.php'; 
+
+require(dirname(PATH_thisScript).'/conf.php');
+#$BACK_PATH = '/Users/ingo/Projects/typo3.org/t3o_2011/www/html/typo3/';
+#require(dirname(PATH_thisScript).'/'.$BACK_PATH.'init.php');
+require('/Users/ingo/Projects/typo3.org/t3o_2011/www/html/typo3/init.php');
+
+require_once t3lib_extMgm::extPath('ter_doc').'class.tx_terdoc_renderdocuments.php';
 
 $renderDocsObj = tx_terdoc_renderdocuments::getInstance();
 $renderDocsObj->renderCache();
