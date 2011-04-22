@@ -174,9 +174,9 @@ class tx_terdoc_api {
 		$pageId = $this->getViewPageIdForExtensionVersion($extensionKey, $version); 
 		$parametersArr = array(
 			'tx_terdoc_pi1[extensionkey]' => $extensionKey,
-			'tx_terdoc_pi1[version]' => $version,
-			'tx_terdoc_pi1[format]' => 'ter_doc_html_onlinehtml',
-			'tx_terdoc_pi1[html_readonline_chapter]' => '',
+			'tx_terdoc_pi1[version]' => 'current',
+			//'tx_terdoc_pi1[format]' => 'ter_doc_html_onlinehtml',
+			//'tx_terdoc_pi1[html_readonline_chapter]' => '',
 		);
 		
 		$label = $this->csConvHSC($TSFE->sL($outputFormatsArr['ter_doc_html_onlinehtml']['label']));
