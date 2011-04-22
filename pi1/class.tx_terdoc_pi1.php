@@ -403,11 +403,9 @@ class tx_terdoc_pi1 extends tslib_pibase {
 		);
 		if ($res) {
 			$row = $TYPO3_DB->sql_fetch_assoc ($res);
-			$output = '
-				'.$this->renderTopNavigation().'
-				<h2>'.htmlspecialchars($row['title']).'</h2>
-				<p>'.htmlspecialchars($row['description']).'</p>
-			';
+			$output = $this->renderTopNavigation().
+				//'<h2>' . htmlspecialchars($row['title']) . '</h2>' .
+				'<p>' . htmlspecialchars($row['description']) . '</p>';
 		}
 		return $output;
 	}
