@@ -91,6 +91,13 @@ class Tx_TerDoc_Cli_Renderer {
 				Tx_TerDoc_Utility_Cli::log($e->getMessage());
 			}
 		}
+		if ($commands[0] == 'generateIndex') {
+			try {
+				$controller->generateIndexAction($arguments);
+			} catch (Exception $e) {
+				Tx_TerDoc_Utility_Cli::log($e->getMessage());
+			}
+		}
 		elseif ($commands[0] == 'update') {
 			try {
 				$controller->updateAction($arguments);

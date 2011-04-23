@@ -79,18 +79,18 @@ class Tx_TerDoc_Controller_CliController extends Tx_Extbase_MVC_Controller_Actio
 
 		$this->initializeAction();
 		$this->validator->validateFileStructure();
-		
+
 		// fetch content
 		$content = file_get_contents('http://typo3.org/fileadmin/ter/extensions.xml.gz');
-		
+
 		// write content
 		$datasource = $this->settings['repositoryDir'] . 'extensions.xml.gz';
 		$result = file_put_contents($datasource, $content);
-		
-		if (! $result) {
+
+		if (!$result) {
 			throw new Exception('Exception thrown #1300100506: not possible to write datasource at "' . $datasource . '" or to fetch the datasource from "' . $content . '"', 1300100506);
 		}
-		
+
 		Tx_TerDoc_Utility_Cli::log('Data Source has been updated with success');
 	}
 
@@ -128,7 +128,119 @@ class Tx_TerDoc_Controller_CliController extends Tx_Extbase_MVC_Controller_Actio
 		}
 		unlink($this->settings['lockFile']);
 	}
-	
+
+	/**
+	 * Index action for this controller. Displays a list of addresses.
+	 *
+	 * @param  array $arguments list of possible arguments
+	 * @return void
+	 */
+	public function generateIndexAction($arguments) {
+
+		// Options  coming from the CLI
+		$this->arguments = $arguments;
+
+		
+		// variable that should probably goes into the settings
+		#Tx_TerDoc_Utility_Cli::log($this->settings);
+		$urlPrefix = 'documentation/document-library/extension-manuals/';
+		
+		// Options  coming from the CLI
+		$this->arguments = $arguments;
+
+		$this->initializeAction();
+
+		// array that contains all the indexes
+		$indexes = array();
+
+		$extensions = $this->extensionRepository->findAll();
+		$loop = 0;
+		foreach ($extensions as $extension) {
+			$_index = array();
+			
+			$extensionKey = (string) $extension['extensionkey'];
+
+			// Not very effecient at this stage but works to retrieve the last version of the extension
+			foreach ($extension as $version) {
+				$lastVersion = $version;
+			}
+			$version = (string) $lastVersion['version'];
+			$pathToExtension = $documentDir = Tx_TerDoc_Utility_Cli::getDocumentDirOfExtensionVersion($this->settings['documentsCache'], $extensionKey, $version);
+			$toc = $pathToExtension . 'toc.dat';
+
+			if (is_file($toc)) {
+
+				$tocData = unserialize(file_get_contents($toc));
+
+				if (!empty($tocData)) {
+
+					// Initialize some variables
+					$sections = array();
+					$sectionName = '';
+					$_loop = 1;
+					foreach ($tocData[1]['sections'] as $section) {
+
+						if ($_loop > 1) {
+							if ($_loop < 10) {
+								$sectionName = 's' . sprintf("0%d", $_loop);
+							} else {
+								$sectionName = 's' . sprintf("%d", $_loop);
+							}
+						}
+						$file = $pathToExtension . 'html_online/ch01' . $sectionName . '.html';
+
+						// Makes sure the file exists
+						if (is_file($file)) {
+							$_section = array();
+							$_section['file'] = $file;
+							$_section['title'] = $section['title'];
+							$_section['url'] = $urlPrefix . $extensionKey . '/' . $version . '/view/1/' . $_loop;
+
+							$sections[] = $_section;
+						} else {
+							Tx_TerDoc_Utility_Cli::log('* Serious warning for ' . $extensionKey . ' version ' . $version . ': file does not exists ' . $file);
+						}
+						$_loop++;
+					}
+
+					if (count($tocData) > 1) {
+						Tx_TerDoc_Utility_Cli::log('* Serious warning for ' . $extensionKey . ' version ' . $version . ': more that one entry has been detected in the TOC');
+					}
+
+
+					// build up the array
+					$_index['extensionkey'] = $extensionKey;
+					$_index['version'] = $version;
+					$_index['path'] = $pathToExtension;
+					$_index['documentation'] = $sections;
+
+					$indexes[] = $_index;
+
+
+					// prevent the script to loop to many times in a development context
+					// Otherwise will process more than 4000 extensions
+					$loop++;
+					if ($loop >= $this->arguments['limit']) {
+						break;
+					}
+				}
+			}
+		}
+
+		// Write the serialize table
+		$pathToStorage = $this->settings['homeDir'] . 'extension_index.serialize';
+		try {
+
+			// debug the array. Beware, it can be a very large array
+			Tx_TerDoc_Utility_Cli::log($indexes);
+
+			file_put_contents($pathToStorage, serialize($indexes));
+		} catch (Exception $e) {
+			Tx_TerDoc_Utility_Cli::log($e->getMessage());
+		}
+
+	}
+
 	/**
 	 * Index action for this controller. Displays a list of addresses.
 	 *
@@ -141,7 +253,7 @@ class Tx_TerDoc_Controller_CliController extends Tx_Extbase_MVC_Controller_Actio
 		$this->arguments = $arguments;
 
 		$this->initializeAction();
-		
+
 		// Makes sure the envionment is good and throw an error if that is not the case
 		$this->validator->validateFileStructure();
 		$this->validator->validateDataSource();
@@ -201,8 +313,7 @@ class Tx_TerDoc_Controller_CliController extends Tx_Extbase_MVC_Controller_Actio
 
 							// Transform Docbook to HTML
 							$xslObject->transformDocBookToHtml($documentDir);
-						}
-						else {
+						} else {
 							#Tx_TerDoc_Utility_Cli::log('	* No manual found or problem while extracting manual');
 							$this->extensionRepository->delete($extensionKey, $version);
 						}
@@ -214,8 +325,8 @@ class Tx_TerDoc_Controller_CliController extends Tx_Extbase_MVC_Controller_Actio
 						foreach ($transformationErrorCodes as $errorCode) {
 							$this->extensionRepository->log($extensionKey, $version, $errorCode);
 						}
-						
-						if (!empty($transformationErrorCodes)) {						
+
+						if (!empty($transformationErrorCodes)) {
 							Tx_TerDoc_Utility_Cli::log('   * Error code(s): ' . implode(',', $transformationErrorCodes));
 						}
 					}
@@ -227,8 +338,7 @@ class Tx_TerDoc_Controller_CliController extends Tx_Extbase_MVC_Controller_Actio
 			}
 
 			unlink($this->settings['lockFile']);
-		}
-		else {
+		} else {
 			Tx_TerDoc_Utility_Cli::log('... aborting - another process seems to render documents right now! Try running with option "--force" enabled');
 		}
 	}
@@ -276,7 +386,8 @@ options:
 
 commands:
     render                - render documentation cache
-    update                - update the latest datasource of extensions from typo3.org. Basically, this is a XML file.
+    generateIndex         - generate an index of the documentation
+    update                - update the latest datasource of extensions from typo3.org. Basically, this will fetch an XML file.
     download              - download all extension from typo3.org (t3x files)
 EOF;
 
