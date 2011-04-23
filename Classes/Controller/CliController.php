@@ -239,6 +239,8 @@ class Tx_TerDoc_Controller_CliController extends Tx_Extbase_MVC_Controller_Actio
 			Tx_TerDoc_Utility_Cli::log($e->getMessage());
 		}
 
+		Tx_TerDoc_Utility_Cli::log('Action ended sucessfully!');
+		Tx_TerDoc_Utility_Cli::log('New index file has been written at ' . $pathToStorage);
 	}
 
 	/**
