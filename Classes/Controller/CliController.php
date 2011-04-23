@@ -220,7 +220,7 @@ class Tx_TerDoc_Controller_CliController extends Tx_Extbase_MVC_Controller_Actio
 					// prevent the script to loop to many times in a development context
 					// Otherwise will process more than 4000 extensions
 					$loop++;
-					if ($loop >= $this->arguments['limit']) {
+					if ($loop == $this->arguments['limit']) {
 						break;
 					}
 				}
@@ -232,7 +232,7 @@ class Tx_TerDoc_Controller_CliController extends Tx_Extbase_MVC_Controller_Actio
 		try {
 
 			// debug the array. Beware, it can be a very large array
-			Tx_TerDoc_Utility_Cli::log($indexes);
+			#Tx_TerDoc_Utility_Cli::log($indexes);
 
 			file_put_contents($pathToStorage, serialize($indexes));
 		} catch (Exception $e) {
