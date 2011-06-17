@@ -24,9 +24,9 @@
  * ************************************************************* */
 
 /**
- * The address controller for the Address package
+ * The CLI controller for the ter_doc package
  *
- * @version $Id: $
+ * @version $Id$
  * @license http://opensource.org/licenses/gpl-license.php GNU Public License, version 2
  */
 class Tx_TerDoc_Controller_CliController extends Tx_Extbase_MVC_Controller_ActionController {
@@ -39,6 +39,26 @@ class Tx_TerDoc_Controller_CliController extends Tx_Extbase_MVC_Controller_Actio
 	 * @var array
 	 */
 	protected $settings;
+	/**
+	 * @var string Path to the unzip command
+	 */
+	protected $unzipCommand;
+	/**
+	 * @var bool Verbose output flag
+	 */
+	protected $verbose = FALSE;
+	/**
+	 * @var string
+	 */
+	protected $logFullPath;
+	/**
+	 * @var t3lib_svbase Instance of the language guessing service
+	 */
+	protected $languageGuesserServiceObj;
+	/**
+	 * @var Tx_TerDoc_Validator_Environment Instance of the validation class
+	 */
+	protected $validator;
 
 	/**
 	 * Initializes the current action
@@ -47,21 +67,21 @@ class Tx_TerDoc_Controller_CliController extends Tx_Extbase_MVC_Controller_Actio
 	 */
 	public function initializeAction() {
 
-		// Define controller property here
+			// Define controller property here
 		$this->settings = Tx_TerDoc_Utility_Cli::getSettings();
 		$this->settings['repositoryDir'] = Tx_TerDoc_Utility_Cli::sanitizeDirectoryPath($this->settings['repositoryDir']);
 		$this->unzipCommand = $this->settings['unzipCommand'];
 		$this->verbose = $this->settings['cliVerbose'] ? TRUE : FALSE;
 		$this->logFullPath = strlen($this->settings['logFullPath']) ? $this->settings['logFullPath'] : FALSE;
 
-		// Extends settings
+			// Extends settings
 		$this->settings['homeDir'] = Tx_TerDoc_Utility_Cli::sanitizeDirectoryPath(PATH_site . $this->settings['homeDir']);
 		$this->settings['documentsCache'] = $this->settings['homeDir'] . 'documentscache/';
 		$this->settings['lockFile'] = $this->settings['homeDir'] . 'tx_terdoc_render.lock';
 		$this->settings['md5File'] = $this->settings['homeDir'] . 'tx_terdoc_extensionsmd5.txt';
 		$this->settings['extensionFile'] = $this->settings['repositoryDir'] . 'extensions.xml.gz';
 
-		// Initialize objects
+			// Initialize objects
 		$this->languageGuesserServiceObj = t3lib_div::makeInstanceService('textLang'); // Initialize language guessing service:
 		$this->extensionRepository = t3lib_div::makeInstance('Tx_TerDoc_Domain_Repository_ExtensionRepository', $this->settings, $this->arguments); // Initialize repository
 		$this->validator = t3lib_div::makeInstance('Tx_TerDoc_Validator_Environment', $this->settings, $this->arguments); // Initialize repository
@@ -74,16 +94,16 @@ class Tx_TerDoc_Controller_CliController extends Tx_Extbase_MVC_Controller_Actio
 	 * @return void
 	 */
 	public function updateAction($arguments) {
-		// Options  coming from the CLI
+			// Options  coming from the CLI
 		$this->arguments = $arguments;
 
 		$this->initializeAction();
 		$this->validator->validateFileStructure();
 
-		// fetch content
+			// fetch content
 		$content = file_get_contents('http://typo3.org/fileadmin/ter/extensions.xml.gz');
 
-		// write content
+			// write content
 		$datasource = $this->settings['repositoryDir'] . 'extensions.xml.gz';
 		$result = file_put_contents($datasource, $content);
 
@@ -102,17 +122,17 @@ class Tx_TerDoc_Controller_CliController extends Tx_Extbase_MVC_Controller_Actio
 	 */
 	public function downloadAction($arguments) {
 
-		// Options  coming from the CLI
+			// Options  coming from the CLI
 		$this->arguments = $arguments;
 
 		$this->initializeAction();
 
-		// Makes sure the envionment is good and throw an error if that is not the case
+			// Makes sure the environment is good and throw an error if that is not the case
 		$this->validator->validateFileStructure();
 		$this->validator->validateDataSource();
 
 		if (!$this->isLocked() || $this->arguments['force']) {
-			// create a lock
+				// create a lock
 			touch($this->settings['lockFile']);
 
 			Tx_TerDoc_Utility_Cli::log(strftime('%d.%m.%y %R') . ' ter_doc downloading started...');
@@ -137,30 +157,30 @@ class Tx_TerDoc_Controller_CliController extends Tx_Extbase_MVC_Controller_Actio
 	 */
 	public function generateIndexAction($arguments) {
 
-		// Options  coming from the CLI
+			// Options  coming from the CLI
 		$this->arguments = $arguments;
 
-		
-		// variable that should probably goes into the settings
+
+			// variable that should probably goes into the settings
 		#Tx_TerDoc_Utility_Cli::log($this->settings);
 		$urlPrefix = 'documentation/document-library/extension-manuals/';
-		
-		// Options  coming from the CLI
+
+			// Options  coming from the CLI
 		$this->arguments = $arguments;
 
 		$this->initializeAction();
 
-		// array that contains all the indexes
+			// array that contains all the indexes
 		$indexes = array();
 
 		$extensions = $this->extensionRepository->findAll();
 		$loop = 0;
 		foreach ($extensions as $extension) {
 			$_index = array();
-			
+
 			$extensionKey = (string) $extension['extensionkey'];
 
-			// Not very effecient at this stage but works to retrieve the last version of the extension
+				// Not very efficient at this stage but works to retrieve the last version of the extension
 			foreach ($extension as $version) {
 				$lastVersion = $version;
 			}
@@ -174,7 +194,7 @@ class Tx_TerDoc_Controller_CliController extends Tx_Extbase_MVC_Controller_Actio
 
 				if (!empty($tocData)) {
 
-					// Initialize some variables
+						// Initialize some variables
 					$sections = array();
 					$sectionName = '';
 					$_loop = 1;
@@ -217,8 +237,8 @@ class Tx_TerDoc_Controller_CliController extends Tx_Extbase_MVC_Controller_Actio
 					$indexes[] = $_index;
 
 
-					// prevent the script to loop to many times in a development context
-					// Otherwise will process more than 4000 extensions
+						// prevent the script from looping too many times in a development context
+						// Otherwise will process more than 4000 extensions
 					$loop++;
 					if ($loop == $this->arguments['limit']) {
 						break;
@@ -227,7 +247,7 @@ class Tx_TerDoc_Controller_CliController extends Tx_Extbase_MVC_Controller_Actio
 			}
 		}
 
-		// Write the serialize table
+			// Write the serialize table
 		$pathToStorage = $this->settings['homeDir'] . 'extension_index.serialize';
 		try {
 
@@ -251,17 +271,17 @@ class Tx_TerDoc_Controller_CliController extends Tx_Extbase_MVC_Controller_Actio
 	 */
 	public function renderAction($arguments) {
 
-		// Options  coming from the CLI
+			// Options  coming from the CLI
 		$this->arguments = $arguments;
 
 		$this->initializeAction();
 
-		// Makes sure the envionment is good and throw an error if that is not the case
+			// Makes sure the environment is good and throw an error if that is not the case
 		$this->validator->validateFileStructure();
 		$this->validator->validateDataSource();
 
 		if (!$this->isLocked() || $this->arguments['force']) {
-			// create a lock
+				// create a lock
 			touch($this->settings['lockFile']);
 
 			Tx_TerDoc_Utility_Cli::log(strftime('%d.%m.%y %R') . ' ter_doc renderer starting ...');
@@ -269,7 +289,7 @@ class Tx_TerDoc_Controller_CliController extends Tx_Extbase_MVC_Controller_Actio
 			if ($this->extensionRepository->wasModified() || $this->arguments['force']) {
 				Tx_TerDoc_Utility_Cli::log('* extensions.xml was modified since last run');
 
-				// Reads the extension index file (extensions.xml.gz) and updates the the manual caching table accordingly.
+					// Reads the extension index file (extensions.xml.gz) and updates the the manual caching table accordingly.
 				$hasUpdate = $this->extensionRepository->updateAll();
 				if ($hasUpdate) {
 
@@ -281,24 +301,24 @@ class Tx_TerDoc_Controller_CliController extends Tx_Extbase_MVC_Controller_Actio
 						$extensionKey = $extensionAndVersionArr['extensionkey'];
 						$version = $extensionAndVersionArr['version'];
 
-						// Computes the cache directory of the extension
+							// Computes the cache directory of the extension
 						$documentDir = Tx_TerDoc_Utility_Cli::getDocumentDirOfExtensionVersion($this->settings['documentsCache'], $extensionKey, $version);
 
-						// Prepare environment by deleting obsolete rendering problem log
+							// Prepare environment by deleting obsolete rendering problem log
 						Tx_TerDoc_Utility_Cli::log('* Rendering documents for extension "' . $extensionKey . '" (' . $version . ')');
 						$this->extensionRepository->prepare($extensionKey, $version);
 
-						// Extracting manual from t3x
+							// Extracting manual from t3x
 						Tx_TerDoc_Utility_Cli::log('   * Extracting "doc/manual.sxw" from extension ' . $extensionKey . ' (' . $version . ')');
 						$this->extensionRepository->downloadExtension($extensionKey, $version);
 						$this->extensionRepository->extractT3x($extensionKey, $version, 'doc/manual.sxw', $errorCodes);
 						$this->extensionRepository->decompressManual($extensionKey, $version);
 
-						// Initialize service
+							// Initialize service
 						$xslObject = t3lib_div::makeInstanceService('xsl', 'xslt');
 						$xslObject->setSettings($this->settings);
 
-						// Rendering manual.sxw to Docbook
+							// Rendering manual.sxw to Docbook
 						$isDocBookTransformationOk = FALSE;
 						$docBookVersions = explode(',', $this->settings['docbook_version']);
 						if (file_exists($documentDir . 'sxw/content.xml')) {
@@ -309,18 +329,18 @@ class Tx_TerDoc_Controller_CliController extends Tx_Extbase_MVC_Controller_Actio
 						}
 
 						if ($isDocBookTransformationOk) {
-							// Store some info from the Docbook transformation into the database
+								// Store some info from the Docbook transformation into the database
 							$dataSet = $xslObject->getInformation();
 							$this->extensionRepository->update($extensionKey, $version, $dataSet);
 
-							// Transform Docbook to HTML
+								// Transform Docbook to HTML
 							$xslObject->transformDocBookToHtml($documentDir);
 						} else {
 							#Tx_TerDoc_Utility_Cli::log('	* No manual found or problem while extracting manual');
 							$this->extensionRepository->delete($extensionKey, $version);
 						}
 
-						// Clean up environement by removing temporary files
+							// Clean up environment by removing temporary files
 						$this->extensionRepository->cleanUp($extensionKey, $version);
 						t3lib_div::writeFile($documentDir . 't3xfilemd5.txt', $extensionAndVersionArr['t3xfilemd5']);
 
@@ -352,11 +372,11 @@ class Tx_TerDoc_Controller_CliController extends Tx_Extbase_MVC_Controller_Actio
 	 */
 	protected function isLocked() {
 		$result = FALSE;
-		// Check if another process currently renders the documents:
+			// Check if another process currently renders the documents:
 		if (file_exists($this->settings['lockFile'])) {
 			Tx_TerDoc_Utility_Cli::log('Found .lock file ...');
 
-			// If the lock is not older than X minutes, skip index creation:
+				// If the lock is not older than X minutes, skip index creation:
 			if (filemtime($this->settings['lockFile']) > (time() - (6 * 60 * 60))) {
 				if (!$this->debug) {
 					$result = TRUE;
@@ -369,7 +389,7 @@ class Tx_TerDoc_Controller_CliController extends Tx_Extbase_MVC_Controller_Actio
 	}
 
 	/**
-	 * display some help on the console
+	 * Display some help on the console
 	 *
 	 * @return void
 	 */
