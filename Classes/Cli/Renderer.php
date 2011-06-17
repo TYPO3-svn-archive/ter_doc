@@ -112,8 +112,7 @@ class Tx_TerDoc_Cli_Renderer {
 			} catch (Exception $e) {
 				Tx_TerDoc_Utility_Cli::log($e->getMessage());
 			}
-		}
-		else {
+		} else {
 			Tx_TerDoc_Utility_Cli::log('Unknown command');
 			Tx_TerDoc_Utility_Cli::log('Type option "--help" for usage.');
 		}
