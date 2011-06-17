@@ -28,7 +28,7 @@
  * mini-howto:
  * php typo3/cli_dispatch.phpsh ter_doc help
  *
- * $Id: class.Tx_TerDoc_Cli_Renderer.php 41260 2010-12-19 21:26:54Z fab1en $
+ * $Id$
  *
  * @author	Fabien Udriot <fabien.udriot@ecodev.ch>
  */
@@ -56,7 +56,7 @@ class Tx_TerDoc_Cli_Renderer {
 		$arguments = $commands = array();
 		$arguments['help'] = $arguments['force'] = $arguments['limit'] = FALSE;
 
-			// process the command's arguments
+			// Process the command's arguments
 		array_shift($argv);
 		$argv = array_map('trim', $argv);
 		foreach ($argv as $arg) {
@@ -80,13 +80,13 @@ class Tx_TerDoc_Cli_Renderer {
 			}
 		}
 
-			// displays help if necessary
+			// Display help if necessary
 		if (count($argv) == 0 || $arguments['help']) {
 			$controller->helpAction();
 			die();
 		}
 
-			// call the right command
+			// Call the right command
 		if ($commands[0] == 'render') {
 			try {
 				$controller->renderAction($arguments);
@@ -100,15 +100,13 @@ class Tx_TerDoc_Cli_Renderer {
 			} catch (Exception $e) {
 				Tx_TerDoc_Utility_Cli::log($e->getMessage());
 			}
-		}
-		elseif ($commands[0] == 'update') {
+		} elseif ($commands[0] == 'update') {
 			try {
 				$controller->updateAction($arguments);
 			} catch (Exception $e) {
 				Tx_TerDoc_Utility_Cli::log($e->getMessage());
 			}
-		}
-		elseif ($commands[0] == 'download') {
+		} elseif ($commands[0] == 'download') {
 			try {
 				$controller->downloadAction($arguments);
 			} catch (Exception $e) {
