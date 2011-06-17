@@ -84,7 +84,7 @@ class Tx_TerDoc_Domain_Repository_ExtensionRepository {
 		if (!is_object($extensions)) {
 			throw new Exception('Exception thrown #1300783708: Error while parsing ' . $this->settings['repositoryDir'] . 'extensions.xml.gz', 1300783708);
 		}
-		
+
 		return $extensions;
 	}
 
@@ -328,7 +328,7 @@ class Tx_TerDoc_Domain_Repository_ExtensionRepository {
 	 * EXTRACTION
 	 *
 	 * **************************************************** */
-	 
+
 	/**
 	 * Download some files. Currently there are the t3x and gif files
 	 *
@@ -351,7 +351,9 @@ class Tx_TerDoc_Domain_Repository_ExtensionRepository {
 				$t3xName = array_pop($parts);
 				mkdir(implode('/', $parts), 0777, TRUE);
 
-				$t3xOnline = 'http://typo3.org' . str_replace($GLOBALS['_SERVER']['PWD'], '', $file);
+					// Find extract part of path starting with "/fileadmin" and assemble request URL
+				$fileadminPath = substr($file, strpos($file, '/fileadmin'));
+				$t3xOnline = 'http://typo3.org' . $fileadminPath;
 
 				Tx_TerDoc_Utility_Cli::log('   * Downloading from typo3.org: ' . $t3xName);
 				$data = file_get_contents($t3xOnline);
@@ -363,7 +365,7 @@ class Tx_TerDoc_Domain_Repository_ExtensionRepository {
 			}
 		}
 	}
-	 
+
 	/**
 	 * Unpacks the T3X file of the given extension version and extracts the file specified
 	 * in $sourceName. If $targetFullPath is given, the file will be saved into the given
@@ -384,7 +386,7 @@ class Tx_TerDoc_Domain_Repository_ExtensionRepository {
 		// Computes the cache directory of the extension
 		$documentDir = Tx_TerDoc_Utility_Cli::getDocumentDirOfExtensionVersion($this->settings['documentsCache'], $extensionKey, $version);
 		$targetFullPath = $documentDir . 'manual.sxw';
-		
+
 		// computes the t3x file
 		$t3xFile = Tx_TerDoc_Utility_Cli::getExtensionVersionPathAndBaseName($this->settings['repositoryDir'], $extensionKey, $version) . '.t3x';
 		if (! is_file($t3xFile)) {
@@ -401,7 +403,7 @@ class Tx_TerDoc_Domain_Repository_ExtensionRepository {
 		unset($t3xFileRaw);
 
 		$dataUncompressed = gzuncompress($dataRaw);
-		
+
 
 		if ($md5Hash != md5($dataUncompressed)) {
 			Tx_TerDoc_Utility_Cli::log('   * T3X archive is corrupted, MD5 hash didn\'t match!');
@@ -435,9 +437,9 @@ class Tx_TerDoc_Domain_Repository_ExtensionRepository {
 		if (is_null($targetFullPath)) {
 			return $t3xArr['FILES'][$sourceName]['content'];
 		}
-		
+
 		$result = t3lib_div::writeFile($targetFullPath, $t3xArr['FILES'][$sourceName]['content']) ? TRUE : FALSE;
-		
+
 		// if process un-succeeded, then errors must be collected
 		if (! $result) {
 			Tx_TerDoc_Utility_Cli::log('	* extract: problem while extracting manual.sxw from t3x file');
@@ -459,22 +461,22 @@ class Tx_TerDoc_Domain_Repository_ExtensionRepository {
 	 * @return	mixed	FALSE if operation fails, TRUE if file was written successfully, Array if operation was successful and $targetFullPath was NULL
 	 */
 	public function decompressManual($extensionKey, $version) {
-	
+
 		// Computes the cache directory of the extension
 		$documentDir = Tx_TerDoc_Utility_Cli::getDocumentDirOfExtensionVersion($this->settings['documentsCache'], $extensionKey, $version);
 		$targetFullPath = $documentDir . 'manual.sxw';
 
 		// makes sure the documentation exists
 		if (is_file($targetFullPath)) {
-		
+
 			// Unzip the Open Office Writer file:
 			$unzipCommand = $this->settings['unzipCommand'];
 			$unzipCommand = str_replace('###ARCHIVENAME###', $targetFullPath, $unzipCommand);
 			$unzipCommand = str_replace('###DIRECTORY###', $documentDir . 'sxw/', $unzipCommand);
 			$unzipResultArr = array();
-			
+
 			exec($unzipCommand, $unzipResultArr);
-	
+
 			if (is_dir($documentDir . 'sxw/Pictures')) {
 				rename($documentDir . 'sxw/Pictures', $documentDir . 'docbook/pictures');
 			}
