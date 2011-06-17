@@ -63,11 +63,11 @@ class Tx_TerDoc_Cli_Renderer {
 			if (preg_match('/^-/is', $arg)) {
 				if (preg_match('/^--force$|^-f$/is', $arg)) {
 					$arguments['force'] = TRUE;
-				} else if (preg_match('/^--help$|^-h$/is', $arg)) {
+				} elseif (preg_match('/^--help$|^-h$/is', $arg)) {
 					$arguments['help'] = TRUE;
-				} else if (preg_match('/^--limit=(.+)$/is', $arg, $matches)) {
+				} elseif (preg_match('/^--limit=(.+)$/is', $arg, $matches)) {
 					$arguments['limit'] = (int) $matches[1];
-				} else if (preg_match('/^-l=(.+)$/is', $arg, $matches)) {
+				} elseif (preg_match('/^-l=(.+)$/is', $arg, $matches)) {
 					$arguments['limit'] = (int) $matches[1];
 				} else {
 						// argument is not valid
