@@ -44,16 +44,19 @@ class Tx_TerDoc_Cli_Renderer {
 	/**
 	 * CLI dispatcher
 	 *
-	 * @param array Command line arguments
+	 * @param array $argv Command-line arguments
+	 *
+	 * @internal param \Command $array line arguments
 	 * @return void
 	 */
 	function main($argv) {
+			/** @var $controller Tx_TerDoc_Controller_CliController */
 		$controller = t3lib_div::makeInstance('Tx_TerDoc_Controller_CliController');
 
 		$arguments = $commands = array();
 		$arguments['help'] = $arguments['force'] = $arguments['limit'] = FALSE;
 
-		// process the command's arguments
+			// process the command's arguments
 		array_shift($argv);
 		$argv = array_map('trim', $argv);
 		foreach ($argv as $arg) {
@@ -67,7 +70,7 @@ class Tx_TerDoc_Cli_Renderer {
 				} else if (preg_match('/^-l=(.+)$/is', $arg, $matches)) {
 					$arguments['limit'] = (int) $matches[1];
 				} else {
-					// argument is not valid
+						// argument is not valid
 					Tx_TerDoc_Utility_Cli::log('Uknown argument ' . $arg);
 					Tx_TerDoc_Utility_Cli::log('give "--help" option to see usage');
 					die();
@@ -77,13 +80,13 @@ class Tx_TerDoc_Cli_Renderer {
 			}
 		}
 
-		// displays help if necessary
+			// displays help if necessary
 		if (count($argv) == 0 || $arguments['help']) {
 			$controller->helpAction();
 			die();
 		}
 
-		// call the right command
+			// call the right command
 		if ($commands[0] == 'render') {
 			try {
 				$controller->renderAction($arguments);
@@ -104,7 +107,7 @@ class Tx_TerDoc_Cli_Renderer {
 			} catch (Exception $e) {
 				Tx_TerDoc_Utility_Cli::log($e->getMessage());
 			}
-		} 
+		}
 		elseif ($commands[0] == 'download') {
 			try {
 				$controller->downloadAction($arguments);
@@ -119,7 +122,8 @@ class Tx_TerDoc_Cli_Renderer {
 	}
 }
 
-// Run the script
+	// Run the script
+	/** @var $ter Tx_TerDoc_Cli_Renderer */
 $ter = t3lib_div::makeInstance('Tx_TerDoc_Cli_Renderer');
 $ter->main($_SERVER['argv']);
 ?>
