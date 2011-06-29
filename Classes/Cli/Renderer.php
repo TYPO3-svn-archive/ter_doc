@@ -53,8 +53,11 @@ class Tx_TerDoc_Cli_Renderer {
 			/** @var $controller Tx_TerDoc_Controller_CliController */
 		$controller = t3lib_div::makeInstance('Tx_TerDoc_Controller_CliController');
 
+ 			// Initialize arguments
 		$arguments = $commands = array();
 		$arguments['help'] = $arguments['force'] = $arguments['limit'] = FALSE;
+		$arguments['extension'] = '';
+		$arguments['version'] = '';
 
 			// Process the command's arguments
 		array_shift($argv);
@@ -69,8 +72,17 @@ class Tx_TerDoc_Cli_Renderer {
 					$arguments['limit'] = (int) $matches[1];
 				} elseif (preg_match('/^-l=(.+)$/is', $arg, $matches)) {
 					$arguments['limit'] = (int) $matches[1];
+				} elseif (preg_match('/^--extension=(.+)$/is', $arg, $matches)) {
+					$arguments['extension'] = $matches[1];
+				} elseif (preg_match('/^--version=(.+)$/s', $arg, $matches)) {
+						// Version number is expected to be of format x.y.z
+					if (preg_match('/[^.]+\.[^.]+\.[^.]+/', $matches[1]) > 0) {
+						$arguments['version'] = $matches[1];
+					} else {
+						Tx_TerDoc_Utility_Cli::log('Invalid version number ' . $matches[1]);
+					}
 				} else {
-						// argument is not valid
+						// Argument is not valid
 					Tx_TerDoc_Utility_Cli::log('Uknown argument ' . $arg);
 					Tx_TerDoc_Utility_Cli::log('give "--help" option to see usage');
 					die();
@@ -78,6 +90,10 @@ class Tx_TerDoc_Cli_Renderer {
 			} else {
 				$commands[] = $arg;
 			}
+		}
+			// Inform user that --version option is used only in conjunction with --extension option
+		if (!empty($arguments['version']) && empty($arguments['extension'])) {
+			Tx_TerDoc_Utility_Cli::log('Option --version works only with option --extension. It will be ignored.');
 		}
 
 			// Display help if necessary

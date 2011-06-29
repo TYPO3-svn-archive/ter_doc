@@ -296,63 +296,86 @@ class Tx_TerDoc_Controller_CliController extends Tx_Extbase_MVC_Controller_Actio
 					$this->extensionRepository->deleteOutdatedDocuments();
 					$modifiedExtensionVersionsArr = $this->extensionRepository->getModifiedExtensionVersions();
 
+					$counter = 0;
 					foreach ($modifiedExtensionVersionsArr as $extensionAndVersionArr) {
 						$transformationErrorCodes = array();
 						$extensionKey = $extensionAndVersionArr['extensionkey'];
 						$version = $extensionAndVersionArr['version'];
-
-							// Computes the cache directory of the extension
-						$documentDir = Tx_TerDoc_Utility_Cli::getDocumentDirOfExtensionVersion($this->settings['documentsCache'], $extensionKey, $version);
-
-							// Prepare environment by deleting obsolete rendering problem log
-						Tx_TerDoc_Utility_Cli::log('* Rendering documents for extension "' . $extensionKey . '" (' . $version . ')');
-						$this->extensionRepository->prepare($extensionKey, $version);
-
-							// Extracting manual from t3x
-						Tx_TerDoc_Utility_Cli::log('   * Extracting "doc/manual.sxw" from extension ' . $extensionKey . ' (' . $version . ')');
-						$this->extensionRepository->downloadExtension($extensionKey, $version);
-						$this->extensionRepository->extractT3x($extensionKey, $version, 'doc/manual.sxw', $errorCodes);
-						$this->extensionRepository->decompressManual($extensionKey, $version);
-
-							// Initialize service
-						$xslObject = t3lib_div::makeInstanceService('xsl', 'xslt');
-						$xslObject->setSettings($this->settings);
-
-							// Rendering manual.sxw to Docbook
-						$isDocBookTransformationOk = FALSE;
-						$docBookVersions = explode(',', $this->settings['docbook_version']);
-						if (file_exists($documentDir . 'sxw/content.xml')) {
-							foreach ($docBookVersions as $docBookVersion) {
-								// @todo: improve the transformation: some staff are duplicated e.g. genartion of TOC
-								$isDocBookTransformationOk = $xslObject->transformManualToDocBook($documentDir, $docBookVersion, $transformationErrorCodes);
+							// Check if manual should be rendered or not depending on arguments
+							// Default is yes (true)
+						$renderManual = TRUE;
+						if (!empty($this->arguments['extension'])) {
+								// Skip rendering if extension is defined and doesn't match. Same for version number.
+							if ($extensionKey == $this->arguments['extension']) {
+								if (!empty($this->arguments['version']) && $version != $this->arguments['version']) {
+									$renderManual = FALSE;
+								}
+							} else {
+								$renderManual = FALSE;
 							}
 						}
+							// Proceed with rendering
+						if ($renderManual) {
 
-						if ($isDocBookTransformationOk) {
-								// Store some info from the Docbook transformation into the database
-							$dataSet = $xslObject->getInformation();
-							$this->extensionRepository->update($extensionKey, $version, $dataSet);
+								// Computes the cache directory of the extension
+							$documentDir = Tx_TerDoc_Utility_Cli::getDocumentDirOfExtensionVersion($this->settings['documentsCache'], $extensionKey, $version);
 
-								// Transform Docbook to HTML
-							$xslObject->transformDocBookToHtml($documentDir);
-						} else {
-							#Tx_TerDoc_Utility_Cli::log('	* No manual found or problem while extracting manual');
-							$this->extensionRepository->delete($extensionKey, $version);
-						}
+								// Prepare environment by deleting obsolete rendering problem log
+							Tx_TerDoc_Utility_Cli::log('* Rendering documents for extension "' . $extensionKey . '" (' . $version . ')');
+							$this->extensionRepository->prepare($extensionKey, $version);
 
-							// Clean up environment by removing temporary files
-						$this->extensionRepository->cleanUp($extensionKey, $version);
-						t3lib_div::writeFile($documentDir . 't3xfilemd5.txt', $extensionAndVersionArr['t3xfilemd5']);
+								// Extracting manual from t3x
+							Tx_TerDoc_Utility_Cli::log('   * Extracting "doc/manual.sxw" from extension ' . $extensionKey . ' (' . $version . ')');
+							$this->extensionRepository->downloadExtension($extensionKey, $version);
+							$this->extensionRepository->extractT3x($extensionKey, $version, 'doc/manual.sxw', $errorCodes);
+							$this->extensionRepository->decompressManual($extensionKey, $version);
 
-						foreach ($transformationErrorCodes as $errorCode) {
-							$this->extensionRepository->log($extensionKey, $version, $errorCode);
-						}
+								// Initialize service
+							$xslObject = t3lib_div::makeInstanceService('xsl', 'xslt');
+							$xslObject->setSettings($this->settings);
 
-						if (!empty($transformationErrorCodes)) {
-							Tx_TerDoc_Utility_Cli::log('   * Error code(s): ' . implode(',', $transformationErrorCodes));
+								// Rendering manual.sxw to Docbook
+							$isDocBookTransformationOk = FALSE;
+							$docBookVersions = explode(',', $this->settings['docbook_version']);
+							if (file_exists($documentDir . 'sxw/content.xml')) {
+								foreach ($docBookVersions as $docBookVersion) {
+									// @todo: improve the transformation: some staff are duplicated e.g. genartion of TOC
+									$isDocBookTransformationOk = $xslObject->transformManualToDocBook($documentDir, $docBookVersion, $transformationErrorCodes);
+								}
+							}
+
+							if ($isDocBookTransformationOk) {
+									// Store some info from the Docbook transformation into the database
+								$dataSet = $xslObject->getInformation();
+								$this->extensionRepository->update($extensionKey, $version, $dataSet);
+
+									// Transform Docbook to HTML
+								$xslObject->transformDocBookToHtml($documentDir);
+							} else {
+								#Tx_TerDoc_Utility_Cli::log('	* No manual found or problem while extracting manual');
+								$this->extensionRepository->delete($extensionKey, $version);
+							}
+
+								// Clean up environment by removing temporary files
+							$this->extensionRepository->cleanUp($extensionKey, $version);
+							t3lib_div::writeFile($documentDir . 't3xfilemd5.txt', $extensionAndVersionArr['t3xfilemd5']);
+
+							foreach ($transformationErrorCodes as $errorCode) {
+								$this->extensionRepository->log($extensionKey, $version, $errorCode);
+							}
+
+							if (!empty($transformationErrorCodes)) {
+								Tx_TerDoc_Utility_Cli::log('   * Error code(s): ' . implode(',', $transformationErrorCodes));
+							}
+							$counter++;
 						}
 					}
 					$this->extensionRepository->cleanUpAll();
+						// If no extensions were rendered, give some feedback, as this might be unexpected
+						// (e.g. the user has entered erroneous version/extension arguments)
+					if ($counter == 0) {
+						Tx_TerDoc_Utility_Cli::log('Note: no extension manuals were rendered with the given arguments.');
+					}
 				}
 				Tx_TerDoc_Utility_Cli::log(strftime('%d.%m.%y %R') . ' done.');
 			} else {
@@ -402,9 +425,11 @@ usage:
     /var/www/typo3/cli_dispatch.phpsh ter_doc <options> <commands>
 
 options:
-    -h, --help            - print this message
-    -f, --force           - force de command to be executed
-    -l=10, --limit=10     - force de command to be executed
+    -h, --help           - print this message
+    -f, --force          - force the command to be executed
+    -l=10, --limit=10    - limit the number of extensions/versions processed (applies only to generateIndex command)
+    --extension=foo      - act only on the given extension (applies only to render command)
+    --version=x.y.z      - act only a the given version (used only if --extension is defined too)
 
 commands:
     render                - render documentation cache
