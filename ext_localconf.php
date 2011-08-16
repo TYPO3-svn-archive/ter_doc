@@ -13,4 +13,11 @@ if (TYPO3_MODE=='BE')    {
 	$TYPO3_CONF_VARS['SC_OPTIONS']['GLOBAL']['cliKeys']['ter_doc'] = array('EXT:ter_doc/Classes/Cli/Renderer.php', '_CLI_ter_doc');
 }
 
+// Register render documents task
+$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['scheduler']['tasks']['Tx_TerDoc_Tasks_RenderManualsTask'] = array(
+	'extension'        => $_EXTKEY,
+	'title'            => 'LLL:EXT:' . $_EXTKEY . '/locallang.xml:Tx_TerDoc_Task_RenderManualsTask.name',
+	'description'      => 'LLL:EXT:' . $_EXTKEY . '/locallang.xml:Tx_TerDoc_Task_RenderManualsTask.description',
+	'additionalFields' => '',
+);
 ?>
