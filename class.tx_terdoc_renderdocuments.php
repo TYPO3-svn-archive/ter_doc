@@ -79,7 +79,7 @@ class tx_terdoc_renderdocuments {
 	 * Returns a unique instance of this class. Call this function instead of creating a new
 	 * instance manually!
 	 *
-	 * @return		object		Unique instance of tx_terdoc_renderdocuments
+	 * @return		tx_terdoc_renderdocuments		Unique instance of tx_terdoc_renderdocuments
 	 * @access		public
 	 */
 	public function getInstance() {
