@@ -1,49 +1,97 @@
-<T3DataStructure>
-	<meta>
-		<langDisable>1</langDisable>
-	</meta>
-	<ROOT>
-		<type>array</type>
-		<el>
-			<view>
-				 <TCEforms>
-					<label>View mode</label>
-					<config>
-						<type>select</type>
-						<items type="array">
-							<numIndex index="1" type="array">
-								<numIndex index="0">List of documents</numIndex>
-								<numIndex index="1">documents</numIndex>
-							</numIndex>
-							<numIndex index="2" type="array">
-								<numIndex index="0">Sorted list of documents</numIndex>
-								<numIndex index="1">documents_sorted</numIndex>
-							</numIndex>
-							<numIndex index="3" type="array">
-								<numIndex index="0">TER 1 URL redirect handler</numIndex>
-								<numIndex index="1">ter1_redirect</numIndex>
-							</numIndex>
-						</items>
-						<maxitems>1</maxitems>
-						<size>1</size>
-						<multiple>0</multiple>
-						<selectedListStyle>width:150px</selectedListStyle>
-						<itemListStyle>width:150px</itemListStyle>
-					</config>
-				</TCEforms>
-			</view>		 
-			<category>
-				<TCEforms>
-					<label>Only show documents with the following category</label>
-					<config>
-						<type>select</type>
-						<foreign_table>tx_terdoc_categories</foreign_table>
-						<size>1</size>
-						<minitems>0</minitems>
-						<maxitems>1</maxitems>
-					</config>
-				</TCEforms>
-			</category>
-		</el>
-	</ROOT>
+<T3DataStructure>
+
+	<meta>
+
+		<langDisable>1</langDisable>
+
+	</meta>
+
+	<ROOT>
+
+		<type>array</type>
+
+		<el>
+
+			<view>
+
+				 <TCEforms>
+
+					<label>View mode</label>
+
+					<config>
+
+						<type>select</type>
+
+						<items type="array">
+
+							<numIndex index="1" type="array">
+
+								<numIndex index="0">List of documents</numIndex>
+
+								<numIndex index="1">documents</numIndex>
+
+							</numIndex>
+
+							<numIndex index="2" type="array">
+
+								<numIndex index="0">Sorted list of documents</numIndex>
+
+								<numIndex index="1">documents_sorted</numIndex>
+
+							</numIndex>
+
+							<numIndex index="3" type="array">
+
+								<numIndex index="0">TER 1 URL redirect handler</numIndex>
+
+								<numIndex index="1">ter1_redirect</numIndex>
+
+							</numIndex>
+
+						</items>
+
+						<maxitems>1</maxitems>
+
+						<size>1</size>
+
+						<multiple>0</multiple>
+
+						<selectedListStyle>width:150px</selectedListStyle>
+
+						<itemListStyle>width:150px</itemListStyle>
+
+					</config>
+
+				</TCEforms>
+
+			</view>		 
+
+			<category>
+
+				<TCEforms>
+
+					<label>Only show documents with the following category</label>
+
+					<config>
+
+						<type>select</type>
+
+						<foreign_table>tx_terdoc_categories</foreign_table>
+
+						<size>1</size>
+
+						<minitems>0</minitems>
+
+						<maxitems>1</maxitems>
+
+					</config>
+
+				</TCEforms>
+
+			</category>
+
+		</el>
+
+	</ROOT>
+
 </T3DataStructure>

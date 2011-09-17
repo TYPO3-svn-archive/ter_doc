@@ -1,361 +1,721 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<T3locallang>
-    <meta type="array">
-        <description></description>
-        <type>module</type>
-        <csh_table></csh_table>
-        <fileId>EXT:ter_doc/pi1/locallang.xml</fileId>
-        <labelContext type="array">
-            <label index="general_manualtitle"></label>
-            <label index="general_language"></label>
-            <label index="general_lastupdate"></label>
-        </labelContext>
-    </meta>
-    <data type="array">
-        <languageKey index="default" type="array">
-            <label index="general_manualtitle">Title</label>
-            <label index="general_language">Language</label>
-            <label index="general_lastupdate">Last update</label>
-            <label index="general_extensionkey">Extension key</label>
-            <label index="general_formats">Formats</label>
-            <label index="general_tableofcontent">Table Of Content</label>
-            <label index="general_previous">previous</label>
-            <label index="general_next">next</label>
-            <label index="ter1redirect_heading">The online documentation has a new location!</label>(
-            <label index="ter1redirect_introduction">Dear TYPO3 user.
-            
-Due to an updated version of our Extension Repository and Documentation Library, the link you used is not valid anymore.</label>
-            <label index="ter1redirect_noformatavailable">Unfortunately there is no online readable format (or no document at all) of the extension you requested. Maybe the documentation was outdated, the document has not been rendered yet or the extension does not exist anymore.</label>
-            <label index="ter1redirect_formatavailable">The document you have been looking for is now stored at a new location. Please use the following link in order to read it online:</label>
-            <label index="formats_relatestoversion">This document is related to version %s of the extension %s.</label>
-            <label index="error_outputformatnotavailable">Error: Output format not available!</label>
-            <label index="error_outputformatnoobject">Error: Object for output format was not instantiated!</label>
-            <label index="error_outputformatisofwrongclasstype">Error: The selected output format is of the wrong class type! This is an error in implementation of the extension providing this format.</label>
-            <label index="error_documentiscurrentlynotavailableinthisformat">Sorry, this document is currently not available in the requested format. Please try again in a few minutes.</label>                        
-            <label index="api_error_renderproblems_1">An error ocurred while the renderer was trying to unzip the manual.sxw file.</label>
-            <label index="api_error_renderproblemsolutions_1">
-            	The reason might be a corrupted SXW file or an Open Office file format which is not supported by the TER documentation renderer. 
-            	Try to unzip your manual.sxw file with a regular unzip program (maybe rename the file extension to .zip before you do so). 
-            	If that works, please check the TYPO3 bug tracker if such a problem is already known. If not, please post a new bug report 
-            	including the manual.sxw file you have been trying to render.
-            </label>
-            <label index="api_error_renderproblems_2">No "content.xml" file was found after extracting the manual.sxw file.</label>
-            <label index="api_error_renderproblemsolutions_2">
-            	This is a very rare error. One reason could be a corrupted SXW file or an Open Office file format format which is not supported
-            	by the TER documentation renderer. 
-            	Try to unzip your manual.sxw file with a regular unzip program (maybe rename the file extension to .zip before you do so). 
-            	If that works and you do find a content.xml file, please check the TYPO3 bug tracker if such a problem is already known. 
-            	If not, please post a new bug report including the manual.sxw file you have been trying to render.
-            </label>
-            <label index="api_error_renderproblems_3">SimpleXML reported an error during the XSL transformation of the "content.xml" to DocBook.</label>
-            <label index="api_error_renderproblemsolutions_3">
-            	One reason could be an Open Office file format format which is not supported by the TER documentation renderer. 
-            	Currently only the Open Office Writer 1.x file format is supported. If you created the manual with a 1.x version,
-				please check the TYPO3 bug tracker if such a problem is already known. 
-            	If not, please post a new bug report including the manual.sxw file you have been trying to render.
-            </label>
-            <label index="api_error_renderproblems_4">The language of the manual could not be determined because the textLang service was not available on the documention rendering server.</label>
-            <label index="api_error_renderproblemsolutions_4">
-            	This problem must be solved on the TYPO3.org rendering server. Please report this error in the TYPO3.org team mailing list.
-            </label>
-            <label index="api_error_renderproblems_5">The language of the manual could not be determined because the text excerpt which is created to guess the language was empty.</label>
-            <label index="api_error_renderproblemsolutions_5">
-            	The language of your documentation is determined automatically by a language guesser service. This mechanism needs some text to guess the language. Please make sure
-            	that the document is structured according to the official manual template and that the first chapter and sections contain enough text. 
-            </label>
-            <label index="api_error_renderproblems_6">The renderer could not create the manual's abstract.</label>
-            <label index="api_error_renderproblemsolutions_6">
-            	An abstract is extracted automatically from your documentation. Please make sure that the document is structured according to the official manual template and that the 
-            	first section of your first chapter contains an abstract about your extension (usually called "What does it do?").
-            </label>
-            <label index="api_error_renderproblems_7">An error occured while trying to read the extension's .t3x file.</label>
-            <label index="api_error_renderproblemsolutions_7">
-            	This is most likely an internal error on our documentation rendering server. Please report this problem at the TYPO3.org team mailing list.
-            </label>
-            <label index="api_error_renderproblems_8">The T3X archive is corrupted: The MD5 checksum did not match with the value which was created while creating the T3X file.</label>
-            <label index="api_error_renderproblemsolutions_8">
-            	Please make sure that the upload of your extension went smoothly and try again uploading your extension. If you still get this error, please report this problem at the TYPO3.org team mailing list.
-            </label>
-            <label index="api_error_renderproblems_9">An error occured while uncompressing the T3X file.</label>
-            <label index="api_error_renderproblemsolutions_9">
-            	Please make sure that the upload of your extension went smoothly and try again uploading your extension. If you still get this error, please report this problem at the TYPO3.org team mailing list.
-            </label>
-            <label index="api_error_renderproblems_10">The structure of the T3X file seems to be corrupted: No files were found after extracting the archive.</label>
-            <label index="api_error_renderproblemsolutions_10">
-            	Please make sure that the upload of your extension went smoothly and try again uploading your extension. Also check that your extension
-            	contains all the neccessary files (at least the emconf.php file). If you still get this error, please report this problem at the TYPO3.org team mailing list.
-            </label>
-            <label index="api_error_renderproblems_11">At least one file of the T3X archive is corrupted (MD5 mismatch).</label>
-            <label index="api_error_renderproblemsolutions_11">
-            	Please make sure that the upload of your extension went smoothly and try again uploading your extension. If you still get this error, please report this problem at the TYPO3.org team mailing list.
-            </label>
-            <label index="api_error_renderproblems_12">A file was not found in the T3X archive.</label>
-            <label index="api_error_renderproblemsolutions_12">
-            	Usually the only file which the documentation render tries to extract is the manual.sxw file. Please make sure that such a file exists.
-            	If it does exist and you still get this error, please report this problem at the TYPO3.org team mailing list.            	
-            </label>
-            <label index="api_error_renderproblems_13">The T3X archive contained no file "manual.sxw" in the folder doc/.</label>            
-            <label index="api_error_renderproblemsolutions_13">
-            	The extension did not contain any manual. Please create a manual by using the official template (extension key: doc_template) and store it in the
-            	doc/ folder of your extension.
-           	</label>            
-        </languageKey>
-        <languageKey index="dk" type="array">
-        </languageKey>
-        <languageKey index="de" type="array">
-        </languageKey>
-        <languageKey index="no" type="array">
-        </languageKey>
-        <languageKey index="it" type="array">
-        </languageKey>
-        <languageKey index="fr" type="array">
-        </languageKey>
-        <languageKey index="es" type="array">
-        </languageKey>
-        <languageKey index="nl" type="array">
-        </languageKey>
-        <languageKey index="cz" type="array">
-        </languageKey>
-        <languageKey index="pl" type="array">
-        </languageKey>
-        <languageKey index="si" type="array">
-        </languageKey>
-        <languageKey index="fi" type="array">
-        </languageKey>
-        <languageKey index="tr" type="array">
-        </languageKey>
-        <languageKey index="se" type="array">
-        </languageKey>
-        <languageKey index="pt" type="array">
-        </languageKey>
-        <languageKey index="ru" type="array">
-        </languageKey>
-        <languageKey index="ro" type="array">
-        </languageKey>
-        <languageKey index="ch" type="array">
-        </languageKey>
-        <languageKey index="sk" type="array">
-        </languageKey>
-        <languageKey index="lt" type="array">
-        </languageKey>
-        <languageKey index="is" type="array">
-        </languageKey>
-        <languageKey index="hr" type="array">
-        </languageKey>
-        <languageKey index="hu" type="array">
-        </languageKey>
-        <languageKey index="gl" type="array">
-        </languageKey>
-        <languageKey index="th" type="array">
-        </languageKey>
-        <languageKey index="gr" type="array">
-        </languageKey>
-        <languageKey index="hk" type="array">
-        </languageKey>
-        <languageKey index="eu" type="array">
-        </languageKey>
-        <languageKey index="bg" type="array">
-        </languageKey>
-        <languageKey index="br" type="array">
-        </languageKey>
-        <languageKey index="et" type="array">
-        </languageKey>
-        <languageKey index="ar" type="array">
-        </languageKey>
-        <languageKey index="he" type="array">
-        </languageKey>
-        <languageKey index="ua" type="array">
-        </languageKey>
-        <languageKey index="lv" type="array">
-        </languageKey>
-        <languageKey index="jp" type="array">
-        </languageKey>
-        <languageKey index="vn" type="array">
-        </languageKey>
-        <languageKey index="ca" type="array">
-        </languageKey>
-        <languageKey index="ba" type="array">
-        </languageKey>
-        <languageKey index="kr" type="array">
-        </languageKey>
-        <languageKey index="eo" type="array">
-        </languageKey>
-        <languageKey index="my" type="array">
-        </languageKey>
-    </data>
-    <orig_hash type="array">
-        <languageKey index="default" type="array">
-            <label index="general_manualtitle" type="integer">192455458</label>
-            <label index="general_language" type="integer">77154959</label>
-            <label index="general_lastupdate" type="integer">37146859</label>
-        </languageKey>
-        <languageKey index="dk" type="array">
-        </languageKey>
-        <languageKey index="de" type="array">
-        </languageKey>
-        <languageKey index="no" type="array">
-        </languageKey>
-        <languageKey index="it" type="array">
-        </languageKey>
-        <languageKey index="fr" type="array">
-        </languageKey>
-        <languageKey index="es" type="array">
-        </languageKey>
-        <languageKey index="nl" type="array">
-        </languageKey>
-        <languageKey index="cz" type="array">
-        </languageKey>
-        <languageKey index="pl" type="array">
-        </languageKey>
-        <languageKey index="si" type="array">
-        </languageKey>
-        <languageKey index="fi" type="array">
-        </languageKey>
-        <languageKey index="tr" type="array">
-        </languageKey>
-        <languageKey index="se" type="array">
-        </languageKey>
-        <languageKey index="pt" type="array">
-        </languageKey>
-        <languageKey index="ru" type="array">
-        </languageKey>
-        <languageKey index="ro" type="array">
-        </languageKey>
-        <languageKey index="ch" type="array">
-        </languageKey>
-        <languageKey index="sk" type="array">
-        </languageKey>
-        <languageKey index="lt" type="array">
-        </languageKey>
-        <languageKey index="is" type="array">
-        </languageKey>
-        <languageKey index="hr" type="array">
-        </languageKey>
-        <languageKey index="hu" type="array">
-        </languageKey>
-        <languageKey index="gl" type="array">
-        </languageKey>
-        <languageKey index="th" type="array">
-        </languageKey>
-        <languageKey index="gr" type="array">
-        </languageKey>
-        <languageKey index="hk" type="array">
-        </languageKey>
-        <languageKey index="eu" type="array">
-        </languageKey>
-        <languageKey index="bg" type="array">
-        </languageKey>
-        <languageKey index="br" type="array">
-        </languageKey>
-        <languageKey index="et" type="array">
-        </languageKey>
-        <languageKey index="ar" type="array">
-        </languageKey>
-        <languageKey index="he" type="array">
-        </languageKey>
-        <languageKey index="ua" type="array">
-        </languageKey>
-        <languageKey index="lv" type="array">
-        </languageKey>
-        <languageKey index="jp" type="array">
-        </languageKey>
-        <languageKey index="vn" type="array">
-        </languageKey>
-        <languageKey index="ca" type="array">
-        </languageKey>
-        <languageKey index="ba" type="array">
-        </languageKey>
-        <languageKey index="kr" type="array">
-        </languageKey>
-        <languageKey index="eo" type="array">
-        </languageKey>
-        <languageKey index="my" type="array">
-        </languageKey>
-    </orig_hash>
-    <orig_text type="array">
-        <languageKey index="default" type="array">
-        </languageKey>
-        <languageKey index="dk" type="array">
-        </languageKey>
-        <languageKey index="de" type="array">
-        </languageKey>
-        <languageKey index="no" type="array">
-        </languageKey>
-        <languageKey index="it" type="array">
-        </languageKey>
-        <languageKey index="fr" type="array">
-        </languageKey>
-        <languageKey index="es" type="array">
-        </languageKey>
-        <languageKey index="nl" type="array">
-        </languageKey>
-        <languageKey index="cz" type="array">
-        </languageKey>
-        <languageKey index="pl" type="array">
-        </languageKey>
-        <languageKey index="si" type="array">
-        </languageKey>
-        <languageKey index="fi" type="array">
-        </languageKey>
-        <languageKey index="tr" type="array">
-        </languageKey>
-        <languageKey index="se" type="array">
-        </languageKey>
-        <languageKey index="pt" type="array">
-        </languageKey>
-        <languageKey index="ru" type="array">
-        </languageKey>
-        <languageKey index="ro" type="array">
-        </languageKey>
-        <languageKey index="ch" type="array">
-        </languageKey>
-        <languageKey index="sk" type="array">
-        </languageKey>
-        <languageKey index="lt" type="array">
-        </languageKey>
-        <languageKey index="is" type="array">
-        </languageKey>
-        <languageKey index="hr" type="array">
-        </languageKey>
-        <languageKey index="hu" type="array">
-        </languageKey>
-        <languageKey index="gl" type="array">
-        </languageKey>
-        <languageKey index="th" type="array">
-        </languageKey>
-        <languageKey index="gr" type="array">
-        </languageKey>
-        <languageKey index="hk" type="array">
-        </languageKey>
-        <languageKey index="eu" type="array">
-        </languageKey>
-        <languageKey index="bg" type="array">
-        </languageKey>
-        <languageKey index="br" type="array">
-        </languageKey>
-        <languageKey index="et" type="array">
-        </languageKey>
-        <languageKey index="ar" type="array">
-        </languageKey>
-        <languageKey index="he" type="array">
-        </languageKey>
-        <languageKey index="ua" type="array">
-        </languageKey>
-        <languageKey index="lv" type="array">
-        </languageKey>
-        <languageKey index="jp" type="array">
-        </languageKey>
-        <languageKey index="vn" type="array">
-        </languageKey>
-        <languageKey index="ca" type="array">
-        </languageKey>
-        <languageKey index="ba" type="array">
-        </languageKey>
-        <languageKey index="kr" type="array">
-        </languageKey>
-        <languageKey index="eo" type="array">
-        </languageKey>
-        <languageKey index="my" type="array">
-        </languageKey>
-    </orig_text>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+
+<T3locallang>
+
+    <meta type="array">
+
+        <description></description>
+
+        <type>module</type>
+
+        <csh_table></csh_table>
+
+        <fileId>EXT:ter_doc/pi1/locallang.xml</fileId>
+
+        <labelContext type="array">
+
+            <label index="general_manualtitle"></label>
+
+            <label index="general_language"></label>
+
+            <label index="general_lastupdate"></label>
+
+        </labelContext>
+
+    </meta>
+
+    <data type="array">
+
+        <languageKey index="default" type="array">
+
+            <label index="general_manualtitle">Title</label>
+
+            <label index="general_language">Language</label>
+
+            <label index="general_lastupdate">Last update</label>
+
+            <label index="general_extensionkey">Extension key</label>
+
+            <label index="general_formats">Formats</label>
+
+            <label index="general_tableofcontent">Table Of Content</label>
+
+            <label index="general_previous">previous</label>
+
+            <label index="general_next">next</label>
+
+            <label index="ter1redirect_heading">The online documentation has a new location!</label>(
+
+            <label index="ter1redirect_introduction">Dear TYPO3 user.
+
+            
+
+Due to an updated version of our Extension Repository and Documentation Library, the link you used is not valid anymore.</label>
+
+            <label index="ter1redirect_noformatavailable">Unfortunately there is no online readable format (or no document at all) of the extension you requested. Maybe the documentation was outdated, the document has not been rendered yet or the extension does not exist anymore.</label>
+
+            <label index="ter1redirect_formatavailable">The document you have been looking for is now stored at a new location. Please use the following link in order to read it online:</label>
+
+            <label index="formats_relatestoversion">This document is related to version %s of the extension %s.</label>
+
+            <label index="error_outputformatnotavailable">Error: Output format not available!</label>
+
+            <label index="error_outputformatnoobject">Error: Object for output format was not instantiated!</label>
+
+            <label index="error_outputformatisofwrongclasstype">Error: The selected output format is of the wrong class type! This is an error in implementation of the extension providing this format.</label>
+
+            <label index="error_documentiscurrentlynotavailableinthisformat">Sorry, this document is currently not available in the requested format. Please try again in a few minutes.</label>                        
+
+            <label index="api_error_renderproblems_1">An error ocurred while the renderer was trying to unzip the manual.sxw file.</label>
+
+            <label index="api_error_renderproblemsolutions_1">
+
+            	The reason might be a corrupted SXW file or an Open Office file format which is not supported by the TER documentation renderer. 
+
+            	Try to unzip your manual.sxw file with a regular unzip program (maybe rename the file extension to .zip before you do so). 
+
+            	If that works, please check the TYPO3 bug tracker if such a problem is already known. If not, please post a new bug report 
+
+            	including the manual.sxw file you have been trying to render.
+
+            </label>
+
+            <label index="api_error_renderproblems_2">No "content.xml" file was found after extracting the manual.sxw file.</label>
+
+            <label index="api_error_renderproblemsolutions_2">
+
+            	This is a very rare error. One reason could be a corrupted SXW file or an Open Office file format format which is not supported
+
+            	by the TER documentation renderer. 
+
+            	Try to unzip your manual.sxw file with a regular unzip program (maybe rename the file extension to .zip before you do so). 
+
+            	If that works and you do find a content.xml file, please check the TYPO3 bug tracker if such a problem is already known. 
+
+            	If not, please post a new bug report including the manual.sxw file you have been trying to render.
+
+            </label>
+
+            <label index="api_error_renderproblems_3">SimpleXML reported an error during the XSL transformation of the "content.xml" to DocBook.</label>
+
+            <label index="api_error_renderproblemsolutions_3">
+
+            	One reason could be an Open Office file format format which is not supported by the TER documentation renderer. 
+
+            	Currently only the Open Office Writer 1.x file format is supported. If you created the manual with a 1.x version,
+
+				please check the TYPO3 bug tracker if such a problem is already known. 
+
+            	If not, please post a new bug report including the manual.sxw file you have been trying to render.
+
+            </label>
+
+            <label index="api_error_renderproblems_4">The language of the manual could not be determined because the textLang service was not available on the documention rendering server.</label>
+
+            <label index="api_error_renderproblemsolutions_4">
+
+            	This problem must be solved on the TYPO3.org rendering server. Please report this error in the TYPO3.org team mailing list.
+
+            </label>
+
+            <label index="api_error_renderproblems_5">The language of the manual could not be determined because the text excerpt which is created to guess the language was empty.</label>
+
+            <label index="api_error_renderproblemsolutions_5">
+
+            	The language of your documentation is determined automatically by a language guesser service. This mechanism needs some text to guess the language. Please make sure
+
+            	that the document is structured according to the official manual template and that the first chapter and sections contain enough text. 
+
+            </label>
+
+            <label index="api_error_renderproblems_6">The renderer could not create the manual's abstract.</label>
+
+            <label index="api_error_renderproblemsolutions_6">
+
+            	An abstract is extracted automatically from your documentation. Please make sure that the document is structured according to the official manual template and that the 
+
+            	first section of your first chapter contains an abstract about your extension (usually called "What does it do?").
+
+            </label>
+
+            <label index="api_error_renderproblems_7">An error occured while trying to read the extension's .t3x file.</label>
+
+            <label index="api_error_renderproblemsolutions_7">
+
+            	This is most likely an internal error on our documentation rendering server. Please report this problem at the TYPO3.org team mailing list.
+
+            </label>
+
+            <label index="api_error_renderproblems_8">The T3X archive is corrupted: The MD5 checksum did not match with the value which was created while creating the T3X file.</label>
+
+            <label index="api_error_renderproblemsolutions_8">
+
+            	Please make sure that the upload of your extension went smoothly and try again uploading your extension. If you still get this error, please report this problem at the TYPO3.org team mailing list.
+
+            </label>
+
+            <label index="api_error_renderproblems_9">An error occured while uncompressing the T3X file.</label>
+
+            <label index="api_error_renderproblemsolutions_9">
+
+            	Please make sure that the upload of your extension went smoothly and try again uploading your extension. If you still get this error, please report this problem at the TYPO3.org team mailing list.
+
+            </label>
+
+            <label index="api_error_renderproblems_10">The structure of the T3X file seems to be corrupted: No files were found after extracting the archive.</label>
+
+            <label index="api_error_renderproblemsolutions_10">
+
+            	Please make sure that the upload of your extension went smoothly and try again uploading your extension. Also check that your extension
+
+            	contains all the neccessary files (at least the emconf.php file). If you still get this error, please report this problem at the TYPO3.org team mailing list.
+
+            </label>
+
+            <label index="api_error_renderproblems_11">At least one file of the T3X archive is corrupted (MD5 mismatch).</label>
+
+            <label index="api_error_renderproblemsolutions_11">
+
+            	Please make sure that the upload of your extension went smoothly and try again uploading your extension. If you still get this error, please report this problem at the TYPO3.org team mailing list.
+
+            </label>
+
+            <label index="api_error_renderproblems_12">A file was not found in the T3X archive.</label>
+
+            <label index="api_error_renderproblemsolutions_12">
+
+            	Usually the only file which the documentation render tries to extract is the manual.sxw file. Please make sure that such a file exists.
+
+            	If it does exist and you still get this error, please report this problem at the TYPO3.org team mailing list.            	
+
+            </label>
+
+            <label index="api_error_renderproblems_13">The T3X archive contained no file "manual.sxw" in the folder doc/.</label>            
+
+            <label index="api_error_renderproblemsolutions_13">
+
+            	The extension did not contain any manual. Please create a manual by using the official template (extension key: doc_template) and store it in the
+
+            	doc/ folder of your extension.
+
+           	</label>            
+
+        </languageKey>
+
+        <languageKey index="dk" type="array">
+
+        </languageKey>
+
+        <languageKey index="de" type="array">
+
+        </languageKey>
+
+        <languageKey index="no" type="array">
+
+        </languageKey>
+
+        <languageKey index="it" type="array">
+
+        </languageKey>
+
+        <languageKey index="fr" type="array">
+
+        </languageKey>
+
+        <languageKey index="es" type="array">
+
+        </languageKey>
+
+        <languageKey index="nl" type="array">
+
+        </languageKey>
+
+        <languageKey index="cz" type="array">
+
+        </languageKey>
+
+        <languageKey index="pl" type="array">
+
+        </languageKey>
+
+        <languageKey index="si" type="array">
+
+        </languageKey>
+
+        <languageKey index="fi" type="array">
+
+        </languageKey>
+
+        <languageKey index="tr" type="array">
+
+        </languageKey>
+
+        <languageKey index="se" type="array">
+
+        </languageKey>
+
+        <languageKey index="pt" type="array">
+
+        </languageKey>
+
+        <languageKey index="ru" type="array">
+
+        </languageKey>
+
+        <languageKey index="ro" type="array">
+
+        </languageKey>
+
+        <languageKey index="ch" type="array">
+
+        </languageKey>
+
+        <languageKey index="sk" type="array">
+
+        </languageKey>
+
+        <languageKey index="lt" type="array">
+
+        </languageKey>
+
+        <languageKey index="is" type="array">
+
+        </languageKey>
+
+        <languageKey index="hr" type="array">
+
+        </languageKey>
+
+        <languageKey index="hu" type="array">
+
+        </languageKey>
+
+        <languageKey index="gl" type="array">
+
+        </languageKey>
+
+        <languageKey index="th" type="array">
+
+        </languageKey>
+
+        <languageKey index="gr" type="array">
+
+        </languageKey>
+
+        <languageKey index="hk" type="array">
+
+        </languageKey>
+
+        <languageKey index="eu" type="array">
+
+        </languageKey>
+
+        <languageKey index="bg" type="array">
+
+        </languageKey>
+
+        <languageKey index="br" type="array">
+
+        </languageKey>
+
+        <languageKey index="et" type="array">
+
+        </languageKey>
+
+        <languageKey index="ar" type="array">
+
+        </languageKey>
+
+        <languageKey index="he" type="array">
+
+        </languageKey>
+
+        <languageKey index="ua" type="array">
+
+        </languageKey>
+
+        <languageKey index="lv" type="array">
+
+        </languageKey>
+
+        <languageKey index="jp" type="array">
+
+        </languageKey>
+
+        <languageKey index="vn" type="array">
+
+        </languageKey>
+
+        <languageKey index="ca" type="array">
+
+        </languageKey>
+
+        <languageKey index="ba" type="array">
+
+        </languageKey>
+
+        <languageKey index="kr" type="array">
+
+        </languageKey>
+
+        <languageKey index="eo" type="array">
+
+        </languageKey>
+
+        <languageKey index="my" type="array">
+
+        </languageKey>
+
+    </data>
+
+    <orig_hash type="array">
+
+        <languageKey index="default" type="array">
+
+            <label index="general_manualtitle" type="integer">192455458</label>
+
+            <label index="general_language" type="integer">77154959</label>
+
+            <label index="general_lastupdate" type="integer">37146859</label>
+
+        </languageKey>
+
+        <languageKey index="dk" type="array">
+
+        </languageKey>
+
+        <languageKey index="de" type="array">
+
+        </languageKey>
+
+        <languageKey index="no" type="array">
+
+        </languageKey>
+
+        <languageKey index="it" type="array">
+
+        </languageKey>
+
+        <languageKey index="fr" type="array">
+
+        </languageKey>
+
+        <languageKey index="es" type="array">
+
+        </languageKey>
+
+        <languageKey index="nl" type="array">
+
+        </languageKey>
+
+        <languageKey index="cz" type="array">
+
+        </languageKey>
+
+        <languageKey index="pl" type="array">
+
+        </languageKey>
+
+        <languageKey index="si" type="array">
+
+        </languageKey>
+
+        <languageKey index="fi" type="array">
+
+        </languageKey>
+
+        <languageKey index="tr" type="array">
+
+        </languageKey>
+
+        <languageKey index="se" type="array">
+
+        </languageKey>
+
+        <languageKey index="pt" type="array">
+
+        </languageKey>
+
+        <languageKey index="ru" type="array">
+
+        </languageKey>
+
+        <languageKey index="ro" type="array">
+
+        </languageKey>
+
+        <languageKey index="ch" type="array">
+
+        </languageKey>
+
+        <languageKey index="sk" type="array">
+
+        </languageKey>
+
+        <languageKey index="lt" type="array">
+
+        </languageKey>
+
+        <languageKey index="is" type="array">
+
+        </languageKey>
+
+        <languageKey index="hr" type="array">
+
+        </languageKey>
+
+        <languageKey index="hu" type="array">
+
+        </languageKey>
+
+        <languageKey index="gl" type="array">
+
+        </languageKey>
+
+        <languageKey index="th" type="array">
+
+        </languageKey>
+
+        <languageKey index="gr" type="array">
+
+        </languageKey>
+
+        <languageKey index="hk" type="array">
+
+        </languageKey>
+
+        <languageKey index="eu" type="array">
+
+        </languageKey>
+
+        <languageKey index="bg" type="array">
+
+        </languageKey>
+
+        <languageKey index="br" type="array">
+
+        </languageKey>
+
+        <languageKey index="et" type="array">
+
+        </languageKey>
+
+        <languageKey index="ar" type="array">
+
+        </languageKey>
+
+        <languageKey index="he" type="array">
+
+        </languageKey>
+
+        <languageKey index="ua" type="array">
+
+        </languageKey>
+
+        <languageKey index="lv" type="array">
+
+        </languageKey>
+
+        <languageKey index="jp" type="array">
+
+        </languageKey>
+
+        <languageKey index="vn" type="array">
+
+        </languageKey>
+
+        <languageKey index="ca" type="array">
+
+        </languageKey>
+
+        <languageKey index="ba" type="array">
+
+        </languageKey>
+
+        <languageKey index="kr" type="array">
+
+        </languageKey>
+
+        <languageKey index="eo" type="array">
+
+        </languageKey>
+
+        <languageKey index="my" type="array">
+
+        </languageKey>
+
+    </orig_hash>
+
+    <orig_text type="array">
+
+        <languageKey index="default" type="array">
+
+        </languageKey>
+
+        <languageKey index="dk" type="array">
+
+        </languageKey>
+
+        <languageKey index="de" type="array">
+
+        </languageKey>
+
+        <languageKey index="no" type="array">
+
+        </languageKey>
+
+        <languageKey index="it" type="array">
+
+        </languageKey>
+
+        <languageKey index="fr" type="array">
+
+        </languageKey>
+
+        <languageKey index="es" type="array">
+
+        </languageKey>
+
+        <languageKey index="nl" type="array">
+
+        </languageKey>
+
+        <languageKey index="cz" type="array">
+
+        </languageKey>
+
+        <languageKey index="pl" type="array">
+
+        </languageKey>
+
+        <languageKey index="si" type="array">
+
+        </languageKey>
+
+        <languageKey index="fi" type="array">
+
+        </languageKey>
+
+        <languageKey index="tr" type="array">
+
+        </languageKey>
+
+        <languageKey index="se" type="array">
+
+        </languageKey>
+
+        <languageKey index="pt" type="array">
+
+        </languageKey>
+
+        <languageKey index="ru" type="array">
+
+        </languageKey>
+
+        <languageKey index="ro" type="array">
+
+        </languageKey>
+
+        <languageKey index="ch" type="array">
+
+        </languageKey>
+
+        <languageKey index="sk" type="array">
+
+        </languageKey>
+
+        <languageKey index="lt" type="array">
+
+        </languageKey>
+
+        <languageKey index="is" type="array">
+
+        </languageKey>
+
+        <languageKey index="hr" type="array">
+
+        </languageKey>
+
+        <languageKey index="hu" type="array">
+
+        </languageKey>
+
+        <languageKey index="gl" type="array">
+
+        </languageKey>
+
+        <languageKey index="th" type="array">
+
+        </languageKey>
+
+        <languageKey index="gr" type="array">
+
+        </languageKey>
+
+        <languageKey index="hk" type="array">
+
+        </languageKey>
+
+        <languageKey index="eu" type="array">
+
+        </languageKey>
+
+        <languageKey index="bg" type="array">
+
+        </languageKey>
+
+        <languageKey index="br" type="array">
+
+        </languageKey>
+
+        <languageKey index="et" type="array">
+
+        </languageKey>
+
+        <languageKey index="ar" type="array">
+
+        </languageKey>
+
+        <languageKey index="he" type="array">
+
+        </languageKey>
+
+        <languageKey index="ua" type="array">
+
+        </languageKey>
+
+        <languageKey index="lv" type="array">
+
+        </languageKey>
+
+        <languageKey index="jp" type="array">
+
+        </languageKey>
+
+        <languageKey index="vn" type="array">
+
+        </languageKey>
+
+        <languageKey index="ca" type="array">
+
+        </languageKey>
+
+        <languageKey index="ba" type="array">
+
+        </languageKey>
+
+        <languageKey index="kr" type="array">
+
+        </languageKey>
+
+        <languageKey index="eo" type="array">
+
+        </languageKey>
+
+        <languageKey index="my" type="array">
+
+        </languageKey>
+
+    </orig_text>
+
 </T3locallang>

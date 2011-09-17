@@ -1,19 +1,37 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<T3locallang>
-    <meta type="array">
-        <description></description>
-        <type>module</type>
-        <csh_table></csh_table>
-        <fileId>EXT:ter_doc/mod1/locallang.xml</fileId>
-        <labelContext type="array">
-        </labelContext>
-    </meta>
-    <data type="array">
-        <languageKey index="default" type="array">
-            <label index="title">TER Docs</label>
-            <label index="function_rendering">Rendering</label>
-            <label index="function_categories">Categories</label>
-            <label index="generalinformation">General information</label>
-        </languageKey>
-    </data>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+
+<T3locallang>
+
+    <meta type="array">
+
+        <description></description>
+
+        <type>module</type>
+
+        <csh_table></csh_table>
+
+        <fileId>EXT:ter_doc/mod1/locallang.xml</fileId>
+
+        <labelContext type="array">
+
+        </labelContext>
+
+    </meta>
+
+    <data type="array">
+
+        <languageKey index="default" type="array">
+
+            <label index="title">TER Docs</label>
+
+            <label index="function_rendering">Rendering</label>
+
+            <label index="function_categories">Categories</label>
+
+            <label index="generalinformation">General information</label>
+
+        </languageKey>
+
+    </data>
+
 </T3locallang>
