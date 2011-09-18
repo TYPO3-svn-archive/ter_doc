@@ -707,7 +707,7 @@ class tx_terdoc_renderdocuments {
 	 * @param	string		$version: The version string
 	 * @return	string		Full path to the document directory for the specified extension version
 	 */
-	public function getDocumentDirOfExtensionVersion($extensionKey, $version) {
+	protected function getDocumentDirOfExtensionVersion($extensionKey, $version) {
 		$firstLetter = strtolower (substr ($extensionKey, 0, 1));
 		$secondLetter = strtolower (substr ($extensionKey, 1, 1));
 		$baseDir = PATH_site.'typo3temp/tx_terdoc/documentscache/';
