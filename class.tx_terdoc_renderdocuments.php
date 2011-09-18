@@ -105,6 +105,15 @@ class tx_terdoc_renderdocuments {
 	}
 
 	/**
+	 * Gets the storage PID
+	 *
+	 * @return	integer	Storage PID
+	 */
+	public function getStoragePid() {
+		return $this->storagePid;
+	}
+
+	/**
 	 * Initializes this class and checks if another process is running already.
 	 *
 	 * @return	void
