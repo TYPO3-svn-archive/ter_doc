@@ -23,7 +23,7 @@
 *  This copyright notice MUST APPEAR in all copies of the script!
 ***************************************************************/
 /**
- * Abstract classes for TER DOC document format classes 
+ * Abstract classes for TER DOC document format classes
  *
  * $Id$
  *
@@ -32,19 +32,19 @@
 
 /**
  * Mother of all document format classes. Don't implement this class directly, use
- * a specialized class (tx_terdoc_documentformat_display or tx_terdoc_documentformat_download) 
+ * a specialized class (tx_terdoc_documentformat_display or tx_terdoc_documentformat_download)
  * instead.
- *  
+ *
  * @abstract
  */
 abstract class tx_terdoc_documentformat {
-	
+
 	/**
 	 * This function is called during the rendering process. Implement it for creating
-	 * a cached version of your output format. 
-	 * 
+	 * a cached version of your output format.
+	 *
 	 * @param	string		$documentDir: Absolute directory for the document currently being processed.
-	 * @return	void		
+	 * @return	void
 	 * @access	public
 	 * @abstract
 	 */
@@ -53,10 +53,10 @@ abstract class tx_terdoc_documentformat {
 	/**
 	 * Returns TRUE if a rendered document for the given extension version is
 	 * available.
-	 * 
+	 *
 	 * @param	string		$extensionKey: Extension key of the document
 	 * @param	string		$version: Version number of the document
-	 * @return	boolean		TRUE if rendered version is available, otherwise FALSE		
+	 * @return	boolean		TRUE if rendered version is available, otherwise FALSE
 	 * @access	public
 	 * @abstract
 	 */
@@ -64,9 +64,18 @@ abstract class tx_terdoc_documentformat {
 }
 
 /**
+ * Class which is specialized on indexing documentation instead of displaying it
+ *
+ * @author	Ingo Renner <ingo@typo3.org>
+ */
+abstract class tx_terdoc_documentformat_index extends tx_terdoc_documentformat {
+
+}
+
+/**
  * Class which is specialized on output formats which are displayed for reading
  * online
- * 
+ *
  * @abstract
  */
 abstract class tx_terdoc_documentformat_display extends tx_terdoc_documentformat {
@@ -74,20 +83,20 @@ abstract class tx_terdoc_documentformat_display extends tx_terdoc_documentformat
 	/**
 	 * Renders the online view of a document. This function will be called by
 	 * the frontend plugin (ter_doc_pi1).
-	 * 
+	 *
 	 * @param	string		$extensionKey: Extension key of the document to be rendered
 	 * @param	string		$version: Version number of the document to be rendered
-	 * @param	object		$pObj: Reference to the calling object (must be a pi_base child). Can be used for creating links etc. 
-	 * @return	string			
+	 * @param	object		$pObj: Reference to the calling object (must be a pi_base child). Can be used for creating links etc.
+	 * @return	string
 	 * @access	public
 	 * @abstract
 	 */
-	abstract public function renderDisplay ($extensionKey, $version, &$pObj);	
+	abstract public function renderDisplay ($extensionKey, $version, &$pObj);
 }
 
 /**
  * Class which is specialized on output formats which are available for download
- * 
+ *
  * @abstract
  */
 abstract class tx_terdoc_documentformat_download extends tx_terdoc_documentformat {
@@ -95,14 +104,14 @@ abstract class tx_terdoc_documentformat_download extends tx_terdoc_documentforma
 	/**
 	 * Returns the download file size of the downloadable file from the specified
 	 * extensions version
-	 * 
+	 *
 	 * @param	string		$extensionKey: Extension key of the document
 	 * @param	string		$version: Version number of the document
-	 * @return	mixed		File size of the file (integer) or FALSE if the file does not exist		
+	 * @return	mixed		File size of the file (integer) or FALSE if the file does not exist
 	 * @access	public
 	 * @abstract
 	 */
-	abstract public function getDownloadFileSize ($extensionKey, $version);	
+	abstract public function getDownloadFileSize ($extensionKey, $version);
 
 	/**
 	 * Returns the full (absolute) path including the file name of the file
@@ -110,9 +119,9 @@ abstract class tx_terdoc_documentformat_download extends tx_terdoc_documentforma
 	 *
 	 * @param	string		$extensionKey: Extension key of the document
 	 * @param	string		$version: Version number of the document
-	 * @return	mixed		Absolute path including file name of the downloadable file or FALSE if the file does not exist		
+	 * @return	mixed		Absolute path including file name of the downloadable file or FALSE if the file does not exist
 	 * @access	public
 	 * @abstract
 	 */
-	abstract public function getDownloadFileFullPath ($extensionKey, $version);		
+	abstract public function getDownloadFileFullPath ($extensionKey, $version);
 }
