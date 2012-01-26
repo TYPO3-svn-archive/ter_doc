@@ -47,6 +47,7 @@ class Tx_TerDoc_Domain_Repository_ExtensionRepository {
 	public function __construct($settings, $arguments) {
 		$this->settings = $settings;
 		$this->arguments = $arguments;
+		$this->loadStoragePid();
 	}
 
 	/*	 * ****************************************************
@@ -54,6 +55,20 @@ class Tx_TerDoc_Domain_Repository_ExtensionRepository {
 	 * Extension index functions
 	 *
 	 * **************************************************** */
+
+        /**
+         * Load storage PID from ext conf
+         *
+         * @return void
+         */
+        public function loadStoragePid() {
+                if (!empty($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['ter_doc'])) {
+                        $config = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['ter_doc']);
+                        if (!empty($config['storagePid'])) {
+                                $this->storagePid = (int) $config['storagePid'];
+                        }
+                }
+        }
 
 	/**
 	 * Checks if the extension index file (extensions.xml.gz) was modified
@@ -113,6 +128,7 @@ class Tx_TerDoc_Domain_Repository_ExtensionRepository {
 					$language = @file_get_contents($documentDir . 'language.txt');
 
 					$extensionsRow = array(
+						'pid' => $this->loadStoragePud(),
 						'extensionkey' => $extension['extensionkey'],
 						'version' => $version['version'],
 						'title' => $version->title,
