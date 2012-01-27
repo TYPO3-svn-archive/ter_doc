@@ -128,7 +128,7 @@ class Tx_TerDoc_Domain_Repository_ExtensionRepository {
 					$language = @file_get_contents($documentDir . 'language.txt');
 
 					$extensionsRow = array(
-						'pid' => $this->loadStoragePud(),
+						'pid' => $this->storagePid,
 						'extensionkey' => $extension['extensionkey'],
 						'version' => $version['version'],
 						'title' => $version->title,
