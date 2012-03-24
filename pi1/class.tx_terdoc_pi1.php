@@ -566,7 +566,7 @@ return '';
 		$categoryAssignmentsArr = array();
 		if ($filterByCategory) {
 		  	$tmp = $this->db_fetchCategoryAssignments();
-		  	$categoryAssignmentsArr = $tmp[$filterByCategory];
+		  	$categoryAssignmentsArr = $tmp[$filterByCategory] ? $tmp[$filterByCategory] : array();
 		} 
 
 		if ($filterByCategory) {
