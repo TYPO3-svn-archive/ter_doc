@@ -280,112 +280,114 @@ class Tx_TerDoc_Controller_CliController extends Tx_Extbase_MVC_Controller_Actio
 		$this->validator->validateFileStructure();
 		$this->validator->validateDataSource();
 
-		if (!$this->isLocked() || $this->arguments['force']) {
+		if ($this->isLocked() && !$this->arguments['force']) {
+			Tx_TerDoc_Utility_Cli::log('... aborting - another process seems to render documents right now! Try running with option "--force" enabled');
+			return;
+		}
 				// create a lock
-			touch($this->settings['lockFile']);
+		touch($this->settings['lockFile']);
 
-			Tx_TerDoc_Utility_Cli::log(strftime('%d.%m.%y %R') . ' ter_doc renderer starting ...');
+		Tx_TerDoc_Utility_Cli::log(strftime('%d.%m.%y %R') . ' ter_doc renderer starting ...');
 
-			if ($this->extensionRepository->wasModified() || $this->arguments['force']) {
-				Tx_TerDoc_Utility_Cli::log('* extensions.xml was modified since last run');
+		if ($this->extensionRepository->wasModified() || $this->arguments['force']) {
+			Tx_TerDoc_Utility_Cli::log('* extensions.xml was modified since last run');
 
-					// Reads the extension index file (extensions.xml.gz) and updates the the manual caching table accordingly.
-				$hasUpdate = $this->extensionRepository->updateAll();
-				if ($hasUpdate) {
+				// Reads the extension index file (extensions.xml.gz) and updates the the manual caching table accordingly.
+			$hasUpdate = $this->extensionRepository->updateAll();
+			if ($hasUpdate) {
 
-					$this->extensionRepository->deleteOutdatedDocuments();
-					$modifiedExtensionVersionsArr = $this->extensionRepository->getModifiedExtensionVersions();
+				$this->extensionRepository->deleteOutdatedDocuments();
+				$modifiedExtensionVersionsArr = $this->extensionRepository->getModifiedExtensionVersions();
 
-					$counter = 0;
-					foreach ($modifiedExtensionVersionsArr as $extensionAndVersionArr) {
-						$transformationErrorCodes = array();
-						$extensionKey = $extensionAndVersionArr['extensionkey'];
-						$version = $extensionAndVersionArr['version'];
-							// Check if manual should be rendered or not depending on arguments
-							// Default is yes (true)
-						$renderManual = TRUE;
-						if (!empty($this->arguments['extension'])) {
-								// Skip rendering if extension is defined and doesn't match. Same for version number.
-							if ($extensionKey == $this->arguments['extension']) {
-								if (!empty($this->arguments['version']) && $version != $this->arguments['version']) {
-									$renderManual = FALSE;
-								}
-							} else {
+				$counter = 0;
+				foreach ($modifiedExtensionVersionsArr as $extensionAndVersionArr) {
+					$transformationErrorCodes = array();
+					$extensionKey = $extensionAndVersionArr['extensionkey'];
+					$version = $extensionAndVersionArr['version'];
+						// Check if manual should be rendered or not depending on arguments
+						// Default is yes (true)
+					$renderManual = TRUE;
+					if (!empty($this->arguments['extension'])) {
+							// Skip rendering if extension is defined and doesn't match. Same for version number.
+						if ($extensionKey == $this->arguments['extension']) {
+							if (!empty($this->arguments['version']) && $version != $this->arguments['version']) {
 								$renderManual = FALSE;
 							}
-						}
-							// Proceed with rendering
-						if ($renderManual) {
-
-								// Computes the cache directory of the extension
-							$documentDir = Tx_TerDoc_Utility_Cli::getDocumentDirOfExtensionVersion($this->settings['documentsCache'], $extensionKey, $version);
-
-								// Prepare environment by deleting obsolete rendering problem log
-							Tx_TerDoc_Utility_Cli::log('* Rendering documents for extension "' . $extensionKey . '" (' . $version . ')');
-							$this->extensionRepository->prepare($extensionKey, $version);
-
-								// Extracting manual from t3x
-							Tx_TerDoc_Utility_Cli::log('   * Extracting "doc/manual.sxw" from extension ' . $extensionKey . ' (' . $version . ')');
-							$this->extensionRepository->downloadExtension($extensionKey, $version);
-							$this->extensionRepository->extractT3x($extensionKey, $version, 'doc/manual.sxw', $errorCodes);
-							$this->extensionRepository->decompressManual($extensionKey, $version);
-
-								// Initialize service
-							$xslObject = t3lib_div::makeInstanceService('xsl', 'xslt');
-							$xslObject->setSettings($this->settings);
-
-								// Rendering manual.sxw to Docbook
-							$isDocBookTransformationOk = FALSE;
-							$docBookVersions = explode(',', $this->settings['docbook_version']);
-							if (file_exists($documentDir . 'sxw/content.xml')) {
-								foreach ($docBookVersions as $docBookVersion) {
-									// @todo: improve the transformation: some staff are duplicated e.g. genartion of TOC
-									$isDocBookTransformationOk = $xslObject->transformManualToDocBook($documentDir, $docBookVersion, $transformationErrorCodes);
-								}
-							}
-
-							if ($isDocBookTransformationOk) {
-									// Store some info from the Docbook transformation into the database
-								$dataSet = $xslObject->getInformation();
-								$this->extensionRepository->update($extensionKey, $version, $dataSet);
-
-									// Transform Docbook to HTML
-								$xslObject->transformDocBookToHtml($documentDir);
-							} else {
-								#Tx_TerDoc_Utility_Cli::log('	* No manual found or problem while extracting manual');
-								$this->extensionRepository->delete($extensionKey, $version);
-							}
-
-								// Clean up environment by removing temporary files
-							$this->extensionRepository->cleanUp($extensionKey, $version);
-							t3lib_div::writeFile($documentDir . 't3xfilemd5.txt', $extensionAndVersionArr['t3xfilemd5']);
-
-							foreach ($transformationErrorCodes as $errorCode) {
-								$this->extensionRepository->log($extensionKey, $version, $errorCode);
-							}
-
-							if (!empty($transformationErrorCodes)) {
-								Tx_TerDoc_Utility_Cli::log('   * Error code(s): ' . implode(',', $transformationErrorCodes));
-							}
-							$counter++;
+						} else {
+							$renderManual = FALSE;
 						}
 					}
-					$this->extensionRepository->cleanUpAll();
-						// If no extensions were rendered, give some feedback, as this might be unexpected
-						// (e.g. the user has entered erroneous version/extension arguments)
-					if ($counter == 0) {
-						Tx_TerDoc_Utility_Cli::log('Note: no extension manuals were rendered with the given arguments.');
+						// Proceed with rendering
+					if ($renderManual) {
+
+							// Computes the cache directory of the extension
+						$documentDir = Tx_TerDoc_Utility_Cli::getDocumentDirOfExtensionVersion($this->settings['documentsCache'], $extensionKey, $version);
+
+							// Prepare environment by deleting obsolete rendering problem log
+						Tx_TerDoc_Utility_Cli::log('* Rendering documents for extension "' . $extensionKey . '" (' . $version . ')');
+						$this->extensionRepository->prepare($extensionKey, $version);
+
+							// Extracting manual from t3x
+						Tx_TerDoc_Utility_Cli::log('   * Extracting "doc/manual.sxw" from extension ' . $extensionKey . ' (' . $version . ')');
+						$this->extensionRepository->downloadExtension($extensionKey, $version);
+						$this->extensionRepository->extractT3x($extensionKey, $version, 'doc/manual.sxw', $errorCodes);
+						$this->extensionRepository->decompressManual($extensionKey, $version);
+
+							// Initialize service
+						/* @var $xslObject Tx_TerXsl_Transformer_DocBook */
+						$xslObject = t3lib_div::makeInstanceService('xsl', 'xslt');
+						$xslObject->setSettings($this->settings);
+
+							// Rendering manual.sxw to Docbook
+						$isDocBookTransformationOk = FALSE;
+						$docBookVersions = explode(',', $this->settings['docbook_version']);
+						if (file_exists($documentDir . 'sxw/content.xml')) {
+							foreach ($docBookVersions as $docBookVersion) {
+								// @todo: improve the transformation: some staff are duplicated e.g. genartion of TOC
+								$isDocBookTransformationOk = $xslObject->transformManualToDocBook($documentDir, $docBookVersion, $transformationErrorCodes);
+							}
+						}
+
+						if ($isDocBookTransformationOk) {
+								// Store some info from the Docbook transformation into the database
+							$dataSet = $xslObject->getInformation();
+							$this->extensionRepository->update($extensionKey, $version, $dataSet);
+
+							Tx_TerDoc_Utility_Cli::log('   * Generating HTML for extension ' . $extensionKey . ' (' . $version . ')');
+								// Transform Docbook to HTML
+							$xslObject->transformDocBookToHtml($documentDir);
+						} else {
+							Tx_TerDoc_Utility_Cli::log('	* No manual found or problem while extracting manual');
+							$this->extensionRepository->delete($extensionKey, $version);
+						}
+
+							// Clean up environment by removing temporary files
+						$this->extensionRepository->cleanUp($extensionKey, $version);
+						t3lib_div::writeFile($documentDir . 't3xfilemd5.txt', $extensionAndVersionArr['t3xfilemd5']);
+
+						foreach ($transformationErrorCodes as $errorCode) {
+							$this->extensionRepository->log($extensionKey, $version, $errorCode);
+						}
+
+						if (!empty($transformationErrorCodes)) {
+							Tx_TerDoc_Utility_Cli::log('   * Error code(s): ' . implode(',', $transformationErrorCodes));
+						}
+						$counter++;
 					}
 				}
-				Tx_TerDoc_Utility_Cli::log(strftime('%d.%m.%y %R') . ' done.');
-			} else {
-				Tx_TerDoc_Utility_Cli::log('Extensions.xml was not modified since last run, so nothing to do - done.');
+				$this->extensionRepository->cleanUpAll();
+					// If no extensions were rendered, give some feedback, as this might be unexpected
+					// (e.g. the user has entered erroneous version/extension arguments)
+				if ($counter == 0) {
+					Tx_TerDoc_Utility_Cli::log('Note: no extension manuals were rendered with the given arguments.');
+				}
 			}
-
-			unlink($this->settings['lockFile']);
+			Tx_TerDoc_Utility_Cli::log(strftime('%d.%m.%y %R') . ' done.');
 		} else {
-			Tx_TerDoc_Utility_Cli::log('... aborting - another process seems to render documents right now! Try running with option "--force" enabled');
+			Tx_TerDoc_Utility_Cli::log('Extensions.xml was not modified since last run, so nothing to do - done.');
 		}
+
+		unlink($this->settings['lockFile']);
 	}
 
 	/**
