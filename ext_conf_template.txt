@@ -1,7 +1,7 @@
 # cat=basic//; type=string; label=TypoScript configuration settings: Path to the settings file which will override default configuration. ***Important!*** you should copy the file bellow into fileadmin/ter/configuration for example and *edit* values such as "repositoryDir"
 typoscriptFile = EXT:ter_doc/Configuration/TypoScript/static.ts
 
-# cat=basic//; type=string; label=OBSOLETE - Full path to the repository: Enter the full path to the local extension repository. Example: /var/www/fileadmin/ter/
+# cat=basic//; type=string; label=Full path to the repository: Enter the full path to the local extension repository. Example: /var/www/fileadmin/ter/
 repositoryDir =
 
 # cat=basic//; type=string; label=OBSOLETE - Commandline for unzip application: Enter the full command line for your unzip application, using the placeholders ###ARCHIVENAME### and ###DIRECTORY###. (Note: Use forward slashes '/' for windows paths!)

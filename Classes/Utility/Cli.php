@@ -66,7 +66,7 @@ class Tx_TerDoc_Utility_Cli {
 	 * @return array
 	 */
 	public static function getSettings() {
-		$defaultSettings = $settings = array();
+		$settings = $localSettings = array();
 
 		// instantiate parser
 		$parseObj = t3lib_div::makeInstance('t3lib_TSparser');
@@ -89,13 +89,16 @@ class Tx_TerDoc_Utility_Cli {
 			throw new Exception('Exception thrown #1294657536: file does not exist "' . $configurationArray['typoscriptFile'] . '". Make sure key "typoscriptFile" in EM is correct', 1294657536);
 		}
 
-		// Fetch content from a typoscript file...
+		if (isset($configurationArray['repositoryDir']) && is_dir($configurationArray['repositoryDir'])) {
+			$localSettings['repositoryDir'] = $configurationArray['repositoryDir'];
+		}
+
+			// Fetch content from a typoscript file...
 		$parseObj->setup = array();
 		$parseObj->parse(file_get_contents($configurationArray['typoscriptFile']));
 		$settings = $parseObj->setup['plugin.']['tx_terdoc.']['settings.'];
 
-
-		$settings = array_merge($defaultSettings, $settings);
+		$settings = array_merge($defaultSettings, $settings, $localSettings);
 		if (empty($settings)) {
 			throw new Exception('Exception thrown #1294659609: something went wrong, settings are empty. Can\'go any further', 1294659609);
 		}
@@ -142,9 +145,9 @@ class Tx_TerDoc_Utility_Cli {
 		$fullPath = $baseDir.$firstLetter.'/'.$secondLetter.'/'.strtolower($extensionKey).'-'.$majorVersion.'.'.$minorVersion.'.'.$devVersion;
 
 		if (strlen($firstLetter.$secondLetter)) {
-			@mkdir ($baseDir.$firstLetter);
-			@mkdir ($baseDir.$firstLetter.'/'.$secondLetter);
-			@mkdir ($fullPath);
+			t3lib_div::mkdir ($baseDir.$firstLetter);
+			t3lib_div::mkdir ($baseDir.$firstLetter.'/'.$secondLetter);
+			t3lib_div::mkdir ($fullPath);
 
 			return $fullPath.'/';
 		}
