@@ -227,7 +227,7 @@ class Tx_TerDoc_Domain_Repository_ExtensionRepository {
 			if (is_dir($documentDir . $directory)) {
 				Tx_TerDoc_Utility_Cli::removeDirRecursively($documentDir . $directory);
 			}
-			@mkdir($documentDir . $directory);
+			t3lib_div::mkdir_deep($documentDir . $directory);
 		}
 
 		// "docbook" is a special case -> symlink to the default docbook version
@@ -365,7 +365,7 @@ class Tx_TerDoc_Domain_Repository_ExtensionRepository {
 			if (!file_exists($file)) {
 				$parts = explode('/', $file);
 				$t3xName = array_pop($parts);
-				mkdir(implode('/', $parts), 0777, TRUE);
+				t3lib_div::mkdir_deep(implode('/', $parts));
 
 					// Find extract part of path starting with "/fileadmin" and assemble request URL
 				$fileadminPath = substr($file, strpos($file, '/fileadmin'));

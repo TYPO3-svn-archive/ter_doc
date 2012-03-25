@@ -145,9 +145,8 @@ class Tx_TerDoc_Utility_Cli {
 		$fullPath = $baseDir.$firstLetter.'/'.$secondLetter.'/'.strtolower($extensionKey).'-'.$majorVersion.'.'.$minorVersion.'.'.$devVersion;
 
 		if (strlen($firstLetter.$secondLetter)) {
-			t3lib_div::mkdir ($baseDir.$firstLetter);
-			t3lib_div::mkdir ($baseDir.$firstLetter.'/'.$secondLetter);
-			t3lib_div::mkdir ($fullPath);
+			t3lib_div::mkdir_deep ($baseDir.$firstLetter.'/'.$secondLetter);
+			t3lib_div::mkdir_deep ($fullPath);
 
 			return $fullPath.'/';
 		}

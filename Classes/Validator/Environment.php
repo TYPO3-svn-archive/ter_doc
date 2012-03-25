@@ -70,7 +70,7 @@ class Tx_TerDoc_Validator_Environment {
 			// @todo: check whether a set up action would be preferable
 			//throw new Exception('Exception thrown #1294746784: temp directory does not exist "' . $this->settings['documentsCache'] . '". Run command setUp', 1294746784);
 			try {
-				mkdir($this->settings['documentsCache'], 0777, TRUE);
+				t3lib_div::mkdir($this->settings['documentsCache']);
 			} catch (Exception $e) {
 				Tx_TerDoc_Utility_Cli::log($e->getMessage());
 			}
@@ -78,7 +78,7 @@ class Tx_TerDoc_Validator_Environment {
 
 		// Check if configuration is valid ...and throw error if that is not the case
 		if (!is_dir($this->settings['repositoryDir'])) {
-			throw new Exception('Exception thrown #1294657643: directory does not exist "' . $this->settings['repositoryDir'] . '". Make sure key "repositoryDir" is properly defined in file ' . $configurationArray['typoscriptFile'], 1294657643);
+			throw new Exception('Exception thrown #1294657643: directory does not exist "' . $this->settings['repositoryDir'] . '". Make sure key "repositoryDir" is properly defined.', 1294657643);
 		}
 	}
 
