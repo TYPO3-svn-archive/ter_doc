@@ -56,19 +56,19 @@ class Tx_TerDoc_Domain_Repository_ExtensionRepository {
 	 *
 	 * **************************************************** */
 
-        /**
-         * Load storage PID from ext conf
-         *
-         * @return void
-         */
-        public function loadStoragePid() {
-                if (!empty($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['ter_doc'])) {
-                        $config = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['ter_doc']);
-                        if (!empty($config['storagePid'])) {
-                                $this->storagePid = (int) $config['storagePid'];
-                        }
-                }
-        }
+		/**
+		 * Load storage PID from ext conf
+		 *
+		 * @return void
+		 */
+		public function loadStoragePid() {
+				if (!empty($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['ter_doc'])) {
+						$config = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['ter_doc']);
+						if (!empty($config['storagePid'])) {
+								$this->storagePid = (int) $config['storagePid'];
+						}
+				}
+		}
 
 	/**
 	 * Checks if the extension index file (extensions.xml.gz) was modified
@@ -227,7 +227,7 @@ class Tx_TerDoc_Domain_Repository_ExtensionRepository {
 			if (is_dir($documentDir . $directory)) {
 				Tx_TerDoc_Utility_Cli::removeDirRecursively($documentDir . $directory);
 			}
-			t3lib_div::mkdir_deep($documentDir . $directory);
+			t3lib_div::mkdir_deep($documentDir, $directory);
 		}
 
 		// "docbook" is a special case -> symlink to the default docbook version
@@ -363,9 +363,9 @@ class Tx_TerDoc_Domain_Repository_ExtensionRepository {
 
 			// special case -> download the t3x archive when not already present on the harddrive.
 			if (!file_exists($file)) {
-				$parts = explode('/', $file);
+				$parts = explode('/', str_replace($this->settings['repositoryDir'], '', $file));
 				$t3xName = array_pop($parts);
-				t3lib_div::mkdir_deep(implode('/', $parts));
+				t3lib_div::mkdir_deep($this->settings['repositoryDir'], implode('/', $parts));
 
 					// Find extract part of path starting with "/fileadmin" and assemble request URL
 				$fileadminPath = substr($file, strpos($file, '/fileadmin'));

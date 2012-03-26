@@ -142,12 +142,11 @@ class Tx_TerDoc_Utility_Cli {
 		$secondLetter = strtolower (substr ($extensionKey, 1, 1));
 
  		list ($majorVersion, $minorVersion, $devVersion) = t3lib_div::intExplode ('.', $version);
-		$fullPath = $baseDir.$firstLetter.'/'.$secondLetter.'/'.strtolower($extensionKey).'-'.$majorVersion.'.'.$minorVersion.'.'.$devVersion;
+		$subPath = $firstLetter.'/'.$secondLetter.'/'.strtolower($extensionKey).'-'.$majorVersion.'.'.$minorVersion.'.'.$devVersion;
+		$fullPath = $baseDir.$subPath;
 
 		if (strlen($firstLetter.$secondLetter)) {
-			t3lib_div::mkdir_deep ($baseDir.$firstLetter.'/'.$secondLetter);
-			t3lib_div::mkdir_deep ($fullPath);
-
+			t3lib_div::mkdir_deep ($baseDir, $subPath);
 			return $fullPath.'/';
 		}
 	}
