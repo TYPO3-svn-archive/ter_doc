@@ -537,9 +537,19 @@ class Tx_TerDoc_Domain_Repository_ExtensionRepository {
 		);
 		if ($res) {
 			while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
+					// no need to do the heavy IO stuff when we force rendering
+				if ($this->arguments['force']) {
+					$extensionKeysAndVersionsArr[] = array(
+						'extensionkey' => $row['extensionkey'],
+						'version' => $row['version'],
+						't3xfilemd5' => $row['t3xfilemd5']
+					);
+					continue;
+				}
+
 				$documentDir = Tx_TerDoc_Utility_Cli::getDocumentDirOfExtensionVersion($this->settings['documentsCache'], $row['extensionkey'], $row['version']);
 				$t3xMD5OfRenderedDocuments = @file_get_contents($documentDir . 't3xfilemd5.txt');
-				if ($t3xMD5OfRenderedDocuments != $row['t3xfilemd5'] || $this->arguments['force']) {
+				if ($t3xMD5OfRenderedDocuments != $row['t3xfilemd5']) {
 					$extensionKeysAndVersionsArr[] = array(
 						'extensionkey' => $row['extensionkey'],
 						'version' => $row['version'],
