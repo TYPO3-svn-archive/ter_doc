@@ -146,7 +146,9 @@ class Tx_TerDoc_Utility_Cli {
 		$fullPath = $baseDir.$subPath;
 
 		if (strlen($firstLetter.$secondLetter)) {
-			t3lib_div::mkdir_deep ($baseDir, $subPath);
+
+			@mkdir($fullPath, 0777, TRUE);
+			t3lib_div::fixPermissions($baseDir.$firstLetter, TRUE);
 			return $fullPath.'/';
 		}
 	}

@@ -227,7 +227,8 @@ class Tx_TerDoc_Domain_Repository_ExtensionRepository {
 			if (is_dir($documentDir . $directory)) {
 				Tx_TerDoc_Utility_Cli::removeDirRecursively($documentDir . $directory);
 			}
-			t3lib_div::mkdir_deep($documentDir, $directory);
+			@mkdir($documentDir . $directory, 0777, TRUE);
+			t3lib_div::fixPermissions($documentDir, TRUE);
 		}
 
 		// "docbook" is a special case -> symlink to the default docbook version
@@ -363,10 +364,9 @@ class Tx_TerDoc_Domain_Repository_ExtensionRepository {
 
 			// special case -> download the t3x archive when not already present on the harddrive.
 			if (!file_exists($file)) {
-				$parts = explode('/', str_replace($this->settings['repositoryDir'], '', $file));
 				$t3xName = array_pop($parts);
-				t3lib_div::mkdir_deep($this->settings['repositoryDir'], implode('/', $parts));
-
+				@mkdir(implode('/', $parts), 0777, TRUE);
+				t3lib_div::fixPermissions($this->settings['repositoryDir'], TRUE);
 					// Find extract part of path starting with "/fileadmin" and assemble request URL
 				$fileadminPath = substr($file, strpos($file, '/fileadmin'));
 				$t3xOnline = 'http://typo3.org' . $fileadminPath;
