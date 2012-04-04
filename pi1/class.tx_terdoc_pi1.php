@@ -145,7 +145,7 @@ class tx_terdoc_pi1 extends tslib_pibase {
 			if (strlen($this->piVars['version']) == 0 || $this->piVars['version'] == 'current') {
 				$this->piVars['version'] = $this->db_getMostCurrentVersionNumberOfManual($this->piVars['extensionkey']);
 			}
-			if (isset ($this->piVars['format'])) {
+			if (isset ($this->piVars['format']) && $this->piVars['format']) {
 				$content .= $this->renderDocumentFormat ($this->piVars['extensionkey'], $this->piVars['version'], $this->piVars['format']);
 			} else {
 				$content .= $this->renderListOfFormats ($this->piVars['extensionkey'], $this->piVars['version']);
