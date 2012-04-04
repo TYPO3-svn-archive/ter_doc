@@ -87,8 +87,8 @@ t3lib_extMgm::allowTableOnStandardPages('tx_terdoc_manualspagecache');
 t3lib_extMgm::addPiFlexFormValue($_EXTKEY.'_pi1', 'FILE:EXT:ter_doc/flexform_ds_pluginmode.xml');
 
 	// Register module
-if (TYPO3_MODE=='BE') {
-	//t3lib_extMgm::addModule('tools','txterdocM1','',t3lib_extMgm::extPath($_EXTKEY).'mod1/');
+if (TYPO3_MODE == 'BE') {
+	t3lib_extMgm::addModule('user', 'txterdocM1', '', t3lib_extMgm::extPath($_EXTKEY) . 'mod1/');
 }
 
 	// Add static configuration files

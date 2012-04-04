@@ -44,7 +44,7 @@ class tx_terdoc_module1 extends t3lib_SCbase {
 
 	/**
 	 * Adds items to the ->MOD_MENU array. Used for the function menu selector.
-	 * 
+	 *
 	 * @return	void
 	 * @access	public
 	 */
@@ -61,7 +61,7 @@ class tx_terdoc_module1 extends t3lib_SCbase {
 
 	/**
 	 * Main function of the module. Write the content to $this->content
-	 * 
+	 *
 	 * @return	void
 	 * @access	public
 	 */
@@ -70,7 +70,7 @@ class tx_terdoc_module1 extends t3lib_SCbase {
 
 		$this->terDocAPIObj = tx_terdoc_api::getInstance();
 
-		if ($BE_USER->user['admin']) {
+		if ($BE_USER->user['admin'] || $BE_USER->user['uid']) {
 
 				// Draw the header.
 			$this->doc = t3lib_div::makeInstance('mediumDoc');
@@ -113,9 +113,9 @@ class tx_terdoc_module1 extends t3lib_SCbase {
 
 	/**
 	 * Generates the module content
-	 * 
+	 *
 	 * @return	void
-	 * @access	protected 
+	 * @access	protected
 	 */
 	protected function moduleContent()	{
 
@@ -132,30 +132,30 @@ class tx_terdoc_module1 extends t3lib_SCbase {
 
 	/**
 	 * Renders the documentation rendering management screen
-	 * 
+	 *
 	 * @return	string		HTML output
 	 * @access	protected
-	 */	
+	 */
 	protected function renderScreen_rendering() {
 		global $BACK_PATH;
-		
+
 		$deleteManualCacheMessage = '';
-				
+
 		switch ((string)t3lib_div::GPvar('renderingCmd')) {
 			case 'clearcacheall' :
 				$clearPath = PATH_site.'typo3temp/tx_terdoc/documentscache/';
 				$this->removeDirRecursively ($clearPath);
-				$deleteManualCacheMessage = 'Cache for all manuals has been successfully cleared.';				
+				$deleteManualCacheMessage = 'Cache for all manuals has been successfully cleared.';
 				@unlink (PATH_site.'typo3temp/tx_terdoc/tx_terdoc_extensionsmd5.txt');
-			break;			
+			break;
 			case 'clearcachesingle' :
 				$clearPath = $this->terDocAPIObj->getDocumentDirOfExtensionVersion (t3lib_div::GPvar('extensionkey'),t3lib_div::GPvar('extensionversion'));
-				$this->removeDirRecursively (substr($clearPath,0,-1));				
-				$deleteManualCacheMessage = 'Cache for manual '.htmlspecialchars(t3lib_div::GPvar('extensionkey')).' has been successfully cleared. '.$clearPath;				
+				$this->removeDirRecursively (substr($clearPath,0,-1));
+				$deleteManualCacheMessage = 'Cache for manual '.htmlspecialchars(t3lib_div::GPvar('extensionkey')).' has been successfully cleared. '.$clearPath;
 				@unlink (PATH_site.'typo3temp/tx_terdoc/tx_terdoc_extensionsmd5.txt');
-			break;			
+			break;
 		}
-	
+
 		$output = '
 			<h3>Delete manual cache</h3>
 			'.$deleteManualCacheMessage.'
@@ -163,53 +163,53 @@ class tx_terdoc_module1 extends t3lib_SCbase {
 				Clear manual cache for one manual:
 				<input type="text" size="15" name="extensionkey" value="extension key" onfocus="extensionkey.value=\'\'" />
 				<input type="text" size="7" name="extensionversion" value="version" onfocus="extensionversion.value=\'\'" />
-				<input type="submit" value="clear" /> 
-				<input type="hidden" name="renderingCmd" value="clearcachesingle" /> 
-			</form>	
+				<input type="submit" value="clear" />
+				<input type="hidden" name="renderingCmd" value="clearcachesingle" />
+			</form>
 			<form action="'.t3lib_div::linkThisScript().'" method="post">
 				Clear manual cache for <strong>all</strong> manuals (!) <input type="submit" value="clear" />
-				<input type="hidden" name="renderingCmd" value="clearcacheall" /> 
-			</form>	
+				<input type="hidden" name="renderingCmd" value="clearcacheall" />
+			</form>
 		';
-		
-		
-		return $output;		
+
+
+		return $output;
 	}
 
 	/**
 	 * Renders the category management screen
-	 * 
+	 *
 	 * @return	string		HTML output
 	 * @access	protected
-	 */	
+	 */
 	protected function renderScreen_categories() {
 		global $BACK_PATH, $TYPO3_DB, $LANG;
 
 		$output = '';
 
 		$categoriesArr = array();
-		$res = $TYPO3_DB->exec_SELECTquery ('*', 'tx_terdoc_categories', '1');		
+		$res = $TYPO3_DB->exec_SELECTquery ('*', 'tx_terdoc_categories', '1');
 		if ($res) {
 			while ($row = $TYPO3_DB->sql_fetch_assoc ($res)) {
 				$categoriesArr[$row['uid']] = $row;
 			}
-		} 
+		}
 
 		$manualsCategoriesArr = array();
-		$res = $TYPO3_DB->exec_SELECTquery ('*', 'tx_terdoc_manualscategories', '1');		
+		$res = $TYPO3_DB->exec_SELECTquery ('*', 'tx_terdoc_manualscategories', '1');
 		if ($res) {
 			while ($row = $TYPO3_DB->sql_fetch_assoc ($res)) {
 				$manualsCategoriesArr[] = $row;
 			}
-		} 
+		}
 
 		$extensionKeysArr = array();
-		$res = $TYPO3_DB->exec_SELECTquery ('DISTINCT extensionkey', 'tx_terdoc_manuals', '1');		
+		$res = $TYPO3_DB->exec_SELECTquery ('DISTINCT extensionkey', 'tx_terdoc_manuals', '1');
 		if ($res) {
 			while ($row = $TYPO3_DB->sql_fetch_assoc ($res)) {
 				$extensionKeysArr[] = $row['extensionkey'];
 			}
-		} 
+		}
 
 
 		switch ((string)t3lib_div::GPvar('categoriesCmd')) {
@@ -241,7 +241,7 @@ class tx_terdoc_module1 extends t3lib_SCbase {
 						</table>
 						<input type="hidden" name="categoriesCmd" value="docreate" />
 					</form>
-				';				
+				';
 			return $output;
 			case 'docreate':
 				$categoryArr = array (
@@ -251,26 +251,26 @@ class tx_terdoc_module1 extends t3lib_SCbase {
 					'viewpid' => intval(t3lib_div::GPvar('categoryisdefault'))
 				);
 				$TYPO3_DB->exec_INSERTquery ('tx_terdoc_categories', $categoryArr);
-			
+
 				$output .= '<em>Category created.</em><br /><br /><a href="index.php">Refresh view</a>';
 			return $output;
 			case 'delete':
 				$TYPO3_DB->exec_DELETEquery ('tx_terdoc_categories', 'uid='.intval(t3lib_div::GPvar('categoriesId')));
 				$TYPO3_DB->exec_DELETEquery ('tx_terdoc_manualscategories', 'categoryuid='.intval(t3lib_div::GPvar('categoriesId')));
-			
+
 				$output .= '<em>Category deleted!</em><br /><a href="index.php">Refresh view</a>';
 			return $output;
 			case 'assign' :
 				$optionsExtensionKeys = '';
 				$optionsCategories = '';
-				
+
 				foreach ($extensionKeysArr as $extensionKey) {
 					$optionsExtensionKeys .= '<option value="'.$extensionKey.'" />'.$extensionKey.'</option>';
 				}
 				foreach ($categoriesArr as $uid => $categoryArr) {
 					$optionsCategories .= '<option value="'.$uid.'" />'.$categoryArr['title'].'</option>';
 				}
-				
+
 				$output.= '
 					<h3>Create new category assignment</h3>
 					<form action="'.t3lib_div::linkThisScript(array('categoriesCmd'=> '')).'" method="post">
@@ -290,7 +290,7 @@ class tx_terdoc_module1 extends t3lib_SCbase {
 						</table>
 						<input type="hidden" name="categoriesCmd" value="doassign" />
 					</form>
-				';				
+				';
 			return $output;
 			case 'doassign':
 				$assignmentArr = array (
@@ -298,16 +298,16 @@ class tx_terdoc_module1 extends t3lib_SCbase {
 					'categoryuid' => t3lib_div::GPvar('categoriesId')
 				);
 				$TYPO3_DB->exec_INSERTquery ('tx_terdoc_manualscategories', $assignmentArr);
-			
+
 				$output .= '<em>Assigned manual to the category.</em><br /><br /><a href="index.php">Refresh view</a>';
 			return $output;
 			case 'removeassignment':
 				$TYPO3_DB->exec_DELETEquery ('tx_terdoc_manualscategories', 'uid='.intval(t3lib_div::GPvar('categoriesId')));
-			
+
 				$output .= '<em>Assignment removed!</em><br /><br /><a href="index.php">Refresh view</a>';
 			return $output;
 		}
-				
+
 		$output.= '<h3>Categories</h3>';
 		if (count ($categoriesArr)) {
 			$tableRows = array();
@@ -337,13 +337,13 @@ class tx_terdoc_module1 extends t3lib_SCbase {
 			$output .= '<table style="width:100%;">'.implode (chr(10), $tableRows).'</table>';
 		} else {
 			$output .= '<p><em>No categories found.</em></p><br />';
-		}		
+		}
 		$output .= '<br /><a href="'.t3lib_div::linkThisScript(array('categoriesCmd'=>'create')).'"><img '.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/new_el.gif').' border="0" /> Create new category</a><br /><br />';
 
-		
+
 
 		$output.= '<h3>Documents assigned to categories</h3>';
-		
+
 		if (count ($manualsCategoriesArr)) {
 			$tableRows = array();
 			$tableRows[] = '
@@ -367,15 +367,15 @@ class tx_terdoc_module1 extends t3lib_SCbase {
 			$output .= '<table style="width:100%;">'.implode (chr(10), $tableRows).'</table>';
 		} else {
 			$output .= '<p><em>No category assignments found.</em></p><br />';
-		}		
+		}
 		$output .= '<br /><a href="'.t3lib_div::linkThisScript(array('categoriesCmd'=>'assign')).'"><img '.t3lib_iconWorks::skinImg($BACK_PATH, 'gfx/new_el.gif').' border="0" /> Create new assignment</a><br /><br />';
 
-		return $output;		
+		return $output;
 	}
 
 	/**
 	 * Prints out the module HTML
-	 * 
+	 *
 	 * @return	void
 	 * @access	public
 	 */
@@ -384,13 +384,13 @@ class tx_terdoc_module1 extends t3lib_SCbase {
 		$this->content.=$this->doc->endPage();
 		echo $this->content;
 	}
-	
+
 	/**
-	 * Removes directory with all files from the given path recursively! 
+	 * Removes directory with all files from the given path recursively!
 	 * Path must somewhere below typo3temp/
-	 * 
+	 *
 	 * @param	string		$removePath: Absolute path to directory to remove
-	 * @return	void		
+	 * @return	void
 	 * @access	protected
 	 */
 	protected function removeDirRecursively ($removePath)	{

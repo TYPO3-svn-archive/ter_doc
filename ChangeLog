@@ -1,3 +1,7 @@
+2012-04-04  Francois Suter  <francois.suter@typo3.org>
+
+    * Made the BE module into a User Tools submodule, resolves #10417
+
 2011-06-29  Francois Suter  <francois.suter@typo3.org>
 
 	* Added the possibility to render manual for a single extension and a single version, resolves #27515
