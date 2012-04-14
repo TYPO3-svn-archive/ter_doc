@@ -424,7 +424,7 @@ return '';
 		if (isset($this->piVars['extensionkey'])) {
 			$breadCrumbs .= ' &gt '.$this->pi_linkTP ($this->piVars['extensionkey'].' formats', array ('tx_terdoc_pi1[extensionkey]' => $this->piVars['extensionkey']), 1);
 		}
-		if (isset($this->piVars['format'])) {
+		if (isset($this->piVars['format']) && $this->piVars['format']) {
 			$renderDocumentsObj = tx_terdoc_renderdocuments::getInstance();
 			$outputFormatsArr = $renderDocumentsObj->getOutputFormats();
 			$formatLabel = $this->csConvHSC($TSFE->sL($outputFormatsArr[$this->piVars['format']]['label']));
