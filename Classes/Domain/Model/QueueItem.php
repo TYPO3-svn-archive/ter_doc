@@ -18,6 +18,11 @@ class Tx_TerDoc_Domain_Model_QueueItem extends Tx_Extbase_DomainObject_AbstractE
 	protected $finished;
 
 	/**
+	 * @var int
+	 */
+	protected $priority=0;
+
+	/**
 	 * @var string
 	 */
 	protected $filehash = 'default';
@@ -84,5 +89,21 @@ class Tx_TerDoc_Domain_Model_QueueItem extends Tx_Extbase_DomainObject_AbstractE
 	 */
 	public function getFilehash() {
 		return $this->filehash;
+	}
+
+	/**
+	 * @param int $priority
+	 * @return Tx_Terdoc_Domain_Model_QueueItem
+	 */
+	public function setPriority($priority) {
+		$this->priority = intval($priority);
+		return $this;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getPriority() {
+		return $this->priority;
 	}
 }

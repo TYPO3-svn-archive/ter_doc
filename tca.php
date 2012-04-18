@@ -320,9 +320,18 @@ $TCA['tx_terdoc_renderqueue'] = array(
 				'eval' => 'trim',
 			),
 		),
+		'priority' => array (
+			'exclude' => 0,
+			'label' => 'LLL:EXT:ter_doc/locallang_db.xml:tx_terdoc_renderqueue.priority',
+			'config' => array (
+				'type' => 'input',
+				'size' => '5',
+				'eval' => 'int',
+			),
+		)
 	),
 	'types' => array (
-		'0' => array('showitem' => 'extensionkey,version,finished,filehash'),
+		'0' => array('showitem' => 'extensionkey,version,finished,filehash,priority'),
 	),
 );
 

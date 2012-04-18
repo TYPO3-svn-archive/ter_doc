@@ -28,6 +28,8 @@ class Tx_TerDoc_Domain_Repository_QueueItemRepository extends Tx_Extbase_Persist
 			$query->limit($limit);
 		}
 
+		$query->setOrderings(array('priority' => Tx_Extbase_Persistence_QueryInterface::ORDER_DESCENDING));
+
 		return $query->execute();
 	}
 

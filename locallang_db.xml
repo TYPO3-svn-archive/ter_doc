@@ -37,6 +37,7 @@
 			<label index="tx_terdoc_renderqueue.extensionkey">Extension key</label>
 			<label index="tx_terdoc_renderqueue.version">Version</label>
 			<label index="tx_terdoc_renderqueue.finished">Finished</label>
+			<label index="tx_terdoc_renderqueue.priority">Priority</label>
 		</languageKey>
 	</data>
 </T3locallang>

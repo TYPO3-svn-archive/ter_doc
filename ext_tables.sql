@@ -93,6 +93,7 @@ CREATE TABLE tx_terdoc_renderqueue (
   version varchar(11) DEFAULT '' NOT NULL,
   filehash varchar(32) DEFAULT '' NOT NULL,
   finished int(11) unsigned DEFAULT '0' NOT NULL,
+  priority int(11) unsigned DEFAULT '0' NOT NULL,
 
   PRIMARY KEY (uid),
   KEY extkey (extensionkey),
