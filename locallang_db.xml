@@ -33,6 +33,10 @@
 			<label index="tx_terdoc_manualspagecache">Documentation cache entry</label>
 			<label index="tx_terdoc_manualspagecache.extensionkey">Extension key</label>
 			<label index="tx_terdoc_manualspagecache.version">Version</label>
+			<label index="tx_terdoc_renderqueue">Documentation render queue</label>
+			<label index="tx_terdoc_renderqueue.extensionkey">Extension key</label>
+			<label index="tx_terdoc_renderqueue.version">Version</label>
+			<label index="tx_terdoc_renderqueue.finished">Finished</label>
 		</languageKey>
 	</data>
 </T3locallang>

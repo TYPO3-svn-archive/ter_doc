@@ -274,4 +274,56 @@ $TCA['tx_terdoc_manualspagecache'] = array(
 	),
 );
 
+$TCA['tx_terdoc_renderqueue'] = array(
+	'ctrl' => $TCA['tx_terdoc_renderqueue']['ctrl'],
+	'interface' => array (
+		'showRecordFieldList' => 'extensionkey,version,finished',
+	),
+	'columns' => array (
+		'extensionkey' => array (
+			'exclude' => 0,
+			'label' => 'LLL:EXT:ter_doc/locallang_db.xml:tx_terdoc_renderqueue.extensionkey',
+			'config' => array (
+				'type' => 'input',
+				'size' => '30',
+				'max'  => '250',
+				'eval' => 'trim,required',
+			),
+		),
+		'version' => array (
+			'exclude' => 0,
+			'label' => 'LLL:EXT:ter_doc/locallang_db.xml:tx_terdoc_renderqueue.version',
+			'config' => array (
+				'type' => 'input',
+				'size' => '15',
+				'max'  => '250',
+				'eval' => 'trim',
+			),
+		),
+		'finished' => array (
+			'exclude' => 0,
+			'label' => 'LLL:EXT:ter_doc/locallang_db.xml:tx_terdoc_renderqueue.finished',
+			'config' => array (
+				'type' => 'input',
+				'size' => '10',
+				'max'  => '11',
+				'eval' => 'datetime',
+			),
+		),
+		'filehash' => array (
+			'exclude' => 0,
+			'label' => 'LLL:EXT:ter_doc/locallang_db.xml:tx_terdoc_manuals.t3xfilemd5',
+			'config' => array (
+				'type' => 'input',
+				'size' => '32',
+				'max'  => '32',
+				'eval' => 'trim',
+			),
+		),
+	),
+	'types' => array (
+		'0' => array('showitem' => 'extensionkey,version,finished,filehash'),
+	),
+);
+
 ?>

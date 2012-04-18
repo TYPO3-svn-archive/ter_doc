@@ -1,0 +1,14 @@
+config.tx_extbase {
+
+	## Storage settings
+	persistence {
+		classes {
+			Tx_TerDoc_Domain_Model_QueueItem {
+				mapping {
+					tableName = tx_terdoc_renderqueue
+				}
+			}
+		}
+	}
+
+}

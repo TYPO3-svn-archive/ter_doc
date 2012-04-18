@@ -94,12 +94,17 @@ class Tx_TerDoc_Domain_Repository_ExtensionRepository {
 	 */
 	public function findAll() {
 		// Transfer data from extensions.xml.gz to database:
-		$unzippedExtensionsXML = implode('', @gzfile($this->settings['repositoryDir'] . 'extensions.xml.gz'));
-		$extensions = simplexml_load_string($unzippedExtensionsXML);
+		$extensions = $this->getExtensionXml();
 		if (!is_object($extensions)) {
 			throw new Exception('Exception thrown #1300783708: Error while parsing ' . $this->settings['repositoryDir'] . 'extensions.xml.gz', 1300783708);
 		}
 
+		return $extensions;
+	}
+
+	public function getExtensionXml() {
+		$unzippedExtensionsXML = implode('', @gzfile($this->settings['repositoryDir'] . 'extensions.xml.gz'));
+		$extensions = simplexml_load_string($unzippedExtensionsXML);
 		return $extensions;
 	}
 
@@ -122,25 +127,10 @@ class Tx_TerDoc_Domain_Repository_ExtensionRepository {
 		foreach ($extensions as $extension) {
 
 			foreach ($extension as $version) {
-				if (strlen($version['version'])) {
-					$documentDir = Tx_TerDoc_Utility_Cli::getDocumentDirOfExtensionVersion($this->settings['documentsCache'], $extension['extensionkey'], $version['version']);
-					$abstract = @file_get_contents($documentDir . 'abstract.txt');
-					$language = @file_get_contents($documentDir . 'language.txt');
-
-					$extensionsRow = array(
-						'pid' => $this->storagePid,
-						'extensionkey' => $extension['extensionkey'],
-						'version' => $version['version'],
-						'title' => $version->title,
-						'language' => $language,
-						'abstract' => $abstract,
-						'modificationdate' => $version->lastuploaddate,
-						'authorname' => $version->authorname,
-						'authoremail' => $version->authoremail,
-						't3xfilemd5' => $version->t3xfilemd5
-					);
-					$GLOBALS['TYPO3_DB']->exec_INSERTquery('tx_terdoc_manuals', $extensionsRow);
+				if (!strlen($version['version'])) {
+					continue;
 				}
+				$this->insertExtensionFromFilesystem($extension, $version);
 			}
 
 			// prevent the script to loop to many times in a development context
@@ -156,6 +146,33 @@ class Tx_TerDoc_Domain_Repository_ExtensionRepository {
 		Tx_TerDoc_Utility_Cli::log('* Manual DB index was sucessfully reindexed');
 
 		return TRUE;
+	}
+
+	/**
+	 * @param $extension
+	 * @param $version
+	 */
+	public function insertExtensionFromFilesystem($extension, $version, $readFs=TRUE) {
+
+		if ($readFs) {
+			$documentDir = Tx_TerDoc_Utility_Cli::getDocumentDirOfExtensionVersion($this->settings['documentsCache'], $extension['extensionkey'], $version['version']);
+			$abstract = @file_get_contents($documentDir . 'abstract.txt');
+			$language = @file_get_contents($documentDir . 'language.txt');
+		}
+
+		$extensionsRow = array(
+			'pid' => $this->storagePid,
+			'extensionkey' => $extension['extensionkey'],
+			'version' => $version['version'],
+			'title' => $version->title,
+			'language' => $language ?: '',
+			'abstract' => $abstract ?: '',
+			'modificationdate' => $version->lastuploaddate,
+			'authorname' => $version->authorname,
+			'authoremail' => $version->authoremail,
+			't3xfilemd5' => $version->t3xfilemd5
+		);
+		$GLOBALS['TYPO3_DB']->exec_INSERTquery('tx_terdoc_manuals', $extensionsRow);
 	}
 
 	/**
@@ -364,8 +381,10 @@ class Tx_TerDoc_Domain_Repository_ExtensionRepository {
 
 			// special case -> download the t3x archive when not already present on the harddrive.
 			if (!file_exists($file)) {
+
+				$parts = explode('/', $file);
 				$t3xName = array_pop($parts);
-				@mkdir(implode('/', $parts), 0777, TRUE);
+				mkdir(implode('/', $parts), 0777, TRUE);
 				t3lib_div::fixPermissions($this->settings['repositoryDir'], TRUE);
 					// Find extract part of path starting with "/fileadmin" and assemble request URL
 				$fileadminPath = substr($file, strpos($file, '/fileadmin'));
@@ -547,9 +566,7 @@ class Tx_TerDoc_Domain_Repository_ExtensionRepository {
 					continue;
 				}
 
-				$documentDir = Tx_TerDoc_Utility_Cli::getDocumentDirOfExtensionVersion($this->settings['documentsCache'], $row['extensionkey'], $row['version']);
-				$t3xMD5OfRenderedDocuments = @file_get_contents($documentDir . 't3xfilemd5.txt');
-				if ($t3xMD5OfRenderedDocuments != $row['t3xfilemd5']) {
+				if ($this->getFilehash($row['extensionkey'], $row['version']) != $row['t3xfilemd5']) {
 					$extensionKeysAndVersionsArr[] = array(
 						'extensionkey' => $row['extensionkey'],
 						'version' => $row['version'],
@@ -561,6 +578,17 @@ class Tx_TerDoc_Domain_Repository_ExtensionRepository {
 		Tx_TerDoc_Utility_Cli::log('* Found ' . count($extensionKeysAndVersionsArr) . ' modified extension versions');
 		return $extensionKeysAndVersionsArr;
 	}
+
+	/**
+	 * @param $extensionkey
+	 * @param $version
+	 * @return string
+	 */
+	public function getFilehash($extensionkey, $version) {
+		$documentDir = Tx_TerDoc_Utility_Cli::getDocumentDirOfExtensionVersion($this->settings['documentsCache'], $extensionkey, $version);
+		return @file_get_contents($documentDir . 't3xfilemd5.txt');
+	}
+
 
 }
 

@@ -83,3 +83,18 @@ CREATE TABLE tx_terdoc_manualspagecache (
   KEY extkey (extensionkey),
   KEY extversion (version),
 );
+
+CREATE TABLE tx_terdoc_renderqueue (
+  uid int(11) unsigned DEFAULT '0' NOT NULL auto_increment,
+  pid int(11) unsigned DEFAULT '0' NOT NULL,
+  tstamp int(11) unsigned DEFAULT '0' NOT NULL,
+  crdate int(11) unsigned DEFAULT '0' NOT NULL,
+  extensionkey varchar(30) DEFAULT '' NOT NULL,
+  version varchar(11) DEFAULT '' NOT NULL,
+  filehash varchar(32) DEFAULT '' NOT NULL,
+  finished int(11) unsigned DEFAULT '0' NOT NULL,
+
+  PRIMARY KEY (uid),
+  KEY extkey (extensionkey),
+  KEY extversion (version),
+);

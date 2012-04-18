@@ -50,8 +50,12 @@ class Tx_TerDoc_Cli_Renderer {
 	 * @return void
 	 */
 	function main($argv) {
+
+		$objectManager = t3lib_div::makeInstance('Tx_Extbase_Object_ObjectManager');
+
 			/** @var $controller Tx_TerDoc_Controller_CliController */
-		$controller = t3lib_div::makeInstance('Tx_TerDoc_Controller_CliController');
+		$controller = $objectManager->get('Tx_TerDoc_Controller_CliController');
+
 
  			// Initialize arguments
 		$arguments = $commands = array();
@@ -124,6 +128,18 @@ class Tx_TerDoc_Cli_Renderer {
 		} elseif ($commands[0] == 'download') {
 			try {
 				$controller->downloadAction($arguments);
+			} catch (Exception $e) {
+				Tx_TerDoc_Utility_Cli::log($e->getMessage());
+			}
+		} elseif ($commands[0] == 'buildQueue') {
+			try {
+				$controller->buildQueueAction($arguments);
+			} catch (Exception $e) {
+				Tx_TerDoc_Utility_Cli::log($e->getMessage());
+			}
+		} elseif ($commands[0] == 'renderQueue') {
+			try {
+				$controller->renderFromQueueAction($arguments);
 			} catch (Exception $e) {
 				Tx_TerDoc_Utility_Cli::log($e->getMessage());
 			}

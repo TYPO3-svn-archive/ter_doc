@@ -35,6 +35,17 @@ class Tx_TerDoc_Controller_CliController extends Tx_Extbase_MVC_Controller_Actio
 	 * @var Tx_TerDoc_Domain_Repository_ExtensionRepository
 	 */
 	protected $extensionRepository;
+
+	/**
+	 * @var Tx_TerDoc_Domain_Repository_QueueItemRepository
+	 */
+	protected $queueRepository;
+
+	/**
+	 * @var Tx_Extbase_Persistence_Manager
+	 */
+	protected $persistenceManager;
+
 	/**
 	 * @var array
 	 */
@@ -59,6 +70,20 @@ class Tx_TerDoc_Controller_CliController extends Tx_Extbase_MVC_Controller_Actio
 	 * @var Tx_TerDoc_Validator_Environment Instance of the validation class
 	 */
 	protected $validator;
+
+	/**
+	 * @param Tx_TerDoc_Domain_Repository_QueueItemRepository $repository
+	 */
+	public function injectQueueRepository(Tx_TerDoc_Domain_Repository_QueueItemRepository $repository) {
+		$this->queueRepository = $repository;
+	}
+
+	/**
+	 * @param Tx_Extbase_Persistence_Manager $persistenceManager
+	 */
+	public function injectPersistenceManager(Tx_Extbase_Persistence_Manager $persistenceManager) {
+		$this->persistenceManager = $persistenceManager;
+	}
 
 	/**
 	 * Initializes the current action
@@ -301,7 +326,7 @@ class Tx_TerDoc_Controller_CliController extends Tx_Extbase_MVC_Controller_Actio
 
 				$counter = 0;
 				foreach ($modifiedExtensionVersionsArr as $extensionAndVersionArr) {
-					$transformationErrorCodes = array();
+
 					$extensionKey = $extensionAndVersionArr['extensionkey'];
 					$version = $extensionAndVersionArr['version'];
 						// Check if manual should be rendered or not depending on arguments
@@ -315,58 +340,9 @@ class Tx_TerDoc_Controller_CliController extends Tx_Extbase_MVC_Controller_Actio
 							continue;
 						}
 					}
-						// Computes the cache directory of the extension
-					$documentDir = Tx_TerDoc_Utility_Cli::getDocumentDirOfExtensionVersion($this->settings['documentsCache'], $extensionKey, $version);
 
-						// Prepare environment by deleting obsolete rendering problem log
-					Tx_TerDoc_Utility_Cli::log('* Rendering documents for extension "' . $extensionKey . '" (' . $version . ')');
-					$this->extensionRepository->prepare($extensionKey, $version);
+					$this->renderExtensionDocumentation($extensionKey, $version, $extensionAndVersionArr['t3xfilemd5']);
 
-						// Extracting manual from t3x
-					Tx_TerDoc_Utility_Cli::log('   * Extracting "doc/manual.sxw" from extension ' . $extensionKey . ' (' . $version . ')');
-					$this->extensionRepository->downloadExtension($extensionKey, $version);
-					$this->extensionRepository->extractT3x($extensionKey, $version, 'doc/manual.sxw', $errorCodes);
-					$this->extensionRepository->decompressManual($extensionKey, $version);
-
-						// Initialize service
-					/* @var $xslObject Tx_TerXsl_Transformer_DocBook */
-					$xslObject = t3lib_div::makeInstanceService('xsl', 'xslt');
-					$xslObject->setSettings($this->settings);
-
-						// Rendering manual.sxw to Docbook
-					$isDocBookTransformationOk = FALSE;
-					$docBookVersions = explode(',', $this->settings['docbook_version']);
-					if (file_exists($documentDir . 'sxw/content.xml')) {
-						foreach ($docBookVersions as $docBookVersion) {
-							// @todo: improve the transformation: some staff are duplicated e.g. genartion of TOC
-							$isDocBookTransformationOk = $xslObject->transformManualToDocBook($documentDir, $docBookVersion, $transformationErrorCodes);
-						}
-					}
-
-					if ($isDocBookTransformationOk) {
-							// Store some info from the Docbook transformation into the database
-						$dataSet = $xslObject->getInformation();
-						$this->extensionRepository->update($extensionKey, $version, $dataSet);
-
-						Tx_TerDoc_Utility_Cli::log('   * Generating HTML for extension ' . $extensionKey . ' (' . $version . ')');
-							// Transform Docbook to HTML
-						$xslObject->transformDocBookToHtml($documentDir);
-					} else {
-						Tx_TerDoc_Utility_Cli::log('	* No manual found or problem while extracting manual');
-						$this->extensionRepository->delete($extensionKey, $version);
-					}
-
-						// Clean up environment by removing temporary files
-					$this->extensionRepository->cleanUp($extensionKey, $version);
-					t3lib_div::writeFile($documentDir . 't3xfilemd5.txt', $extensionAndVersionArr['t3xfilemd5']);
-
-					foreach ($transformationErrorCodes as $errorCode) {
-						$this->extensionRepository->log($extensionKey, $version, $errorCode);
-					}
-
-					if (!empty($transformationErrorCodes)) {
-						Tx_TerDoc_Utility_Cli::log('   * Error code(s): ' . implode(',', $transformationErrorCodes));
-					}
 					$counter++;
 				}
 				$this->extensionRepository->cleanUpAll();
@@ -383,6 +359,195 @@ class Tx_TerDoc_Controller_CliController extends Tx_Extbase_MVC_Controller_Actio
 
 		unlink($this->settings['lockFile']);
 	}
+
+	protected function renderExtensionDocumentation($extensionKey, $version, $manualMd5) {
+		$transformationErrorCodes = array();
+	 	// Computes the cache directory of the extension
+		$documentDir = Tx_TerDoc_Utility_Cli::getDocumentDirOfExtensionVersion($this->settings['documentsCache'], $extensionKey, $version);
+
+		// Prepare environment by deleting obsolete rendering problem log
+		Tx_TerDoc_Utility_Cli::log('* Rendering documents for extension "' . $extensionKey . '" (' . $version . ')');
+		$this->extensionRepository->prepare($extensionKey, $version);
+
+		// Extracting manual from t3x
+		Tx_TerDoc_Utility_Cli::log('   * Extracting "doc/manual.sxw" from extension ' . $extensionKey . ' (' . $version . ')');
+		$this->extensionRepository->downloadExtension($extensionKey, $version);
+		$this->extensionRepository->extractT3x($extensionKey, $version, 'doc/manual.sxw', $errorCodes);
+		$this->extensionRepository->decompressManual($extensionKey, $version);
+
+		// Initialize service
+		/* @var $xslObject Tx_TerXsl_Transformer_DocBook */
+		$xslObject = t3lib_div::makeInstanceService('xsl', 'xslt');
+		$xslObject->setSettings($this->settings);
+
+		// Rendering manual.sxw to Docbook
+		$isDocBookTransformationOk = FALSE;
+		$docBookVersions = explode(',', $this->settings['docbook_version']);
+		if (file_exists($documentDir . 'sxw/content.xml')) {
+			foreach ($docBookVersions as $docBookVersion) {
+				// @todo: improve the transformation: some staff are duplicated e.g. genartion of TOC
+				$isDocBookTransformationOk = $xslObject->transformManualToDocBook($documentDir, $docBookVersion, $transformationErrorCodes);
+			}
+		}
+
+		if ($isDocBookTransformationOk) {
+			// Store some info from the Docbook transformation into the database
+			$dataSet = $xslObject->getInformation();
+			$this->extensionRepository->update($extensionKey, $version, $dataSet);
+
+			Tx_TerDoc_Utility_Cli::log('   * Generating HTML for extension ' . $extensionKey . ' (' . $version . ')');
+			// Transform Docbook to HTML
+			$xslObject->transformDocBookToHtml($documentDir);
+		} else {
+			Tx_TerDoc_Utility_Cli::log('	* No manual found or problem while extracting manual');
+			$this->extensionRepository->delete($extensionKey, $version);
+		}
+
+		// Clean up environment by removing temporary files
+		$this->extensionRepository->cleanUp($extensionKey, $version);
+		t3lib_div::writeFile($documentDir . 't3xfilemd5.txt', $manualMd5);
+
+		foreach ($transformationErrorCodes as $errorCode) {
+			$this->extensionRepository->log($extensionKey, $version, $errorCode);
+		}
+
+		if (!empty($transformationErrorCodes)) {
+			Tx_TerDoc_Utility_Cli::log('   * Error code(s): ' . implode(',', $transformationErrorCodes));
+			return $transformationErrorCodes;
+		}
+		return $transformationErrorCodes;
+	}
+
+	/**
+	 * Walk through all entries of the extensions.xml.gz and
+	 * add them to the queue (if needed)
+	 *
+	 * @param $arguments
+	 */
+	public function buildQueueAction($arguments) {
+
+			// Options  coming from the CLI
+		$this->arguments = $arguments;
+		$this->initializeAction();
+
+		$extensions = $this->extensionRepository->findAll();
+		Tx_TerDoc_Utility_Cli::log(sprintf('Having %d extensions to check ', count($extensions)));
+
+		$persistCount = 100;
+
+		foreach($extensions as $extension) {
+			foreach($extension as $extensionVersion) {
+
+				$key = (string) $extension['extensionkey'];
+				$version = (string) $extensionVersion['version'];
+				$hash = (string) $extensionVersion->t3xfilemd5;
+
+				if (!$key || !$version) {
+					continue;
+				}
+
+					// Check if that extension version already exists
+				if ($this->queueRepository->isUnchangedExtensionVersion($key,$version,$hash)) {
+					continue;
+				} else {
+					/**
+					 * @var $queueItem Tx_TerDoc_Domain_Model_QueueItem
+					 */
+					$newItem = FALSE;
+					$queueItem = $this->queueRepository->findOneByExtensionKeyAndVersion($key, $version);
+				}
+
+				Tx_TerDoc_Utility_Cli::log(sprintf('Add %s : %s (%s) to queue ', $key, $version, $hash));
+
+				if (!$queueItem) {
+					$newItem = TRUE;
+					$queueItem = $this->objectManager->create('Tx_TerDoc_Domain_Model_QueueItem');
+				}
+
+				$queueItem->setExtensionkey($key)
+					->setVersion($version)
+					->setFilehash($hash)
+					->setFinished(new DateTime('@0'));
+
+				if ($newItem) {
+					$this->queueRepository->add($queueItem);
+				} else {
+					$this->queueRepository->update($queueItem);
+				}
+					// Add manual also to tx_terdoc_manual -> abstract and language will be added during doc rendering
+				$this->extensionRepository->delete($key, $version);
+				$this->extensionRepository->insertExtensionFromFilesystem($extension, $extensionVersion, FALSE);
+
+				$persistCount--;
+				if (!$persistCount) {
+					$this->persistenceManager->persistAll();
+					Tx_TerDoc_Utility_Cli::log('Persisted changes' . gc_collect_cycles());
+					$persistCount = 100;
+				}
+			}
+		}
+
+		$this->persistenceManager->persistAll();
+
+	}
+
+	/**
+	 * Walk through our queue and render all items
+	 * which need rendering
+	 *
+	 * @param $arguments
+	 * @return mixed
+	 */
+	public function renderFromQueueAction($arguments) {
+			// Options  coming from the CLI
+		$this->arguments = $arguments;
+
+		$this->initializeAction();
+
+		if ($this->isLocked() && !$this->arguments['force']) {
+			Tx_TerDoc_Utility_Cli::log('... aborting - another process seems to render documents right now! Try running with option "--force" enabled');
+			return;
+		}
+				// create a lock
+		touch($this->settings['lockFile']);
+
+		$limit = intval($this->arguments['limit']) ?: 0;
+		$queueItems = $this->queueRepository->findUnfinished($limit);
+		$persistCount = 10;
+
+		/**
+		 * @var $queueItem Tx_TerDoc_Domain_Model_QueueItem
+		 */
+		foreach($queueItems as $queueItem) {
+			if ($this->extensionRepository->getFilehash($queueItem->getExtensionkey(), $queueItem->getVersion()) != $queueItem->getFilehash()) {
+				Tx_TerDoc_Utility_Cli::log(sprintf('Render %s : %s from queue ', $queueItem->getExtensionkey(), $queueItem->getVersion()));
+				try {
+					$this->renderExtensionDocumentation(
+						$queueItem->getExtensionkey(),
+						$queueItem->getVersion(),
+						$queueItem->getFilehash()
+					);
+				} catch (Exception $e) {
+					Tx_TerDoc_Utility_Cli::log($e->getMessage());
+				}
+			}
+			$queueItem->setFinished(new DateTime());
+			$this->queueRepository->update($queueItem);
+			Tx_TerDoc_Utility_Cli::log(sprintf('Done rendering %s : %s ', $queueItem->getExtensionkey(), $queueItem->getVersion()));
+
+			$persistCount--;
+			if (!$persistCount) {
+				$this->persistenceManager->persistAll();
+				$persistCount = 10;
+			}
+		}
+
+		$this->persistenceManager->persistAll();
+
+		unlink($this->settings['lockFile']);
+	}
+
+
 
 	/**
 	 * Index action for this controller. Displays a list of addresses.

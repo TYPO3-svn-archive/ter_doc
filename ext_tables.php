@@ -71,6 +71,19 @@ $TCA['tx_terdoc_manualspagecache'] = array (
 	)
 );
 
+$TCA['tx_terdoc_renderqueue'] = array (
+	'ctrl' => array (
+		'label'             => 'extensionkey',
+		'default_sortby'    => 'ORDER BY extensionkey',
+		'tstamp'            => 'tstamp',
+		'crdate'            => 'crdate',
+		'title'             => 'LLL:EXT:ter_doc/locallang_db.xml:tx_terdoc_renderqueue',
+		'iconfile'          => t3lib_extMgm::extRelPath($_EXTKEY) . 'tx_terdoc_manualscategories.gif',
+		'dynamicConfigFile' => t3lib_extMgm::extPath($_EXTKEY) . 'tca.php',
+		'dividers2tabs'     => TRUE,
+	)
+);
+
 	// Remove the old "CODE", "Layout" and the "recursive" fields and add "flexform"
 $TCA['tt_content']['types']['list']['subtypes_excludelist'][$_EXTKEY.'_pi1'] = 'layout,select_key,pages,recursive';
 $TCA['tt_content']['types']['list']['subtypes_addlist'][$_EXTKEY.'_pi1'] = 'pi_flexform';
