@@ -43,12 +43,13 @@ class Tx_TerDoc_Domain_Repository_QueueItemRepository extends Tx_Extbase_Persist
 	 * @return bool
 	 */
 	public function isUnchangedExtensionVersion($key, $version, $hash) {
+		$table = 'tx_terdoc_renderqueue';
 		$where = sprintf('extensionkey=%s AND version=%s AND filehash=%s',
-			$GLOBALS['TYPO3_DB']->fullQuoteStr($key),
-			$GLOBALS['TYPO3_DB']->fullQuoteStr($version),
-			$GLOBALS['TYPO3_DB']->fullQuoteStr($hash)
+			$GLOBALS['TYPO3_DB']->fullQuoteStr($key, $table),
+			$GLOBALS['TYPO3_DB']->fullQuoteStr($version, $table),
+			$GLOBALS['TYPO3_DB']->fullQuoteStr($hash, $table)
 		);
-		$count = $GLOBALS['TYPO3_DB']->exec_SELECTcountRows('*',  'tx_terdoc_renderqueue', $where );
+		$count = $GLOBALS['TYPO3_DB']->exec_SELECTcountRows('*',  $table, $where );
 		return $count == 1;
 	}
 
