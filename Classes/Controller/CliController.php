@@ -469,10 +469,13 @@ class Tx_TerDoc_Controller_CliController extends Tx_Extbase_MVC_Controller_Actio
 					$queueItem = $this->objectManager->create('Tx_TerDoc_Domain_Model_QueueItem');
 				}
 
+
+
+
 				$queueItem->setExtensionkey($key)
 					->setVersion($version)
 					->setFilehash($hash)
-					->setPriority(stristr($extension, 'doc_core_') !== FALSE)
+					->setPriority($this->getPrio($key, $version))
 					->setFinished(new DateTime('@0'));
 
 				if ($newItem) {
@@ -495,6 +498,24 @@ class Tx_TerDoc_Controller_CliController extends Tx_Extbase_MVC_Controller_Actio
 
 		$this->persistenceManager->persistAll();
 
+	}
+
+	/**
+	 * Core documentation get a high prio all others
+	 * get a prio which relates to their "age"
+	 *
+	 * @param $key
+	 * @param $version
+	 * @return int
+	 */
+	protected function getPrio($key, $version) {
+		if (stristr($key, 'doc_core_') !== FALSE) {
+			$prio = 1000;
+		} else  {
+			$parts = explode('.', $version);
+			$prio = $parts[0]*100 + $parts[1]*10 + $parts[2];
+		}
+		return $prio;
 	}
 
 	/**
