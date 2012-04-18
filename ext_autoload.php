@@ -13,6 +13,8 @@ return array(
 	'tx_terdoc_domain_model_queueitem' => $extensionPath . 'Classes/Domain/Model/QueueItem.php',
 	'tx_terdoc_domain_repository_extensionrepository' => $extensionPath . 'Classes/Domain/Repository/ExtensionRepository.php',
 	'tx_terdoc_domain_repository_queueitemrepository' => $extensionPath . 'Classes/Domain/Repository/QueueItemRepository.php',
+	'tx_terdoc_tasks_renderfromqueueadditionalfieldproviderimplements' => $extensionPath . 'Classes/Tasks/RenderFromQueueAdditionalFieldProvider.php',
+	'tx_terdoc_tasks_renderfromqueuetask' => $extensionPath . 'Classes/Tasks/RenderFromQueueTask.php',
 	'tx_terdoc_tasks_rendermanualstask' => $extensionPath . 'Classes/Tasks/RenderManualsTask.php',
 	'tx_terdoc_utility_cli' => $extensionPath . 'Classes/Utility/Cli.php',
 	'tx_terdoc_validator_environment' => $extensionPath . 'Classes/Validator/Environment.php',

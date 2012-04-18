@@ -18,6 +18,8 @@
 			<label index="api_general_documentation">Manual</label>
 			<label index="Tx_TerDoc_Task_RenderManualsTask.name">Render Extension Manuals</label>
 			<label index="Tx_TerDoc_Task_RenderManualsTask.description">Renders the manuals of new extensions in TER</label>
+			<label index="Tx_TerDoc_Tasks_RenderFromQueueTask.name">TerDoc Queue Processing</label>
+			<label index="Tx_TerDoc_Tasks_RenderFromQueueTask.description">Queue or render the manuals of new extensions in TER</label>
 		</languageKey>
 		<languageKey index="dk" type="array"></languageKey>
 		<languageKey index="de" type="array"></languageKey>

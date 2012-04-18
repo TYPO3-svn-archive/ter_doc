@@ -27,4 +27,11 @@ $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['scheduler']['tasks']['Tx_TerDoc_Tasks
 	'description'      => 'LLL:EXT:' . $_EXTKEY . '/locallang.xml:Tx_TerDoc_Task_RenderManualsTask.description',
 	'additionalFields' => '',
 );
+// Register render documents task
+$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['scheduler']['tasks']['Tx_TerDoc_Tasks_RenderFromQueueTask'] = array(
+	'extension'        => $_EXTKEY,
+	'title'            => 'LLL:EXT:' . $_EXTKEY . '/locallang.xml:Tx_TerDoc_Tasks_RenderFromQueueTask.name',
+	'description'      => 'LLL:EXT:' . $_EXTKEY . '/locallang.xml:Tx_TerDoc_Tasks_RenderFromQueueTask.description',
+	'additionalFields' => 'tx_terdoc_tasks_renderfromqueueadditionalfieldproviderimplements',
+);
 ?>
