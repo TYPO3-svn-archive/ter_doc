@@ -422,6 +422,11 @@ class Tx_TerDoc_Controller_CliController extends Tx_Extbase_MVC_Controller_Actio
 	 * Walk through all entries of the extensions.xml.gz and
 	 * add them to the queue (if needed)
 	 *
+	 * This is quite memory intensive - adding all manuals at once,
+	 * might easily exceed 1GB memory. But actually adding all extension-versions at once
+	 * will happen only once afterwards only the missing items are added,
+	 * therefore it's considered to be ok that adding all manuals might break in the middle once or twice.
+	 *
 	 * @param $arguments
 	 */
 	public function buildQueueAction($arguments) {
@@ -467,7 +472,7 @@ class Tx_TerDoc_Controller_CliController extends Tx_Extbase_MVC_Controller_Actio
 				$queueItem->setExtensionkey($key)
 					->setVersion($version)
 					->setFilehash($hash)
-					->setPriority(stristr($extension, 'doc_core_') ? 1 : 0)
+					->setPriority(stristr($extension, 'doc_core_') !== FALSE)
 					->setFinished(new DateTime('@0'));
 
 				if ($newItem) {
