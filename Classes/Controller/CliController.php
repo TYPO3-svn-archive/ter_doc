@@ -475,7 +475,7 @@ class Tx_TerDoc_Controller_CliController extends Tx_Extbase_MVC_Controller_Actio
 				$queueItem->setExtensionkey($key)
 					->setVersion($version)
 					->setFilehash($hash)
-					->setPriority($this->getPrio($key, $version, intval($extensionVersion->lastuploaddate)))
+					->setPriority($this->getPrio($key, $version))
 					->setFinished(new DateTime('@0'));
 
 				if ($newItem) {
@@ -508,8 +508,8 @@ class Tx_TerDoc_Controller_CliController extends Tx_Extbase_MVC_Controller_Actio
 	 * @param $version
 	 * @return int
 	 */
-	protected function getPrio($key, $version, $lastupload) {
-		$prio = (1000-($GLOBALS['EXEC_TIME']-$lastupload)/86400) ?: 0;
+	protected function getPrio($key, $version) {
+		$prio = 0;
 		if (stristr($key, 'doc_core_') !== FALSE) {
 			$prio += 100000;
 		} else if (stristr($key, 'doc_') !== FALSE) {
