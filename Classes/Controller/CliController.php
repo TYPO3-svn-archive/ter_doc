@@ -509,12 +509,15 @@ class Tx_TerDoc_Controller_CliController extends Tx_Extbase_MVC_Controller_Actio
 	 * @return int
 	 */
 	protected function getPrio($key, $version) {
+		$prio = 0;
 		if (stristr($key, 'doc_core_') !== FALSE) {
-			$prio = 1000;
-		} else  {
-			$parts = explode('.', $version);
-			$prio = $parts[0]*100 + $parts[1]*10 + $parts[2];
+			$prio = 10000;
+		} else if (stristr($key, 'doc_') !== FALSE) {
+			$prio = 500;
 		}
+
+		$parts = explode('.', $version);
+		$prio += $parts[0]*100 + $parts[1]*10 + $parts[2];
 		return $prio;
 	}
 
