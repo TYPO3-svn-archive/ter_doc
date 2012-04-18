@@ -475,7 +475,7 @@ class Tx_TerDoc_Controller_CliController extends Tx_Extbase_MVC_Controller_Actio
 				$queueItem->setExtensionkey($key)
 					->setVersion($version)
 					->setFilehash($hash)
-					->setPriority($this->getPrio($key, $version, intval($version->lastuploaddate)))
+					->setPriority($this->getPrio($key, $version, intval($extensionVersion->lastuploaddate)))
 					->setFinished(new DateTime('@0'));
 
 				if ($newItem) {
