@@ -156,22 +156,21 @@ class Tx_TerDoc_Controller_CliController extends Tx_Extbase_MVC_Controller_Actio
 		$this->validator->validateFileStructure();
 		$this->validator->validateDataSource();
 
-		if (!$this->isLocked() || $this->arguments['force']) {
-				// create a lock
-			touch($this->settings['lockFile']);
+		if (!$this->setLock()) {
+			return;
+		}
 
-			Tx_TerDoc_Utility_Cli::log(strftime('%d.%m.%y %R') . ' ter_doc downloading started...');
+		Tx_TerDoc_Utility_Cli::log(strftime('%d.%m.%y %R') . ' ter_doc downloading started...');
 
-			$extensions = $this->extensionRepository->findAll();
-			foreach ($extensions as $extension) {
-				foreach ($extension as $version) {
-					if (strlen($version['version'])) {
-						$this->extensionRepository->downloadExtension($extension['extensionkey'], $version['version']);
-					}
+		$extensions = $this->extensionRepository->findAll();
+		foreach ($extensions as $extension) {
+			foreach ($extension as $version) {
+				if (strlen($version['version'])) {
+					$this->extensionRepository->downloadExtension($extension['extensionkey'], $version['version']);
 				}
 			}
 		}
-		unlink($this->settings['lockFile']);
+		$this->releaseLock();
 	}
 
 	/**
@@ -305,12 +304,9 @@ class Tx_TerDoc_Controller_CliController extends Tx_Extbase_MVC_Controller_Actio
 		$this->validator->validateFileStructure();
 		$this->validator->validateDataSource();
 
-		if ($this->isLocked() && !$this->arguments['force']) {
-			Tx_TerDoc_Utility_Cli::log('... aborting - another process seems to render documents right now! Try running with option "--force" enabled');
+		if (!$this->setLock()) {
 			return;
 		}
-				// create a lock
-		touch($this->settings['lockFile']);
 
 		Tx_TerDoc_Utility_Cli::log(strftime('%d.%m.%y %R') . ' ter_doc renderer starting ...');
 
@@ -357,9 +353,15 @@ class Tx_TerDoc_Controller_CliController extends Tx_Extbase_MVC_Controller_Actio
 			Tx_TerDoc_Utility_Cli::log('Extensions.xml was not modified since last run, so nothing to do - done.');
 		}
 
-		unlink($this->settings['lockFile']);
+		$this->releaseLock();
 	}
 
+	/**
+	 * @param $extensionKey
+	 * @param $version
+	 * @param $manualMd5
+	 * @return array
+	 */
 	protected function renderExtensionDocumentation($extensionKey, $version, $manualMd5) {
 		$transformationErrorCodes = array();
 	 	// Computes the cache directory of the extension
@@ -427,6 +429,8 @@ class Tx_TerDoc_Controller_CliController extends Tx_Extbase_MVC_Controller_Actio
 	 * will happen only once afterwards only the missing items are added,
 	 * therefore it's considered to be ok that adding all manuals might break in the middle once or twice.
 	 *
+	 * This action is not "secured" by the "lock" mechanism - imho it should be save to run this in parallel.
+	 *
 	 * @param $arguments
 	 */
 	public function buildQueueAction($arguments) {
@@ -462,15 +466,12 @@ class Tx_TerDoc_Controller_CliController extends Tx_Extbase_MVC_Controller_Actio
 					$queueItem = $this->queueRepository->findOneByExtensionKeyAndVersion($key, $version);
 				}
 
-				Tx_TerDoc_Utility_Cli::log(sprintf('Add %s : %s (%s) to queue ', $key, $version, $hash));
-
 				if (!$queueItem) {
 					$newItem = TRUE;
 					$queueItem = $this->objectManager->create('Tx_TerDoc_Domain_Model_QueueItem');
 				}
 
-
-
+				Tx_TerDoc_Utility_Cli::log(sprintf('Add %s : %s (%s) to queue ', $key, $version, $hash));
 
 				$queueItem->setExtensionkey($key)
 					->setVersion($version)
@@ -483,6 +484,7 @@ class Tx_TerDoc_Controller_CliController extends Tx_Extbase_MVC_Controller_Actio
 				} else {
 					$this->queueRepository->update($queueItem);
 				}
+
 					// Add manual also to tx_terdoc_manual -> abstract and language will be added during doc rendering
 				$this->extensionRepository->delete($key, $version);
 				$this->extensionRepository->insertExtensionFromFilesystem($extension, $extensionVersion, FALSE);
@@ -501,6 +503,9 @@ class Tx_TerDoc_Controller_CliController extends Tx_Extbase_MVC_Controller_Actio
 	}
 
 	/**
+	 * We've to make sure that more recent or more "relevant"
+	 * documentation is rendered first.
+	 *
 	 * Core documentation get a high prio all others
 	 * get a prio which relates to their "age"
 	 *
@@ -534,12 +539,9 @@ class Tx_TerDoc_Controller_CliController extends Tx_Extbase_MVC_Controller_Actio
 
 		$this->initializeAction();
 
-		if ($this->isLocked() && !$this->arguments['force']) {
-			Tx_TerDoc_Utility_Cli::log('... aborting - another process seems to render documents right now! Try running with option "--force" enabled');
+		if (!$this->setLock()) {
 			return;
 		}
-				// create a lock
-		touch($this->settings['lockFile']);
 
 		$limit = intval($this->arguments['limit']) ?: 0;
 		$queueItems = $this->queueRepository->findUnfinished($limit);
@@ -574,7 +576,7 @@ class Tx_TerDoc_Controller_CliController extends Tx_Extbase_MVC_Controller_Actio
 
 		$this->persistenceManager->persistAll();
 
-		unlink($this->settings['lockFile']);
+		$this->releaseLock();
 	}
 
 
@@ -582,7 +584,7 @@ class Tx_TerDoc_Controller_CliController extends Tx_Extbase_MVC_Controller_Actio
 	/**
 	 * Index action for this controller. Displays a list of addresses.
 	 *
-	 * @return void
+	 * @return boolean
 	 */
 	protected function isLocked() {
 		$result = FALSE;
@@ -603,6 +605,28 @@ class Tx_TerDoc_Controller_CliController extends Tx_Extbase_MVC_Controller_Actio
 	}
 
 	/**
+	 * @return bool
+	 */
+	protected function setLock() {
+		$continue = TRUE;
+		if ($this->isLocked() && !$this->arguments['force']) {
+			Tx_TerDoc_Utility_Cli::log('... aborting - another process seems to render documents right now! Try running with option "--force" enabled');
+			$continue = FALSE;
+		} else {
+				// create a lock
+			touch($this->settings['lockFile']);
+		}
+		return $continue;
+	}
+
+	/**
+	 * @return void
+	 */
+	protected function releaseLock() {
+		unlink($this->settings['lockFile']);
+	}
+
+	/**
 	 * Display some help on the console
 	 *
 	 * @return void
@@ -618,7 +642,7 @@ usage:
 options:
     -h, --help           - print this message
     -f, --force          - force the command to be executed
-    -l=10, --limit=10    - limit the number of extensions/versions processed (applies only to generateIndex command)
+    -l=10, --limit=10    - limit the number of extensions/versions processed (applies only to generateIndex and renderQueue command)
     --extension=foo      - act only on the given extension (applies only to render command)
     --version=x.y.z      - act only a the given version (used only if --extension is defined too)
 
@@ -627,6 +651,9 @@ commands:
     generateIndex         - generate an index of the documentation
     update                - update the latest datasource of extensions from typo3.org. Basically, this will fetch an XML file.
     download              - download all extension from typo3.org (t3x files)
+    buildQueue            - build up the rendering queue to detect missing or new extensions
+    renderQueue           - render documents from the queue, use --limit to have small junks and enable
+                            that new (priorized) entries enter the queue and can be processed "in time"
 EOF;
 
 		Tx_TerDoc_Utility_Cli::log($message);
