@@ -594,9 +594,7 @@ class Tx_TerDoc_Controller_CliController extends Tx_Extbase_MVC_Controller_Actio
 
 				// If the lock is not older than X minutes, skip index creation:
 			if (filemtime($this->settings['lockFile']) > (time() - (6 * 60 * 60))) {
-				if (!$this->debug) {
-					$result = TRUE;
-				}
+				$result = TRUE;
 			} else {
 				Tx_TerDoc_Utility_Cli::log('... lock file was older than 6 hours, so start rendering anyway');
 			}
@@ -658,7 +656,6 @@ EOF;
 
 		Tx_TerDoc_Utility_Cli::log($message);
 	}
-
 }
 
 ?>

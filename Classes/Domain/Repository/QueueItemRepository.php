@@ -18,6 +18,7 @@ class Tx_TerDoc_Domain_Repository_QueueItemRepository extends Tx_Extbase_Persist
 	}
 
 	/**
+	 * @param int $limit
 	 * @return Tx_Extbase_Persistence_QueryResultInterface
 	 */
 	public function findUnfinished($limit = 0) {
