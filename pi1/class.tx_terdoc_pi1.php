@@ -298,6 +298,7 @@ class tx_terdoc_pi1 extends tslib_pibase {
 		$terDocAPIObj = tx_terdoc_api::getInstance();
 		$TSFE->page_cache_reg1 = $terDocAPIObj->createAndGetCacheUidForExtensionVersion ($extensionKey, $manualArr['version']);
 		$TSFE->altPageTitle = 'Documentation: '.$title.' (available formats)';
+		$TSFE->page['title'] = $TSFE->altPageTitle;
 		$TSFE->indexedDocTitle = $TSFE->altPageTitle;
 
 		$versionInfo = '<p>'.sprintf(htmlspecialchars($this->pi_getLL('formats_relatestoversion')), $manualArr['version'], $this->csConvHSC($extensionKey)).'</p>';
