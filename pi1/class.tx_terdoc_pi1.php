@@ -372,7 +372,7 @@ class tx_terdoc_pi1 extends tslib_pibase {
 			case 'download' :
 				if (!is_a ($outputFormatsArr[$format]['object'], 'tx_terdoc_documentformat_download')) return $this->pi_getLL('error_outputformatisofwrongclasstype','',1);
 				$this->transferFile ($outputFormatsArr[$format]['object']->getDownloadFileFullPath ($extensionKey, $manualArr['version']));
-
+				exit();
 			break;
 			case 'display':
 			default:
