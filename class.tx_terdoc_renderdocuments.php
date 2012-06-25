@@ -544,8 +544,10 @@ class tx_terdoc_renderdocuments {
 			$manualRec = $TYPO3_DB->exec_SELECTgetSingleRow('uid', 'tx_terdoc_manuals', 'extensionkey="'.$extensionKey.'" AND version="'.$version.'" AND pid=' . (int) $this->storagePid);
 
 				// update item in indexing queue
-			$indexQueue = t3lib_div::makeInstance('tx_solr_indexqueue_Queue');
-			$indexQueue->updateItem('tx_terdoc_manuals', $manualRec['uid']);
+			if ($manualRec != NULL) {
+				$indexQueue = t3lib_div::makeInstance('tx_solr_indexqueue_Queue');
+				$indexQueue->updateItem('tx_terdoc_manuals', $manualRec['uid']);
+			}
 		}
 
 		t3lib_div::writeFile ($documentDir.'abstract.txt', $abstract);
