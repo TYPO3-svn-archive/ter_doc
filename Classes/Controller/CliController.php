@@ -405,6 +405,9 @@ class Tx_TerDoc_Controller_CliController extends Tx_Extbase_MVC_Controller_Actio
 			$this->extensionRepository->delete($extensionKey, $version);
 		}
 
+		// notify TER search / solr
+		$this->updateExtensionSearchIndexDocument($extensionKey);
+
 		// Clean up environment by removing temporary files
 		$this->extensionRepository->cleanUp($extensionKey, $version);
 		t3lib_div::writeFile($documentDir . 't3xfilemd5.txt', $manualMd5);
@@ -418,6 +421,30 @@ class Tx_TerDoc_Controller_CliController extends Tx_Extbase_MVC_Controller_Actio
 			return $transformationErrorCodes;
 		}
 		return $transformationErrorCodes;
+	}
+
+	/**
+	 * Notifies the EXT:solr Index Queue that the manual has been rendered
+	 * (regardless of the outcome). The extension will be re-indexed and thus
+	 * the documentation link will be updated.
+	 *
+	 * @param string $extensionKey Extension key.
+	 */
+	protected function updateExtensionSearchIndexDocument($extensionKey) {
+			// forget about it if either ter_fe2 or solr are not present
+		if (!t3lib_extMgm::isLoaded('ter_fe2')
+			|| !t3lib_extMgm::isLoaded('solr')) {
+			return;
+		}
+
+		$extension = $GLOBALS['TYPO3_DB']->exec_SELECTgetSingleRow(
+			'uid, pid, ext_key',
+			'tx_terfe2_domain_model_extension',
+			'ext_key = \'' . $$extensionKey . '\''
+		);
+
+		$indexQueue = t3lib_div::makeInstance('tx_solr_indexqueue_Queue');
+		$indexQueue->updateItem('tx_terfe2_domain_model_extension', $extension['uid']);
 	}
 
 	/**
