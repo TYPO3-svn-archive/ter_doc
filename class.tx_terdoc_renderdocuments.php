@@ -538,18 +538,6 @@ class tx_terdoc_renderdocuments {
 			)
 		);
 
-			// patch sent by Ingo to update solr index queue
-		if (t3lib_extMgm::isLoaded('solr')) {
-				// get manual record for submitting uid to solr
-			$manualRec = $TYPO3_DB->exec_SELECTgetSingleRow('uid', 'tx_terdoc_manuals', 'extensionkey="'.$extensionKey.'" AND version="'.$version.'" AND pid=' . (int) $this->storagePid);
-
-				// update item in indexing queue
-			if ($manualRec != NULL) {
-				$indexQueue = t3lib_div::makeInstance('tx_solr_indexqueue_Queue');
-				$indexQueue->updateItem('tx_terdoc_manuals', $manualRec['uid']);
-			}
-		}
-
 		t3lib_div::writeFile ($documentDir.'abstract.txt', $abstract);
 		t3lib_div::writeFile ($documentDir.'text-excerpt.txt', $textExcerpt);
 		t3lib_div::writeFile ($documentDir.'language.txt', $documentLanguage);
