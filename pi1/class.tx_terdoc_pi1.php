@@ -361,6 +361,11 @@ class tx_terdoc_pi1 extends tslib_pibase {
 			// Set the magic "reg1" so we can clear the cache for this manual if a new one is uploaded:
 		$terDocAPIObj = tx_terdoc_api::getInstance();
 		$TSFE->page_cache_reg1 = $terDocAPIObj->createAndGetCacheUidForExtensionVersion ($extensionKey, $manualArr['version']);
+			// Set page title
+		$title = $this->csConvHSC($manualArr['title']);
+		$TSFE->altPageTitle = 'Documentation: '.$title;
+		$TSFE->page['title'] = $TSFE->altPageTitle;
+		$TSFE->indexedDocTitle = $TSFE->altPageTitle;
 
 		if (!is_array ($outputFormatsArr[$format])) return $this->pi_getLL('error_outputformatnotavailable','',1);
 		if (!is_object ($outputFormatsArr[$format]['object'])) return $this->pi_getLL('error_outputformatnoobject','',1);
