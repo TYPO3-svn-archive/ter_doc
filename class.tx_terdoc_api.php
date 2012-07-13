@@ -143,10 +143,11 @@ class tx_terdoc_api {
 	 * @param		string		$extensionKey: Extension key of the manual
 	 * @param		string		$version: Version string of the manual
 	 * @param		string		$format: Output format of the manual
+	 * @param		boolean		$onlyUrl: Return only url of the link
 	 * @return		string		HTML code of the link
 	 * @access		public
 	 */
-	public function getDocumentationLink ($extensionKey, $version, $format='') {
+	public function getDocumentationLink ($extensionKey, $version, $format='', $onlyUrl=FALSE) {
 		global $TSFE;
 
 		if (!t3lib_extMgm::isLoaded ('ter_doc_html')) return '<span style="color:red;">'.htmlspecialchars($TSFE->sL('LLL:EXT:ter_doc/locallang.xml:api_error_terdochtmlnotinstalled')).'</span>';
@@ -193,7 +194,11 @@ class tx_terdoc_api {
 			'useCacheHash' => 1
 		);
 
-		$link = $TSFE->cObj->typoLink($this->csConvHSC($label), $typoLinkConf);
+		if ($onlyUrl) {
+			$link = $TSFE->cObj->typoLink_URL($typoLinkConf);
+		} else {
+			$link = $TSFE->cObj->typoLink($this->csConvHSC($label), $typoLinkConf);
+		}
 
 		return $link;
 	}
